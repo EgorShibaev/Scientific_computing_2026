@@ -1,0 +1,33 @@
+\documentclass[11pt,oneside,openany]{book}
+
+\input{preamble}
+
+\begin{document}
+
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \centering
+  \vspace*{0.16\textheight}
+  {\color{CourseBlue}\sffamily\bfseries\Huge Scientific Computing\par}
+  \vspace{0.8em}
+  {\sffamily\Large Mathematical Foundations for Machine Learning\par}
+  \vspace{2.5em}
+  {\large Course Conspect\par}
+  \vfill
+  {\large 2026\par}
+\end{titlepage}
+\frontmatter
+\hypersetup{pageanchor=true}
+
+\input{frontmatter/course-structure}
+
+\tableofcontents
+
+\mainmatter
+
+\include{lectures/lecture-01-probability}
+
+% Future lectures are added here, one source file per lecture:
+% \include{lectures/lecture-02-distributions}
+
+\end{document}

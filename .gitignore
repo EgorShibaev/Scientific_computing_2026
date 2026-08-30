@@ -1,0 +1,14 @@
+.DS_Store
+build/
+tmp/
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+__pycache__/
+
+# Previous non-LaTeX workspace artifacts are intentionally excluded.
+build_lecture1.py
+build_lecture1/
+deliverables/

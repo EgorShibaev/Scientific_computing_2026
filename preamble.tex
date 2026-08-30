@@ -1,0 +1,88 @@
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=27mm,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{amsthm}
+\usepackage{array,booktabs,tabularx}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+
+\definecolor{CourseBlue}{HTML}{1F4E79}
+\definecolor{CourseDark}{HTML}{16324F}
+\definecolor{CourseGray}{HTML}{5D6874}
+\definecolor{LinkBlue}{HTML}{1769AA}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=CourseBlue,
+  urlcolor=LinkBlue,
+  citecolor=CourseBlue,
+  pdftitle={Scientific Computing 2026},
+  pdfsubject={Course conspect},
+  pdfauthor={Scientific Computing 2026}
+}
+\urlstyle{same}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{2}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{CourseGray}\nouppercase{\leftmark}}
+\fancyhead[R]{\small\color{CourseGray}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyhead[L]{\small\color{CourseGray}\nouppercase{\leftmark}}
+  \fancyhead[R]{\small\color{CourseGray}\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{example}[definition]{Example}
+\newtheorem{exercise}{Exercise}[chapter]
+
+\theoremstyle{plain}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{proposition}[definition]{Proposition}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{warning}{Warning}
+
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\Expect}{\mathbb{E}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Field}{\mathcal{F}}
+\newcommand{\independent}{\mathrel{\perp\!\!\!\perp}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\makeatletter
+\renewcommand{\@makechapterhead}[1]{%
+  \vspace*{20pt}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+      \sffamily\color{CourseBlue}\Large\bfseries
+      \@chapapp\space \thechapter\par\nobreak
+      \vskip 10pt
+    \fi
+    \interlinepenalty\@M
+    \sffamily\color{CourseDark}\Huge\bfseries #1\par\nobreak
+    \vskip 24pt
+  }}
+\renewcommand{\@makeschapterhead}[1]{%
+  \vspace*{20pt}%
+  {\parindent \z@ \raggedright \normalfont
+    \interlinepenalty\@M
+    \sffamily\color{CourseDark}\Huge\bfseries #1\par\nobreak
+    \vskip 24pt
+  }}
+\makeatother
