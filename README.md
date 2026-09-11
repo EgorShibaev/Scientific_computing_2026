@@ -9,8 +9,9 @@ complete course structure and currently contains:
   Binomial, Geometric, and Gaussian distributions; mixtures and heterogeneity;
   and a short extension on Student's t-distribution.
 
-Lecture 2 contains worked derivations, original vector figures, a distribution
-reference table, and exercises with short answers.
+Lecture 2 develops each distribution from a concrete experiment, with worked
+examples, derivations, five original vector figures, and a distribution
+reference table.
 
 ## Build
 

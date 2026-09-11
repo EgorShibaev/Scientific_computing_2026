@@ -1,0 +1,21 @@
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.94\textwidth,height=6.3cm,
+  axis lines=left,xmin=0,xmax=20,ymin=0,ymax=1.05,
+  xlabel={Time waited \(t\) (minutes)},
+  ylabel={Probability of still waiting},
+  tick label style={font=\small},label style={font=\small},
+  legend style={draw=none,font=\small,at={(0.98,0.98)},anchor=north east},
+  grid=major,grid style={black!8},domain=0:20,samples=150,
+]
+  \addplot[CourseBlue,very thick] {exp(-0.2*x)};
+  \addlegendentry{\(\lambda=0.2\) messages/minute}
+  \addplot[orange!80!black,thick,dashed] {exp(-0.5*x)};
+  \addlegendentry{\(\lambda=0.5\) messages/minute}
+  \addplot[teal!80!black,thick,dashdotted] {exp(-0.1*x)};
+  \addlegendentry{\(\lambda=0.1\) messages/minute}
+  \addplot[black!40,densely dashed,forget plot] coordinates {(5,0) (5,1)};
+  \addplot[CourseBlue,only marks,mark=*,mark size=2pt,forget plot]
+    coordinates {(5,0.367879)};
+\end{axis}
+\end{tikzpicture}

@@ -1,34 +1,73 @@
 \chapter{Distributions, Expectation, and Variance}
 \label{chap:distributions}
 
-A distribution describes how a random quantity varies. The useful starting
-point is a mechanism: waiting for a request, counting successful trials, adding
-small measurement errors, or sampling from a population whose members differ.
-Expectation and variance let us compare these mechanisms and explain what
-happens when their outputs are transformed, added, or mixed.
-
 \section{Exponential waiting times}
 \label{sec:exponential}
 
-Suppose requests arrive at a service, and let \(T\) be the waiting time until
-the next request. A simple model assumes a constant arrival rate
-\(\lambda>0\). Over a short interval of length \(h\), conditional on still
-waiting, the chance of an arrival is approximately \(\lambda h\), regardless
-of how long we have already waited.
+Imagine watching a help desk's inbox. Start a stopwatch now and stop it
+when the next message arrives. The number on the stopwatch is \(T\), the
+waiting time in minutes. On one occasion we might wait \(0.3\) minutes;
+on another, \(7\) minutes. We want to answer questions such as: what is
+the probability that we are still waiting after five minutes?
 
-Write \(S(t)=\Prob(T>t)\), the \emph{survival function}. The constant-rate
-assumption gives
+\subsection{A model of arrivals without a schedule}
+
+First build a simple model using one-second intervals. Suppose that in
+each interval a message arrives with probability \(1/300\), independently
+of what happened in earlier intervals. Most seconds contain no message.
+Occasionally two successful seconds occur close together; occasionally
+there is a long gap.
+
+In this model, waiting more than five minutes means getting no message in
+any of \(300\) consecutive seconds. By independence,
 \[
-  S(t+h)=S(t)\bigl(1-\lambda h+o(h)\bigr),
+  \Prob(T>5)=\left(1-\frac1{300}\right)^{300}\approx0.3673.
 \]
-where \(o(h)/h\to0\) as \(h\to0\). Consequently,
+A long wait is therefore quite plausible. The model does not place an
+arrival at regular five-minute intervals.
+
+Now shorten the time intervals. Write \(\lambda\) for the arrival rate,
+measured in messages per minute. A small interval of length \(\Delta\)
+minutes has arrival probability \(\lambda\Delta\).
+In our example, \(\lambda=0.2\), because
+\(0.2\times(1/60)=1/300\).
+The rate describes how frequently messages arrive on average; it is not
+itself a probability.
+
+Divide a time span of \(t\) minutes into \(n\) equal intervals. In the
+discrete approximation, each has arrival probability \(\lambda t/n\).
+The probability that all of them are empty is
 \[
-  S'(t)=-\lambda S(t),\qquad S(0)=1,
+  \left(1-\frac{\lambda t}{n}\right)^n.
 \]
-whose solution is \(S(t)=e^{-\lambda t}\).
+Letting the intervals become arbitrarily short gives
+\begin{equation}
+  \Prob(T>t)
+  =\lim_{n\to\infty}\left(1-\frac{\lambda t}{n}\right)^n
+  =e^{-\lambda t},\qquad t\ge0.
+  \label{eq:exponential-tail}
+\end{equation}
+This is the probability that \emph{no message has arrived by time \(t\)}.
+The exponential function appears because we multiply the no-arrival
+probabilities of many short intervals. The resulting continuous waiting
+time has an \emph{exponential distribution}.
+
+The assumptions describe an inbox with no timetable and no change in
+activity during the period being studied. They would be unsuitable for
+notifications sent every hour or an inbox that becomes much busier at
+lunchtime.
+
+\subsection{From the waiting probability to the density}
+
+A message has either arrived by time \(t\), or it has not. Thus the CDF is
+\[
+  F_T(t)=\Prob(T\le t)=1-e^{-\lambda t},\qquad t\ge0.
+\]
+Differentiating this CDF, using the relation from Chapter~1, gives the
+density of the waiting time.
 
 \begin{definition}[Exponential distribution]
-The notation \(T\sim\operatorname{Exp}(\lambda)\) means that \(T\) has density
+For \(\lambda>0\), the notation \(T\sim\operatorname{Exp}(\lambda)\) means
 \[
   f_T(t)=
   \begin{cases}
@@ -36,106 +75,157 @@ The notation \(T\sim\operatorname{Exp}(\lambda)\) means that \(T\) has density
     0,&t<0.
   \end{cases}
 \]
-The parameter \(\lambda\) is a \emph{rate}: if \(t\) is in minutes,
-\(\lambda\) is in inverse minutes.
+The parameter \(\lambda\) is the arrival rate.
 \end{definition}
 
-A density assigns probabilities by area:
-\[
-  \Prob(a<T\le b)=\int_a^b f_T(t)\,dt,\qquad
-  \int_{-\infty}^{\infty}f_T(t)\,dt=1.
-\]
-It is not a point probability: \(\Prob(T=t)=0\) for every fixed \(t\).
-Density values can exceed one; their integral over an interval cannot.
+Increasing \(\lambda\) makes short waits more likely. For example, at rate
+\(0.2\) per minute the probability of waiting more than five minutes is
+\(e^{-1}\approx0.3679\). At rate \(0.5\), that probability drops to
+\(e^{-2.5}\approx0.0821\). Figure~\ref{fig:exponential-wait} shows this
+comparison directly.
 
-The \emph{cumulative distribution function} (CDF) of any random variable is
-\(F_X(x)=\Prob(X\le x)\). In this example,
-\[
-  F_T(t)=
-  \begin{cases}
-    0,&t<0,\\
-    1-e^{-\lambda t},&t\ge0.
-  \end{cases}
-\]
-Every CDF is nondecreasing and right-continuous, tends to zero at
-\(-\infty\) and to one at \(+\infty\), and satisfies
-\[
-  \Prob(a<X\le b)=F_X(b)-F_X(a).
-\]
-For a variable with density, \(F_X(x)=\int_{-\infty}^x f_X(u)\,du\);
-where this function is differentiable, \(F_X'(x)=f_X(x)\).
+\begin{figure}[htbp]
+  \centering
+  \input{figures/exponential-wait}
+  \caption{The probability that the inbox is still empty after \(t\) minutes.
+  Every curve starts at one: at time zero we have not yet waited.
+  A busier inbox has a larger rate and a faster decrease in the probability
+  of still waiting. The dashed vertical line marks five minutes.}
+  \label{fig:exponential-wait}
+\end{figure}
 
-\begin{example}[Waiting for a request]
-Let \(\lambda=0.2\) per minute. Then
+For an interval question, subtract two waiting probabilities. With
+\(\lambda=0.2\),
 \[
-  \Prob(T>10)=e^{-2}\approx0.1353,\qquad
-  \Prob(2<T\le5)=e^{-0.4}-e^{-1}\approx0.3024.
+  \Prob(2<T\le5)
+  =\Prob(T>2)-\Prob(T>5)
+  =e^{-0.4}-e^{-1}\approx0.3024.
 \]
-The \(q\)-quantile, the time by which an arrival occurs with probability
-\(q\in(0,1)\), is
+We keep the cases that are still waiting at minute two and remove those
+that are still waiting at minute five.
+
+A different practical question is how long we must wait to have seen a
+message in \(95\%\) of repetitions. Solve
 \[
-  t_q=-\frac{\log(1-q)}{\lambda}.
+  1-e^{-0.2t}=0.95
+  \quad\Longrightarrow\quad
+  t=-\frac{\log(0.05)}{0.2}\approx14.98\text{ minutes}.
 \]
-In particular, \(t_{0.95}\approx14.98\) minutes.
-\end{example}
+This cutoff is the \(95\)-th percentile of the waiting time. More
+generally, the \(q\)-quantile is
+\(t_q=-\log(1-q)/\lambda\), for \(0<q<1\).
 
-\subsection{Memorylessness and its limits}
+\subsection{Does a long wait make an arrival overdue?}
 
-For \(s,t\ge0\),
+Suppose we have already waited ten minutes with no message. In the model,
+the next short interval has the same arrival chance as it did at the
+start. Earlier empty intervals do not change that chance. Therefore the
+probability of waiting another five minutes is still
+\(e^{-0.2\cdot5}\approx0.3679\).
+
+We can verify this using conditional probability. For \(s,t\ge0\),
 \[
   \Prob(T>s+t\mid T>s)
+  =\frac{\Prob(T>s+t)}{\Prob(T>s)}
   =\frac{e^{-\lambda(s+t)}}{e^{-\lambda s}}
-  =e^{-\lambda t}
-  =\Prob(T>t).
+  =e^{-\lambda t}.
 \]
-After waiting \(s\) units of time without an arrival, the remaining waiting
-time has the original distribution. This is \emph{memorylessness}.
-It is an assumption about the mechanism: equipment that ages, scheduled
-arrivals, and demand that changes throughout the day need different models.
+The right-hand side is \(\Prob(T>t)\). The distribution of the remaining
+wait is the same as the distribution of the original wait. This property
+is called \emph{memorylessness}.
 
-If \(c>0\), then \(cT\sim\operatorname{Exp}(\lambda/c)\), since
-\(\Prob(cT>t)=e^{-(\lambda/c)t}\). Changing the time unit changes the
-numerical rate.
+A scheduled bus behaves differently: if it comes every ten minutes,
+waiting nine minutes tells us something about the remaining wait.
+The exponential model is appropriate only when this kind of schedule,
+ageing, or change in activity is absent.
 
 \section{Expectation and functions of a random variable}
 \label{sec:expectation}
 
+The probability of a long wait answers one question. The average amount
+of waiting answers another. If we repeat the inbox experiment independently
+many times and average the recorded times, what value should that average
+be close to?
+
+Start with a simpler example. Suppose a task takes one minute with
+probability \(3/4\) and nine minutes with probability \(1/4\).
+In many repetitions, about three quarters of the tasks take one minute
+and one quarter take nine minutes. Their average is close to
+\[
+  \frac34\cdot1+\frac14\cdot9=3\text{ minutes}.
+\]
+This probability-weighted average is the \emph{expectation}. It can be
+three minutes even though no individual task takes three minutes.
+
+\subsection{Averaging with probabilities}
+
+For a discrete random variable, weight each possible value by its
+probability and add. For a continuous variable, a small interval near
+\(x\) has probability approximately \(f_X(x)\Delta x\), so its contribution
+to the average is approximately \(x f_X(x)\Delta x\).
+Summing these contributions over increasingly small intervals gives an
+integral.
+
 \begin{definition}[Expectation]
-For a discrete random variable with probability mass function (PMF)
-\(p_X(x)=\Prob(X=x)\), define
+The expectation of \(X\) is
 \[
-  \Expect[X]=\sum_x x\,p_X(x).
+  \Expect[X]=
+  \begin{cases}
+    \displaystyle\sum_x x\,p_X(x),&X\text{ discrete},\\[6pt]
+    \displaystyle\int_{-\infty}^{\infty}x f_X(x)\,dx,
+      &X\text{ has a density}.
+  \end{cases}
 \]
-For a random variable with density \(f_X\), define
-\[
-  \Expect[X]=\int_{-\infty}^{\infty}x f_X(x)\,dx.
-\]
-A finite expectation is guaranteed when \(\Expect[|X|]<\infty\), meaning
-that the corresponding sum or integral of absolute values is finite.
+For a finite expectation we require \(\Expect[|X|]<\infty\): the sum or
+integral of absolute contributions must converge.
 \end{definition}
 
-A PMF consists of nonnegative masses summing to one. A density consists of
-nonnegative heights integrating to one. Expectation is a probability-weighted
-average in either case. It need not be a possible observation: a fair
-six-sided die has expectation \(3.5\).
+This condition matters when very large values, although rare, contribute
+so much that no finite average exists. All the distributions in the main
+part of this chapter have finite means. The Student extension provides
+an example where the condition can fail.
 
-For \(T\sim\operatorname{Exp}(\lambda)\), integration by parts gives
-\begin{align*}
+For exponential waiting times, the definition gives
+\[
+  \Expect[T]=\int_0^\infty t\lambda e^{-\lambda t}\,dt.
+\]
+To evaluate it, integrate by parts with \(u=t\) and
+\(dv=\lambda e^{-\lambda t}\,dt\):
+\[
   \Expect[T]
-  &=\int_0^\infty t\lambda e^{-\lambda t}\,dt\\
-  &=\left[-t e^{-\lambda t}\right]_0^\infty
+  =[-t e^{-\lambda t}]_0^\infty
     +\int_0^\infty e^{-\lambda t}\,dt
-   =\frac1\lambda.
-\end{align*}
-Thus a rate of \(0.2\) per minute corresponds to a mean waiting time of
-five minutes. The rate and the mean waiting time are reciprocals.
+  =\frac1\lambda.
+\]
+At rate \(0.2\) messages per minute, the mean wait is five minutes.
+This is an average over repeated waits, not an appointment for the next
+arrival. We already found that more than a third of waits exceed five
+minutes.
 
-\subsection{Computing the expectation of a function}
+\subsection{First transform the observation, then average}
 
-For a measurable function \(g\), provided \(\Expect[|g(X)|]<\infty\),
+Sometimes we want to average something other than the waiting time
+itself. For example, assign a response score
+\[
+  g(t)=e^{-at},\qquad a>0.
+\]
+An immediate response scores one; longer waits receive smaller scores.
+The parameter \(a\) controls how quickly the score decreases with time.
+
+To find the average score, calculate the score for each possible wait and
+then weight it by the probability of that wait:
+\[
+  \Expect[g(T)]=\int_0^\infty g(t)f_T(t)\,dt.
+\]
+For this particular score,
+\[
+  \Expect[e^{-aT}]
+  =\int_0^\infty e^{-at}\lambda e^{-\lambda t}\,dt
+  =\frac{\lambda}{\lambda+a}.
+\]
+This calculation illustrates the general rule
 \begin{equation}
-  \Expect[g(X)]
-  =
+  \Expect[g(X)]=
   \begin{cases}
     \displaystyle\sum_x g(x)p_X(x),&X\text{ discrete},\\[6pt]
     \displaystyle\int_{-\infty}^{\infty}g(x)f_X(x)\,dx,
@@ -143,33 +233,37 @@ For a measurable function \(g\), provided \(\Expect[|g(X)|]<\infty\),
   \end{cases}
   \label{eq:expectation-function}
 \end{equation}
-There is no need to find the distribution of \(g(X)\) first.
+We assume \(\Expect[|g(X)|]<\infty\). The rule lets us use the distribution
+of \(X\) directly, without first deriving the distribution of \(g(X)\).
 
-\begin{example}[A nonlinear function of waiting time]
-Suppose a waiting time \(T\sim\operatorname{Exp}(\lambda)\) receives a
-discount factor \(e^{-aT}\), where \(a>0\). Then
+Scoring the average wait is a different operation. For \(a=\lambda=1\),
 \[
-  \Expect[e^{-aT}]
-  =\int_0^\infty e^{-at}\lambda e^{-\lambda t}\,dt
-  =\frac{\lambda}{\lambda+a}.
+  \Expect[e^{-T}]=\frac12,
+  \qquad
+  e^{-\Expect[T]}=e^{-1}\approx0.3679.
 \]
-This differs from \(e^{-a\Expect[T]}=e^{-a/\lambda}\).
-In general, \(\Expect[g(X)]\ne g(\Expect[X])\).
-\end{example}
+The nonlinear transformation makes the order of the two operations matter.
 
-Taking \(g(x)=x^r\) gives the \(r\)-th raw moment. For a positive integer
-\(r\), repeated integration by parts yields
+Another useful choice is \(g(t)=t^2\). Large waits receive much more weight
+after squaring. Again integrating by parts,
 \[
-  \Expect[T^r]=\frac{r}{\lambda}\Expect[T^{r-1}]
-  =\frac{r!}{\lambda^r}.
+  \Expect[T^2]
+  =\int_0^\infty t^2\lambda e^{-\lambda t}\,dt
+  =\frac2\lambda\Expect[T]
+  =\frac2{\lambda^2}.
 \]
-In particular, \(\Expect[T^2]=2/\lambda^2\).
+We will use this second moment to measure spread.
 
-\subsection{Linearity}
+\subsection{Why expectations add}
+
+Suppose completing a job requires a wait \(X\) and a processing time \(Y\).
+On each repetition, the total is \(X+Y\). Averaging the totals gives the
+average waiting time plus the average processing time. This remains true
+even if long waits tend to accompany long processing times.
 
 \begin{theorem}[Linearity of expectation]
 Let \(X_1,\ldots,X_n\) have finite expectations.
-For any constants \(a_i\) and \(b\),
+For constants \(a_i\) and \(b\),
 \[
   \Expect\!\left[b+\sum_{i=1}^n a_iX_i\right]
   =b+\sum_{i=1}^n a_i\Expect[X_i].
@@ -177,817 +271,1165 @@ For any constants \(a_i\) and \(b\),
 Independence is not required.
 \end{theorem}
 
-For a finite sample space, the reason is the distributive law:
+For a finite sample space, distributing the sum makes the reason explicit:
 \[
   \sum_{\omega\in\Omega}
-    \bigl(aX(\omega)+bY(\omega)\bigr)\Prob(\{\omega\})
-  =a\Expect[X]+b\Expect[Y].
+    (X(\omega)+Y(\omega))\Prob(\{\omega\})
+  =\Expect[X]+\Expect[Y].
 \]
-The same argument extends to integrable random variables using linearity of
-integration.
+The integral version works in the same way.
 
-For an event \(A\), its indicator \(\mathbf1_A\) equals one on \(A\) and zero
-otherwise, so \(\Expect[\mathbf1_A]=\Prob(A)\). Therefore the expected
-number of events occurring among \(A_1,\ldots,A_n\) is
+For instance, if a job has a fixed two-minute setup followed by
+\(T\sim\operatorname{Exp}(0.2)\), its mean duration is
+\(2+\Expect[T]=7\) minutes. Expressing \(T\) in seconds instead multiplies
+its mean by \(60\).
+
+Linearity also makes counts easy to analyze. For an event \(A\),
+the indicator \(\mathbf1_A\) is one if \(A\) occurs and zero otherwise.
+Its expectation is
+\[
+  \Expect[\mathbf1_A]=1\cdot\Prob(A)+0\cdot\Prob(A^c)=\Prob(A).
+\]
+Consequently, the expected number of events occurring among
+\(A_1,\ldots,A_n\) is
 \[
   \Expect\!\left[\sum_{i=1}^n\mathbf1_{A_i}\right]
-  =\sum_{i=1}^n\Prob(A_i),
+  =\sum_{i=1}^n\Prob(A_i).
 \]
-even if the events depend on one another.
-
-Linearity does not extend to arbitrary operations. For example,
-\(\Expect[XY]=\Expect[X]\Expect[Y]\) holds for independent integrable
-\(X,Y\), but need not hold for dependent variables.
+No independence assumption is needed for this mean. Dependence will matter
+when we ask about the count's spread.
 
 \section{Variance and standard deviation}
 \label{sec:variance}
 
-\begin{definition}[Variance]
-If \(\Expect[X^2]<\infty\), the variance and standard deviation of \(X\) are
+A constant five-minute wait and an exponential wait with mean five minutes
+have the same expectation. Their behavior is very different: the first
+is perfectly predictable, while the second sometimes ends almost
+immediately and sometimes takes much longer. We need a measure of this
+variation around the mean.
+
+If \(\mu=\Expect[X]\), the deviation of an observation is \(X-\mu\).
+Averaging the signed deviations gives zero:
+\(\Expect[X-\mu]=0\). Positive and negative deviations cancel.
+Squaring them prevents that cancellation and gives more weight to large
+departures from the mean.
+
+\begin{definition}[Variance and standard deviation]
+For \(X\) with a finite second moment,
 \[
-  \Var(X)=\Expect\!\left[(X-\Expect[X])^2\right],
+  \Var(X)=\Expect[(X-\mu)^2],\qquad \mu=\Expect[X],
   \qquad
   \operatorname{sd}(X)=\sqrt{\Var(X)}.
 \]
 \end{definition}
 
-Variance measures squared spread around the mean. It is nonnegative, and
-equals zero exactly when \(X\) equals a constant with probability one.
-If \(X\) is measured in seconds, its variance is in seconds squared,
-while its standard deviation is in seconds.
+Variance is the average squared deviation. If waiting time is in minutes,
+variance is in minutes squared. Taking the square root returns to minutes;
+this is why standard deviation is useful when describing the size of
+typical fluctuations. It is not a bound on individual observations.
 
-Expanding the square and applying linearity gives the computational identity
-\begin{equation}
-  \Var(X)=\Expect[X^2]-\Expect[X]^2.
+Expanding the square gives a convenient way to calculate variance:
+\begin{align}
+  \Var(X)
+  &=\Expect[X^2-2\mu X+\mu^2]\notag\\
+  &=\Expect[X^2]-2\mu\Expect[X]+\mu^2
+   =\Expect[X^2]-\Expect[X]^2.
   \label{eq:variance-moments}
-\end{equation}
-For exponential waiting times,
+\end{align}
+For exponential waiting times, we have already computed both terms:
 \[
-  \Var(T)=\frac{2}{\lambda^2}-\frac{1}{\lambda^2}
-  =\frac{1}{\lambda^2},
+  \Var(T)=\frac2{\lambda^2}-\frac1{\lambda^2}
+  =\frac1{\lambda^2},
   \qquad \operatorname{sd}(T)=\frac1\lambda.
 \]
-The mean and standard deviation are equal: exponential waiting times have
-substantial variation relative to their average.
+The inbox with rate \(0.2\) has both mean and standard deviation equal to
+five minutes. A constant five-minute wait instead has variance zero.
 
-\subsection{Shifting, scaling, and adding}
+\subsection{Changing the origin or the units}
 
-For constants \(a,b\),
+Adding a fixed delay \(b\) moves every observation and its mean by the
+same amount. The deviations from the mean stay unchanged.
+Multiplying times by \(a\) multiplies every deviation by \(a\), so their
+squares are multiplied by \(a^2\). Therefore
 \[
   \Expect[aX+b]=a\Expect[X]+b,\qquad
   \Var(aX+b)=a^2\Var(X).
 \]
-A shift changes the mean but leaves the spread unchanged. Multiplication by
-\(a\) changes standard deviation by \(|a|\), and variance by \(a^2\).
-Variance is not a linear operation.
+For example, converting minutes to seconds multiplies the mean and
+standard deviation by \(60\), and the variance by \(60^2\).
+Variance is not linear.
 
-For random variables with finite second moments, define
+\subsection{Adding two variable delays}
+
+For a job with waiting time \(X\) and processing time \(Y\), let
+\(U=X-\Expect[X]\) and \(V=Y-\Expect[Y]\). The deviation of the total
+duration is \(U+V\). Squaring gives
 \[
-  \Cov(X,Y)
-  =\Expect\!\left[(X-\Expect[X])(Y-\Expect[Y])\right].
+  (U+V)^2=U^2+V^2+2UV.
 \]
-Expanding the square of the sum gives
+The first two terms describe the separate spreads. The last term tells us
+whether the two delays fluctuate together. If both are above their means,
+or both are below, their product \(UV\) is positive. If one is above its
+mean while the other is below, the product is negative.
+
+The average of this product is called the \emph{covariance}:
+\[
+  \Cov(X,Y)=\Expect[(X-\Expect[X])(Y-\Expect[Y])].
+\]
+Taking expectations in the squared-sum identity gives
 \begin{equation}
   \Var(X+Y)=\Var(X)+\Var(Y)+2\Cov(X,Y).
   \label{eq:variance-sum}
 \end{equation}
-If \(X,Y\) are independent, their covariance is zero. Consequently, for
-independent \(X_1,\ldots,X_n\),
+For independent variables, expectations of products factor. Thus
+\(\Expect[UV]=\Expect[U]\Expect[V]=0\), and the covariance term vanishes.
+For independent variables with finite second moments, this extends to
 \[
   \Var\!\left(\sum_{i=1}^n a_iX_i\right)
   =\sum_{i=1}^n a_i^2\Var(X_i).
 \]
-Pairwise zero covariance is sufficient; it does not in general imply
-independence.
 
-\begin{example}[Why the independence condition matters]
-Suppose \(X\) and \(Y\) each have variance one. If they are independent,
-\(\Var(X+Y)=2\). If \(Y=X\), the variance is four. If \(Y=-X\), it is zero.
-Knowing the individual variances alone does not determine the variance of
-the sum.
+\begin{example}[Three different ways to combine fluctuations]
+Let \(X,Y\) each have variance one. If they are independent, the variance
+of \(X+Y\) is two. If \(Y=X\), the fluctuations reinforce each other and
+\(\Var(X+Y)=\Var(2X)=4\). If \(Y=-X\), they cancel exactly and the sum
+has variance zero.
 \end{example}
+
+Zero covariance is enough for variances to add, even without full
+independence. We will study that distinction further when considering
+joint distributions. For the sums used below, independence will be an
+explicit part of the model.
 
 \section{Poisson counts}
 \label{sec:poisson}
 
-Let \(W_1,W_2,\ldots\) be independent \(\operatorname{Exp}(\lambda)\)
-waiting times, and write
+Return to the inbox, but change the question. Instead of timing the next
+message, watch for ten minutes and count how many messages arrive.
+A waiting time can be \(2.4\) minutes; a message count must be an integer
+such as zero, one, or two. The same arrivals produce two different kinds
+of random variables.
+
+Write \(N(t)\) for the number of messages arriving between time zero and
+time \(t\). Figure~\ref{fig:arrival-timeline} shows one possible record.
+At minute six we have counted two messages; at minute ten we have counted
+three.
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/arrival-timeline}
+  \caption{One possible sequence of arrivals, at \(1.5\), \(4\), and \(8\)
+  minutes. The gaps \(W_1,W_2,W_3\) are waiting times; the arrival times
+  \(T_k\) are cumulative sums of those gaps. By the marked time \(t=6\),
+  two messages have arrived, so \(N(6)=2\).}
+  \label{fig:arrival-timeline}
+\end{figure}
+
+\subsection{Counting successful short intervals}
+
+We can use the same short-interval model as before. Divide \(t\) minutes
+into \(n\) tiny intervals, each independently containing a message with
+probability \(p_n=\lambda t/n\). To get exactly \(k\) messages, exactly
+\(k\) intervals must contain a message and the others must be empty.
+
+For a particular choice of those \(k\) intervals, independence gives
+probability \(p_n^k(1-p_n)^{n-k}\). The number of ways to choose the
+intervals is
 \[
-  T_0=0,\qquad T_k=W_1+\cdots+W_k.
+  \binom nk=\frac{n!}{k!(n-k)!}.
 \]
-The \(T_k\) are arrival times. The number of arrivals during \((0,t]\) is
+For example, if there are three intervals and exactly one message, it can
+be in the first, second, or third interval: three possibilities.
+Here \(n!=1\cdot2\cdots n\), with \(0!=1\).
+Adding the equally probable possibilities gives
 \[
-  N(t)=\max\{k\ge0:T_k\le t\}.
+  \binom nk\left(\frac{\lambda t}{n}\right)^k
+       \left(1-\frac{\lambda t}{n}\right)^{n-k}.
 \]
-This construction gives a \emph{homogeneous Poisson process}: counts in
-disjoint intervals are independent, and the count distribution depends only
-on interval length. In particular, \(N(t)\sim\operatorname{Poisson}(\lambda t)\).
+
+Put \(m=\lambda t\). For fixed \(k\), as \(n\) increases,
+\[
+  \frac{\binom nk}{n^k}\longrightarrow\frac1{k!},
+  \qquad
+  \left(1-\frac mn\right)^{n-k}\longrightarrow e^{-m}.
+\]
+Thus the continuous-time count has probability
+\(e^{-m}m^k/k!\) of equalling \(k\). This is the \emph{Poisson distribution}.
 
 \begin{definition}[Poisson distribution]
-A count \(N\sim\operatorname{Poisson}(m)\), with \(m>0\), has PMF
+For \(m>0\), a count \(N\sim\operatorname{Poisson}(m)\) has PMF
 \[
   \Prob(N=k)=e^{-m}\frac{m^k}{k!},
   \qquad k=0,1,2,\ldots.
 \]
-The parameter \(m\) is the expected count in the observation interval.
-For a process with rate \(\lambda\) observed for time \(t\), \(m=\lambda t\).
+For our inbox observed for \(t\) minutes,
+\(N(t)\sim\operatorname{Poisson}(\lambda t)\).
 \end{definition}
 
-Normalization follows from the exponential series:
+The rate \(\lambda\) describes arrivals per minute; \(m=\lambda t\)
+describes the expected number over the whole observation window.
+At rate \(0.2\) per minute, a ten-minute window has \(m=2\), while a
+thirty-minute window has \(m=6\).
+Neither count is guaranteed to equal its mean.
+
+\begin{example}[No messages or several messages]
+For the ten-minute count with \(m=2\),
+\[
+  \Prob(N(10)=0)=e^{-2}\approx0.1353,
+\]
+and
+\[
+  \Prob(N(10)\ge2)
+  =1-\Prob(N(10)=0)-\Prob(N(10)=1)
+  =1-e^{-2}(1+2)\approx0.5940.
+\]
+No messages in ten minutes is exactly the event that the first waiting
+time exceeds ten minutes. The Poisson and Exponential calculations agree:
+\(\Prob(N(10)=0)=\Prob(T>10)=e^{-2}\).
+\end{example}
+
+\subsection{Mean and variance of the count}
+
+To check normalization, sum the PMF and use the exponential series:
 \[
   \sum_{k=0}^\infty e^{-m}\frac{m^k}{k!}=e^{-m}e^m=1.
 \]
-Shifting the summation index gives the mean,
+For the mean, the factor \(k\) cancels one factor in \(k!\).
+Reindexing the remaining sum with \(j=k-1\) gives
 \[
   \Expect[N]
   =\sum_{k=1}^\infty k e^{-m}\frac{m^k}{k!}
   =m\sum_{j=0}^\infty e^{-m}\frac{m^j}{j!}=m.
 \]
-The same method gives \(\Expect[N(N-1)]=m^2\). Since
-\(N^2=N(N-1)+N\),
+
+For the variance we need \(\Expect[N^2]\). It is easier to first calculate
+\(\Expect[N(N-1)]\), since \(k(k-1)\) cancels two factors in \(k!\):
+\[
+  \Expect[N(N-1)]
+  =m^2\sum_{j=0}^\infty e^{-m}\frac{m^j}{j!}=m^2.
+\]
+Now use \(N^2=N(N-1)+N\):
 \[
   \Expect[N^2]=m^2+m,\qquad \Var(N)=m.
 \]
-The equality of mean and variance is a specific property of the Poisson
-model, not a general property of count data.
+For ten minutes, the mean and variance are both two, and the standard
+deviation is \(\sqrt2\) messages.
 
-\begin{example}[Counts and waiting times in the same service]
-With rate \(\lambda=0.2\) per minute, the ten-minute count has \(m=2\).
-Thus
-\[
-  \Prob(N(10)=0)=e^{-2},\qquad
-  \Prob(N(10)\ge2)=1-e^{-2}(1+2)\approx0.5940.
-\]
-The equality \(\Prob(N(10)=0)=\Prob(T_1>10)\) expresses the same event
-using a count or a waiting time.
-\end{example}
+The equality of mean and variance will later help us recognize when a
+single Poisson model misses part of the variation in a population.
 
-Independent Poisson counts add:
+\subsection{Combining independent arrival streams}
+
+Suppose two independent inboxes receive messages at rates \(\lambda_1\)
+and \(\lambda_2\). Counting all their messages over the same interval
+should add the expected counts. In fact, the entire distribution remains
+Poisson:
 \[
-  N_1\sim\operatorname{Poisson}(m_1),\quad
-  N_2\sim\operatorname{Poisson}(m_2)
-  \quad\Longrightarrow\quad
-  N_1+N_2\sim\operatorname{Poisson}(m_1+m_2).
+  N_1+N_2\sim\operatorname{Poisson}(m_1+m_2),
+  \qquad m_i=\lambda_i t.
 \]
-Indeed, summing over \(N_1=j\) and using the binomial theorem gives
+To see why, split a total of \(k\) messages into \(j\) from the first inbox
+and \(k-j\) from the second. Independence lets us multiply their
+probabilities; summing over \(j\) and using the binomial theorem gives
 \[
   \Prob(N_1+N_2=k)
   =\frac{e^{-(m_1+m_2)}}{k!}
-    \sum_{j=0}^k\binom{k}{j}m_1^j m_2^{k-j}
+    \sum_{j=0}^k\binom kj m_1^j m_2^{k-j}
   =\frac{e^{-(m_1+m_2)}(m_1+m_2)^k}{k!}.
 \]
-Bursts, dependence between arrivals, or varying rates can make a single
-homogeneous Poisson model unsuitable.
+In the short-interval model, counts in disjoint time windows are also
+independent. If arrivals instead trigger further arrivals or the rate
+changes with the time of day, these assumptions need to be reconsidered.
 
 \section{Gamma waiting times and the event-count connection}
 \label{sec:gamma}
 
-The time \(T_k\) until the \(k\)-th arrival is a sum of \(k\) independent
-exponential variables. For \(k=2\), its density is obtained by convolution:
+Suppose the help desk collects three messages before starting a batch.
+Now we need the time until the third message, rather than the time until
+the next one or the number received by a fixed deadline.
+
+Let \(W_1\) be the wait from time zero to the first message, \(W_2\) the
+gap from the first to the second, and so on. In our arrival model these
+gaps are independent and each follows \(\operatorname{Exp}(\lambda)\).
+The \(k\)-th arrival time is
 \[
-  f_{T_2}(t)
-  =\int_0^t \lambda e^{-\lambda u}
-      \lambda e^{-\lambda(t-u)}\,du
-  =\lambda^2 t e^{-\lambda t},\qquad t\ge0.
+  T_k=W_1+\cdots+W_k.
 \]
-Here convolution integrates over all ways the two waiting times can add to
-\(t\). Repeating the argument gives
+For example, the gaps in Figure~\ref{fig:arrival-timeline} are \(1.5\),
+\(2.5\), and \(4\) minutes, so \(T_3=8\) minutes.
+
+Before deriving a new density, we can already find the mean and variance:
 \[
-  f_{T_k}(t)
-  =\frac{\lambda^k}{(k-1)!}t^{k-1}e^{-\lambda t},
+  \Expect[T_k]=\frac{k}{\lambda},\qquad
+  \Var(T_k)=\frac{k}{\lambda^2}.
+\]
+Expectation adds by linearity; variance adds because the gaps are
+independent. At rate \(0.2\), waiting for three messages takes \(15\)
+minutes on average, with variance \(75\) minutes squared.
+
+\subsection{The distribution of a sum of waiting times}
+
+Consider two messages first. A total wait near five minutes could consist
+of a first gap near one minute and a second near four, or a first near
+two and a second near three, and so on. To find the density of the total,
+we must account for every possible split.
+
+If the first gap is \(u\), the second must be near \(t-u\).
+Independence gives a product of densities for these two contributions.
+Integrating over \(0<u<t\) adds all the possible splits:
+\begin{align*}
+  f_{T_2}(t)
+  &=\int_0^t f_{W_1}(u)f_{W_2}(t-u)\,du\\
+  &=\int_0^t\lambda e^{-\lambda u}
+       \lambda e^{-\lambda(t-u)}\,du
+   =\lambda^2 t e^{-\lambda t},\qquad t>0.
+\end{align*}
+This way of finding the density of a sum is called \emph{convolution}.
+
+Repeating the same step for \(k\) independent gaps gives
+\[
+  f_{T_k}(t)=\frac{\lambda^k}{(k-1)!}t^{k-1}e^{-\lambda t},
   \qquad t>0.
 \]
+For \(k=1\), this is the exponential density. For \(k>1\), the density
+starts near zero: fitting several arrivals into a very short time is
+unlikely. As \(t\) increases, enough time becomes available for all
+\(k\) arrivals. Eventually the density decreases because exceptionally
+long total waits are also unlikely.
 
-\begin{definition}[Gamma distribution: shape and rate]
-For \(\alpha,\beta>0\), the distribution
+\begin{figure}[htbp]
+  \centering
+  \input{figures/waiting-times}
+  \caption{Time until the first, second, or fourth arrival, at rate one.
+  One arrival can occur almost immediately. Several arrivals require a sum
+  of waiting times, moving the typical total wait to the right.
+  The means are \(1,2,4\); the standard deviations are \(1,\sqrt2,2\).}
+  \label{fig:waiting-times}
+\end{figure}
+
+\subsection{From an integer number of arrivals to a shape parameter}
+
+The density above gives a useful family of positive, often skewed
+distributions. We can extend its shape beyond integer values of \(k\).
+The only obstacle is the factorial \((k-1)!\). Its continuous extension
+is the gamma function:
+\[
+  \Gamma(\alpha)=\int_0^\infty u^{\alpha-1}e^{-u}\,du,\qquad\alpha>0.
+\]
+Integration by parts gives
+\(\Gamma(\alpha+1)=\alpha\Gamma(\alpha)\). Since \(\Gamma(1)=1\), this
+implies \(\Gamma(k)=(k-1)!\) for positive integers \(k\).
+
+Replacing \(k\) by a positive real number \(\alpha\) and the factorial by
+\(\Gamma(\alpha)\) gives the \emph{Gamma distribution}. We write its rate
+as \(\beta\) so that \(\lambda\) can continue to denote the particular
+inbox rate.
+
+\begin{definition}[Gamma distribution]
+For shape \(\alpha>0\) and rate \(\beta>0\),
 \(X\sim\operatorname{Gamma}(\alpha,\beta)\) has density
 \[
   f_X(x)=\frac{\beta^\alpha}{\Gamma(\alpha)}
       x^{\alpha-1}e^{-\beta x},\qquad x>0,
 \]
-and zero density for \(x<0\). The gamma function is
-\[
-  \Gamma(\alpha)=\int_0^\infty u^{\alpha-1}e^{-u}\,du.
-\]
-The parameters \(\alpha\) and \(\beta\) are the \emph{shape} and
-\emph{rate}, respectively.
+and zero density for \(x<0\).
 \end{definition}
 
-The value of a density at the single point zero is irrelevant to its
-probabilities; for \(\alpha<1\), this density diverges as \(x\downarrow0\)
-but remains integrable.
-Integration by parts gives
-\(\Gamma(\alpha+1)=\alpha\Gamma(\alpha)\), and \(\Gamma(1)=1\).
-Thus \(\Gamma(k)=(k-1)!\) for positive integers \(k\).
-The exponential is the case \(\alpha=1\), and
-\[
-  T_k\sim\operatorname{Gamma}(k,\lambda).
-\]
-The density is also well-defined for noninteger \(\alpha\), although the
-literal \(k\)-th-arrival interpretation requires an integer shape.
+The substitution \(u=\beta x\) shows that its integral is one.
+The case \(\alpha=1\) is Exponential; integer \(\alpha=k\) describes
+waiting for \(k\) arrivals at rate \(\beta\).
+For noninteger shape, the density still makes sense, but there is no
+literal fractional-number-of-arrivals interpretation.
 
-Using the substitution \(u=\beta x\), we obtain
+We can calculate the moments for every positive shape by inserting
+\(x\) or \(x^2\) into the density integral:
+\begin{align*}
+  \Expect[X]
+    &=\frac{\Gamma(\alpha+1)}{\beta\Gamma(\alpha)}
+      =\frac{\alpha}{\beta},\\
+  \Expect[X^2]
+    &=\frac{\Gamma(\alpha+2)}{\beta^2\Gamma(\alpha)}
+      =\frac{\alpha(\alpha+1)}{\beta^2}.
+\end{align*}
+Subtracting the squared mean gives
 \[
-  \Expect[X^r]
-  =\frac{\Gamma(\alpha+r)}{\Gamma(\alpha)\beta^r},
-  \qquad r>-\alpha.
-\]
-Taking \(r=1,2\) yields
-\[
-  \Expect[X]=\frac{\alpha}{\beta},\qquad
-  \Expect[X^2]=\frac{\alpha(\alpha+1)}{\beta^2},\qquad
   \Var(X)=\frac{\alpha}{\beta^2}.
 \]
-For integer shape these results also follow by adding the means and
-variances of independent exponential waiting times.
+Increasing the rate \(\beta\) shortens the waits.
+Increasing the shape \(\alpha\) at fixed rate increases the mean, while
+the spread relative to that mean decreases:
+\(\operatorname{sd}(X)/\Expect[X]=1/\sqrt{\alpha}\).
 
-\begin{warning}[Rate versus scale]
-Some sources use \(\operatorname{Gamma}(\alpha,\theta)\) with
-\emph{scale} \(\theta=1/\beta\). Then the mean is \(\alpha\theta\)
-and the variance is \(\alpha\theta^2\).
-Always check the density, rather than inferring the convention from the
-symbol used for the second parameter.
-\end{warning}
+Throughout these notes the second Gamma parameter is a rate.
+Another common convention uses a scale \(\theta=1/\beta\), measured in
+the same units as \(X\). In that convention the mean and variance are
+\(\alpha\theta\) and \(\alpha\theta^2\). Checking which parameterization
+is used prevents a reciprocal error.
 
-\begin{figure}[tbp]
-  \centering
-  \input{figures/waiting-times}
-  \caption{Exponential waiting times and Gamma sums of waiting times.
-  All curves use rate one. Increasing the integer shape moves the mean
-  from \(1\) to \(k\), while the standard deviation grows only as \(\sqrt{k}\).}
-  \label{fig:waiting-times}
-\end{figure}
+\subsection{A deadline question can be answered by counting}
 
-\subsection{Two descriptions of the same event}
-
-For \(k\ge1\),
+To have received the third message by minute ten means to have counted
+at least three messages by minute ten. These are the same event,
+expressed using different random variables:
 \begin{equation}
-  \{T_k\le t\}=\{N(t)\ge k\}.
+  \{T_k\le t\}=\{N(t)\ge k\},\qquad k\ge1.
   \label{eq:arrivals-counts}
 \end{equation}
-Having waited long enough for the \(k\)-th arrival means having counted at
-least \(k\) arrivals. Consequently,
+Therefore, instead of integrating a Gamma density, we can add Poisson
+probabilities:
 \[
   \Prob(T_k\le t)
+  =1-\Prob(N(t)<k)
   =1-e^{-\lambda t}\sum_{j=0}^{k-1}\frac{(\lambda t)^j}{j!}.
 \]
-Differentiating this expression recovers the Gamma density above.
-Equivalently, subtracting the CDFs of \(T_k\) and \(T_{k+1}\) gives the
-Poisson probability \(\Prob(N(t)=k)\).
-
-With rate \(0.2\) per minute, the waiting time for three requests has mean
-\(15\) minutes and variance \(75\) minutes squared. The probability of
-receiving the third request within ten minutes is
+For rate \(0.2\), a ten-minute window has expected count two, so
 \[
   \Prob(T_3\le10)
-  =\Prob(N(10)\ge3)
   =1-e^{-2}(1+2+2^2/2)\approx0.3233.
 \]
+Receiving exactly \(k\) messages also has a waiting-time description:
+the \(k\)-th has arrived, but the \((k+1)\)-th has not.
+For \(k\ge1\),
+\(\Prob(N(t)=k)=\Prob(T_k\le t)-\Prob(T_{k+1}\le t)\).
+For \(k=0\), it is simply \(\Prob(T_1>t)\).
 
 \section{Bernoulli and Binomial distributions}
 \label{sec:bernoulli-binomial}
 
+The inbox model asked whether a message arrived during each small time
+interval. Many other observations are also binary: a link was clicked
+or it was not, a transmission succeeded or failed, an item passed an
+inspection or failed it. We now describe these trials without reference
+to time.
+
 \subsection{One binary outcome}
 
-If an event \(A\) occurs with probability \(p\), its indicator
-\(B=\mathbf1_A\) follows a \emph{Bernoulli distribution},
-\(B\sim\operatorname{Bernoulli}(p)\), where \(0\le p\le1\):
+Code a click as one and no click as zero. If the click probability is
+\(p\), then
 \[
-  \Prob(B=1)=p,\qquad \Prob(B=0)=1-p.
+  \Prob(B=1)=p,\qquad \Prob(B=0)=1-p,\qquad 0\le p\le1.
 \]
-Examples include a successful transmission, a user clicking a link, or an
-item failing inspection. Because \(B^2=B\),
-\[
-  \Expect[B]=p,\qquad
-  \Expect[B^2]=p,\qquad
-  \Var(B)=p(1-p).
-\]
-Variance is largest at \(p=1/2\), and is zero when the outcome is certain.
+This is a \emph{Bernoulli distribution}, written
+\(B\sim\operatorname{Bernoulli}(p)\).
+The same construction applies to the indicator of any event.
 
-\subsection{Counting successes in a fixed number of trials}
-
-Let \(B_1,\ldots,B_n\) be independent Bernoulli variables with the same
-success probability \(p\). Their sum
+For a binary variable, squaring changes neither possible value:
+\(0^2=0\), \(1^2=1\). Thus
 \[
-  S_n=B_1+\cdots+B_n\sim\operatorname{Binomial}(n,p)
+  \Expect[B]=p,\qquad \Expect[B^2]=p,\qquad \Var(B)=p(1-p).
 \]
-counts the successes. For \(0<p<1\),
-\[
-  \Prob(S_n=k)=\binom nk p^k(1-p)^{n-k},
-  \qquad k=0,\ldots,n.
-\]
-There are \(\binom nk=n!/[k!(n-k)!]\) ways to locate the \(k\) successes,
-and each such sequence has probability \(p^k(1-p)^{n-k}\).
-At \(p=0\) or \(p=1\), the count is deterministically zero or \(n\).
+At \(p=1/2\), neither outcome is favored and the variance is largest.
+At \(p=0\) or \(p=1\), every observation is the same and variance is zero.
 
-Linearity and independence give
+\subsection{A fixed number of independent trials}
+
+Show a link to \(n\) people. Assume their clicks are independent and each
+has the same probability \(p\). If \(B_i\) indicates the \(i\)-th click,
+then the total number of clicks is
+\[
+  S_n=B_1+\cdots+B_n.
+\]
+It follows a \emph{Binomial distribution},
+\(S_n\sim\operatorname{Binomial}(n,p)\), with
+\[
+  \Prob(S_n=k)=\binom nk p^k(1-p)^{n-k},\qquad k=0,\ldots,n.
+\]
+The counting argument is the one used for the short arrival intervals:
+choose the \(k\) successful trials, multiply their success and failure
+probabilities, and add over all choices. The displayed expression is
+read directly for \(0<p<1\); at \(p=0\) or \(p=1\) the count is fixed.
+
+We do not need to sum this PMF to obtain its moments. Since the count is
+a sum of independent Bernoulli variables,
 \[
   \Expect[S_n]=np,\qquad \Var(S_n)=np(1-p).
 \]
-For the proportion \(\widehat p=S_n/n\),
+For \(n\ge1\), the observed click proportion is \(\widehat p=S_n/n\).
+The scaling rules for mean and variance give
 \[
   \Expect[\widehat p]=p,\qquad
   \Var(\widehat p)=\frac{p(1-p)}{n}.
 \]
-For these independent, identically distributed trials, averaging divides
-the variance by \(n\). Dependence can change this conclusion quantitatively.
+With more independent observations, the proportion fluctuates less.
+For example, multiplying \(n\) by four halves its standard deviation.
 
-\begin{example}[Clicks among impressions]
-Under an independent model with \(n=100\) impressions and click probability
-\(p=0.03\), the click count has mean \(3\) and variance \(2.91\).
-The probability of no clicks is
+\begin{example}[A small click probability]
+For \(100\) independent impressions with \(p=0.03\), the count has mean
+\(3\) and variance \(2.91\). The chance of no clicks is
 \[
-  \Prob(S_{100}=0)=0.97^{100}\approx0.0476.
+  \Prob(S_{100}=0)=(1-0.03)^{100}\approx0.0476.
 \]
-Repeated impressions to the same user need not be independent; different
-users need not have the same click probability.
+The common-\(p\) assumption treats all impressions alike. We will revisit
+it when different users have different propensities to click.
 \end{example}
 
-\subsection{The rare-event limit}
+\subsection{Why rare Binomial successes look Poisson}
 
-Let \(p_n=m/n\), with \(m>0\) fixed. For each fixed nonnegative integer \(k\),
-\begin{align*}
-  \Prob(S_n=k)
-  &=\binom nk\left(\frac mn\right)^k
-      \left(1-\frac mn\right)^{n-k}\\
-  &\longrightarrow \frac{m^k}{k!}e^{-m}.
-\end{align*}
-Thus \(\operatorname{Binomial}(n,m/n)\) approaches
-\(\operatorname{Poisson}(m)\): many trials, each with a small success
-probability, produce a Poisson count. Their moments agree in the limit:
+The short-interval model contained many independent trials, each with a
+tiny success probability. A Binomial count behaves similarly whenever
+\(n\) is large and \(p\) is small, with \(np=m\) held fixed.
+For any fixed \(k\),
 \[
-  np_n=m,\qquad np_n(1-p_n)\longrightarrow m.
+  \binom nk\left(\frac mn\right)^k
+    \left(1-\frac mn\right)^{n-k}
+  \longrightarrow e^{-m}\frac{m^k}{k!}.
 \]
-In the click example, the Poisson approximation gives a no-click
-probability \(e^{-3}\approx0.0498\).
+This is the Poisson limit derived earlier. Its moments agree with the
+Binomial moments in the limit:
+\[
+  np=m,\qquad np(1-p)\longrightarrow m.
+\]
+For the click example, the approximation is
+\(\operatorname{Poisson}(3)\), which gives no-click probability
+\(e^{-3}\approx0.0498\), close to the exact \(0.0476\).
 
 \section{Geometric waiting times}
 \label{sec:geometric}
 
-Instead of fixing the number of trials, keep performing independent
-Bernoulli trials until the first success. Let \(G\) count the trials,
-including the successful one. For \(0<p\le1\),
+Now show the link repeatedly until the first click, instead of fixing
+the number of impressions in advance. Let \(G\) be the number of
+impressions needed, including the successful one.
+For example, the sequence
 \[
-  G\sim\operatorname{Geometric}(p),\qquad G\in\{1,2,\ldots\}.
+  \text{no click},\quad\text{no click},\quad\text{click}
 \]
-For \(0<p<1\),
-\begin{align*}
-  \Prob(G=k)&=(1-p)^{k-1}p,\qquad k=1,2,\ldots,\\
-  \Prob(G>k)&=(1-p)^k,\qquad k=0,1,\ldots.
-\end{align*}
-For \(p=1\), \(G=1\) with probability one.
-The alternative convention counts failures, \(H=G-1\), and has support
-\(\{0,1,\ldots\}\).
+gives \(G=3\).
 
-Put \(q=1-p\). Differentiating the geometric series
-\(\sum_{k=0}^\infty q^k=(1-q)^{-1}\), valid for \(|q|<1\), gives
+Assume independent trials with the same success probability \(0<p\le1\).
+For \(0<p<1\), the event \(G=k\) requires \(k-1\) failures followed by
+one success:
 \[
-  \sum_{k=1}^\infty kq^{k-1}=\frac1{(1-q)^2},\qquad
-  \sum_{k=2}^\infty k(k-1)q^{k-2}=\frac2{(1-q)^3}.
+  \Prob(G=k)=(1-p)^{k-1}p,\qquad k=1,2,\ldots.
 \]
-Therefore
+This is the \emph{Geometric distribution},
+\(G\sim\operatorname{Geometric}(p)\).
+If \(p=1\), the first trial always succeeds and \(G=1\).
+
+\subsection{Waiting longer means accumulating failures}
+
+The event \(G>k\) means that all of the first \(k\) trials failed. Hence
 \[
-  \Expect[G]=\frac1p,\qquad
-  \Expect[G(G-1)]=\frac{2(1-p)}{p^2},\qquad
+  \Prob(G>k)=(1-p)^k,\qquad k=0,1,\ldots.
+\]
+With \(p=0.1\), the chance of still waiting for a success after twenty
+trials is \(0.9^{20}\approx0.1216\).
+
+This model has the same memoryless logic as exponential waiting.
+Once the first \(m\) trials have failed, the next trials still have the
+original success probability. Formally, for \(0<p<1\),
+\[
+  \Prob(G>m+k\mid G>m)
+  =\frac{(1-p)^{m+k}}{(1-p)^m}
+  =(1-p)^k.
+\]
+An example is a scrolling session in which a user independently stops
+after each video with probability \(p\). The number of videos watched is
+Geometric. If fatigue makes stopping more likely after each video,
+the constant-\(p\) assumption no longer holds.
+
+\subsection{Mean and variance}
+
+To compute the mean, weight each possible stopping trial by its
+probability. Write \(q=1-p\). The geometric series
+\[
+  \sum_{k=0}^{\infty}q^k=\frac1{1-q},\qquad |q|<1,
+\]
+can be differentiated to obtain the factor \(k\) needed in the mean:
+\[
+  \sum_{k=1}^{\infty}kq^{k-1}=\frac1{(1-q)^2}.
+\]
+Multiplying by \(p\) gives \(\Expect[G]=1/p\).
+A second differentiation gives
+\[
+  \Expect[G(G-1)]
+  =p\sum_{k=2}^{\infty}k(k-1)q^{k-1}
+  =\frac{2(1-p)}{p^2}.
+\]
+As in the Poisson calculation, use \(G^2=G(G-1)+G\) to get
+\[
   \Var(G)=\frac{1-p}{p^2}.
 \]
-The failures count \(H\) has mean \((1-p)/p\) and the same variance.
+At \(p=0.1\), the mean is ten trials and the variance is ninety.
 
-Memorylessness follows directly from the tail probabilities:
-\[
-  \Prob(G>m+k\mid G>m)=(1-p)^k=\Prob(G>k).
-\]
-For \(0<p<1\), this holds for all nonnegative integers \(m,k\).
-This is the discrete counterpart of exponential memorylessness.
+Some sources count failures before success instead. That variable is
+\(H=G-1\), so its mean is \((1-p)/p\), its variance is unchanged,
+and it can equal zero. In these notes, Geometric always counts the
+successful trial too.
 
-\subsection{From trials to continuous time}
+\subsection{Turning a trial count into a time}
 
-Suppose each trial lasts \(\Delta\) time units and succeeds with probability
-\(p_\Delta=\lambda\Delta\), where \(0<\lambda\Delta<1\). Then
+Return to the inbox approximation, where one trial corresponds to a
+short interval of duration \(\Delta\) minutes.
+A count of \(G\) intervals represents a waiting time of \(\Delta G\)
+minutes. Set \(p=\lambda\Delta\), just as in the first section.
+
+By time \(t\), we have completed \(\lfloor t/\Delta\rfloor\) intervals;
+the floor symbol means the integer number of whole intervals.
+No arrival by that time has probability
 \[
   \Prob(\Delta G>t)
   =(1-\lambda\Delta)^{\lfloor t/\Delta\rfloor}
   \longrightarrow e^{-\lambda t}
   \qquad(\Delta\downarrow0).
 \]
-The rescaled geometric waiting time approaches
-\(\operatorname{Exp}(\lambda)\). Its moments also converge:
+The Geometric waiting count therefore becomes an Exponential waiting
+time as the time intervals shrink.
+The moments show the same connection:
 \[
   \Expect[\Delta G]=\frac1\lambda,\qquad
   \Var(\Delta G)=\frac{1-\lambda\Delta}{\lambda^2}
   \longrightarrow\frac1{\lambda^2}.
 \]
-The factor \(\Delta\) is essential: a number of trials becomes a time only
-after multiplication by the duration of a trial.
-
-\begin{example}[A simple scrolling model]
-If a user independently stops after each video with probability \(p=0.1\),
-the number of videos viewed has mean \(10\), variance \(90\), and
-\(\Prob(G>20)=0.9^{20}\approx0.1216\).
-If stopping becomes more likely as the user gets tired, memorylessness no
-longer holds.
-\end{example}
+The time-unit conversion is what connects the two distributions:
+Geometric counts trials; Exponential measures elapsed time.
 
 \section{The Gaussian distribution}
 \label{sec:gaussian}
 
-\begin{definition}[Gaussian or normal distribution]
-For \(\mu\in\Real\) and \(\sigma>0\), the notation
-\(X\sim\mathcal N(\mu,\sigma^2)\) means
+The waiting times studied so far are nonnegative and usually skewed:
+a wait can be much longer than average, but cannot extend below zero.
+Measurement errors pose a different problem. A sensor measuring a fixed
+quantity may sometimes read too high and sometimes too low. Several
+small disturbances can add together, with positive and negative
+contributions partly cancelling.
+
+A useful model for such errors has a central peak and decreases
+symmetrically on either side. This is the \emph{Gaussian}, also called
+the \emph{normal}, distribution. It is often a useful approximation when
+many small independent disturbances contribute and no one disturbance
+dominates. The connection between sums and Gaussian approximations will
+be developed further in the chapter on limit theorems.
+
+\subsection{Center and width}
+
+Let \(\mu\) describe the center of the errors and \(\sigma>0\) their
+scale. The center can be nonzero if the sensor is systematically biased.
+The density is
 \[
   f_X(x)=\frac1{\sigma\sqrt{2\pi}}
-    \exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right),
+    \exp\!\left[-\frac12\left(\frac{x-\mu}{\sigma}\right)^2\right],
   \qquad x\in\Real.
 \]
-The mean is \(\mu\), and the variance is \(\sigma^2\).
-\end{definition}
+We write \(X\sim\mathcal N(\mu,\sigma^2)\).
 
-The Gaussian is symmetric around \(\mu\). Its support is the entire real
-line, so it can assign probability to negative values even when the
-observed quantity, such as a duration, cannot be negative.
+The expression \((x-\mu)/\sigma\) measures how far \(x\) lies from the
+center relative to the width of the curve. Squaring it treats positive
+and negative deviations equally. The negative exponential makes values
+far from the center less likely. Increasing \(\sigma\) widens the curve;
+the factor \(1/\sigma\) reduces its height to preserve total area one.
 
-\subsection{Normalization and moments}
-
-Let \(I=\int_{-\infty}^{\infty}e^{-z^2/2}\,dz\). Squaring the integral and
-switching to polar coordinates gives
+The simplest member is \(Z\sim\mathcal N(0,1)\), with density
 \[
-  I^2
-  =\int_{\Real^2}e^{-(x^2+y^2)/2}\,dx\,dy
-  =\int_0^{2\pi}\int_0^\infty e^{-r^2/2}r\,dr\,d\theta
-  =2\pi.
+  \phi(z)=\frac1{\sqrt{2\pi}}e^{-z^2/2}.
 \]
-This explains the normalizing constant \(\sqrt{2\pi}\).
-For \(Z\sim\mathcal N(0,1)\), write
-\(\phi(z)=(2\pi)^{-1/2}e^{-z^2/2}\).
-Symmetry gives \(\Expect[Z]=0\). Since \(\phi'(z)=-z\phi(z)\),
-integration by parts yields
+The constant \(\sqrt{2\pi}\) is the value of
+\(\int_{-\infty}^{\infty}e^{-z^2/2}\,dz\), so this density integrates to
+one. Every other Gaussian can be obtained by shifting and scaling:
 \[
+  X=\mu+\sigma Z.
+\]
+
+\subsection{Why the parameters are the mean and standard deviation}
+
+Symmetry of \(\phi\) means that the contributions of \(z\) and \(-z\)
+to the mean cancel, giving \(\Expect[Z]=0\).
+For the second moment, differentiating the density gives
+\(\phi'(z)=-z\phi(z)\). This turns the moment integral into an
+integration-by-parts calculation:
+\begin{align*}
   \Expect[Z^2]
-  =-\int_{-\infty}^{\infty}z\phi'(z)\,dz
-  =[-z\phi(z)]_{-\infty}^{\infty}
-     +\int_{-\infty}^{\infty}\phi(z)\,dz
-  =1.
-\]
-Writing \(X=\mu+\sigma Z\) now gives
+  &=\int_{-\infty}^{\infty}z^2\phi(z)\,dz
+    =-\int_{-\infty}^{\infty}z\phi'(z)\,dz\\
+  &=[-z\phi(z)]_{-\infty}^{\infty}
+      +\int_{-\infty}^{\infty}\phi(z)\,dz
+    =1.
+\end{align*}
+Thus \(\Var(Z)=1\). Applying the shift and scale rules to
+\(X=\mu+\sigma Z\) gives
 \[
-  \Expect[X]=\mu,\qquad \Var(X)=\sigma^2.
+  \Expect[X]=\mu,\qquad \Var(X)=\sigma^2,\qquad
+  \operatorname{sd}(X)=\sigma.
 \]
-The second argument of \(\mathcal N(\mu,\sigma^2)\) is variance, not
-standard deviation.
+This justifies the parameters' interpretation.
+In \(\mathcal N(\mu,\sigma^2)\), the second argument is the variance.
 
-\subsection{Standardization and interval probabilities}
+\subsection{Expressing an error in standard-deviation units}
+
+For a sensor with mean error zero, an error of \(0.4\) units may be large
+or small relative to its usual variation. If the standard deviation is
+\(0.2\), that error is
+two standard deviations above the mean; if it is \(2\), it is only
+\(0.2\) standard deviations above the mean.
 
 The transformation
 \[
-  Z=\frac{X-\mu}{\sigma}\sim\mathcal N(0,1)
+  Z=\frac{X-\mu}{\sigma}
 \]
-converts a Gaussian variable to the standard normal. Define
+subtracts the center and expresses the deviation in standard-deviation
+units. This is \emph{standardization}. For a Gaussian \(X\), the result
+always follows \(\mathcal N(0,1)\). We can therefore answer interval
+questions for any Gaussian using a single CDF:
 \[
-  \Phi(z)=\int_{-\infty}^z\phi(u)\,du.
+  \Phi(z)=\Prob(Z\le z)=\int_{-\infty}^z\phi(u)\,du.
 \]
-Then
+The endpoints of the original interval are transformed in the same way:
 \[
   \Prob(a<X\le b)
   =\Phi\!\left(\frac{b-\mu}{\sigma}\right)
    -\Phi\!\left(\frac{a-\mu}{\sigma}\right).
 \]
-The density \(\phi\) has no elementary antiderivative, so \(\Phi\) is
-evaluated numerically. Symmetry gives \(\Phi(-z)=1-\Phi(z)\), and
-\[
-  \Prob(|X-\mu|\le\sigma)\approx0.6827,\qquad
-  \Prob(|X-\mu|\le1.96\sigma)\approx0.95.
-\]
-These are probabilities under the assumed distribution, not a claim that
-arbitrary data obey the same coverage.
+The integral defining \(\Phi\) is evaluated numerically. Symmetry gives
+\(\Phi(-z)=1-\Phi(z)\).
 
-\begin{example}[Measurement error]
-Suppose a sensor error \(E\sim\mathcal N(0,0.2^2)\), measured in the sensor's
-units. The probability of an absolute error larger than \(0.4\) is
+\begin{example}[How often does a sensor make a large error?]
+Suppose the error is \(E\sim\mathcal N(0,0.2^2)\). An absolute error
+larger than \(0.4\) is an error more than two standard deviations from
+zero. The two symmetric tails give
 \[
-  \Prob(|E|>0.4)=2[1-\Phi(2)]\approx0.0455.
+  \Prob(|E|>0.4)
+  =\Prob(|Z|>2)
+  =2[1-\Phi(2)]\approx0.0455.
 \]
-The central \(95\%\) interval is approximately \([-0.392,0.392]\).
+Under this model, about \(4.55\%\) of repeated readings have such an error.
+Likewise,
+\[
+  \Prob(|Z|\le1)\approx0.6827,\qquad
+  \Prob(|Z|\le1.96)\approx0.95.
+\]
+The central \(95\%\) interval for the sensor error is therefore
+\[
+  [-1.96(0.2),1.96(0.2)]=[-0.392,0.392].
+\]
 \end{example}
 
-\subsection{Transformations and sums}
+\subsection{Adding errors and connecting back to earlier distributions}
 
-If \(a\ne0\), then
+Changing units or adding a fixed bias preserves the Gaussian shape:
 \[
-  aX+b\sim\mathcal N(a\mu+b,a^2\sigma^2).
+  aX+b\sim\mathcal N(a\mu+b,a^2\sigma^2),\qquad a\ne0.
 \]
-If \(a=0\), the result is the constant \(b\).
-For independent Gaussian variables,
-\[
-  X\sim\mathcal N(\mu_X,\sigma_X^2),\qquad
-  Y\sim\mathcal N(\mu_Y,\sigma_Y^2),
-\]
-their convolution gives
+For \(a=0\), the result is simply the constant \(b\).
+
+Independent Gaussian errors also add to another Gaussian. If
+\(X\sim\mathcal N(\mu_X,\sigma_X^2)\) and
+\(Y\sim\mathcal N(\mu_Y,\sigma_Y^2)\) are independent, then
 \[
   X+Y\sim\mathcal N(\mu_X+\mu_Y,\sigma_X^2+\sigma_Y^2).
 \]
-This conclusion concerns the entire distribution. Linearity of expectation
-and additivity of variance identify its parameters, but by themselves do
-not prove that the sum is Gaussian.
+The convolution method used for Gamma waiting times gives this density.
+The means and variances agree with the addition rules we already know.
 
-Many small independent additive effects can produce an approximately
-Gaussian aggregate. More precisely, for independent identically distributed
-variables with mean \(m\) and finite, nonzero variance \(v\), the central
-limit theorem states
-\[
-  \frac{\sum_{i=1}^n X_i-nm}{\sqrt{nv}}
-  \ \xrightarrow{\mathrm d}\ \mathcal N(0,1).
-\]
-Here convergence in distribution means convergence of CDF values at
-continuity points of the limiting CDF. A later chapter develops the theorem
-and its limitations. The finite-variance and dependence assumptions matter;
-adding arbitrary variables need not produce a Gaussian.
+For example, two independent centered errors with standard deviations
+\(0.2\) and \(0.3\) produce a total error with variance
+\(0.2^2+0.3^2=0.13\), and standard deviation \(\sqrt{0.13}\approx0.361\).
+Standard deviations do not simply add.
 
-This explains the following useful connections:
+A sum can also be approximately Gaussian even when its individual terms
+are not Gaussian. We have already met two such sums: Binomial counts
+add Bernoulli outcomes, and integer-shape Gamma waits add exponential
+gaps. For sufficiently large parameters, useful approximations are
 \[
   \begin{array}{rcl}
-  \operatorname{Binomial}(n,p)
-    &\approx& \mathcal N(np,np(1-p)),\\
-  \operatorname{Poisson}(m)
-    &\approx& \mathcal N(m,m),\\
-  \operatorname{Gamma}(k,\lambda)
-    &\approx& \mathcal N(k/\lambda,k/\lambda^2).
+    \operatorname{Binomial}(n,p)
+      &\approx&\mathcal N(np,np(1-p)),\\
+    \operatorname{Gamma}(k,\lambda)
+      &\approx&\mathcal N(k/\lambda,k/\lambda^2),\\
+    \operatorname{Poisson}(m)
+      &\approx&\mathcal N(m,m).
   \end{array}
 \]
-The Binomial approximation needs both \(np\) and \(n(1-p)\) to be large;
-the Poisson and Gamma approximations improve for large \(m\) and \(k\).
-Near a support boundary or far in the tails, these approximations may be
-poor. For an integer-valued count, a continuity correction such as
-\(\Prob(N\le j)\approx\Phi((j+1/2-m)/\sqrt m)\) accounts for the width of
-the probability mass at \(j\).
+Each Gaussian uses the mean and variance of the distribution being
+approximated. For the Binomial, both the expected successes \(np\)
+and failures \(n(1-p)\) should be large; for Gamma and Poisson, the
+approximations improve as \(k\) and \(m\) grow.
+
+The Gaussian allows negative values, while counts and waiting times do
+not. Thus approximating a very small count or a strongly skewed waiting
+time by a Gaussian can assign substantial probability to impossible
+outcomes. The original distributions remain the appropriate starting
+point in those cases.
 
 \section{Mixtures and heterogeneity}
 \label{sec:mixtures}
 
-A population may contain several kinds of observations. A measurement can
-come from one of several instruments; a request can follow different
-execution paths; a randomly selected user can have a different activity
-rate from the next user. A mixture describes this two-stage mechanism.
+Suppose two sensors measure the same reference quantity. One tends to
+read two units too low; the other tends to read two units too high.
+Within either sensor, the random error has standard deviation one.
 
-\subsection{First choose a component, then an observation}
+Choose a sensor with equal probability for each reading. If we combine
+all readings without keeping track of which sensor produced them, what
+distribution do the errors follow? Averaging the two sensor biases gives
+zero, but that does not mean either sensor usually makes an error near
+zero. Most errors are still near \(-2\) or \(2\).
 
-Let \(Z\in\{1,\ldots,K\}\) be a component label with
+\subsection{Choose a source, then draw an observation}
+
+Let \(Z\) record which sensor is selected:
 \[
-  \Prob(Z=k)=\pi_k,\qquad
-  \pi_k\ge0,\qquad \sum_{k=1}^K\pi_k=1.
+  \Prob(Z=1)=\Prob(Z=2)=\frac12.
 \]
-Given \(Z=k\), generate \(X\) with density \(f_k\). Conditional notation
-\(X\mid Z=k\sim f_k\) specifies the distribution inside component \(k\).
-The law of total probability gives the marginal density
+Given the chosen sensor, the error distribution is
+\[
+  X\mid Z=1\sim\mathcal N(-2,1),\qquad
+  X\mid Z=2\sim\mathcal N(2,1).
+\]
+The notation \(X\mid Z=k\) means that we are considering only readings
+from sensor \(k\).
+
+Write the two Gaussian densities as \(f_1\) and \(f_2\). For any interval,
+half the readings come from each sensor, so the law of total probability
+gives half of each sensor's interval probability. The density is therefore
+\[
+  f_X(x)=\frac12f_1(x)+\frac12f_2(x).
+\]
+This is a \emph{mixture distribution}. Its two peaks reflect the two
+sources of readings.
+
+The same construction works with \(K\) sources chosen with probabilities
+\(\pi_1,\ldots,\pi_K\):
 \begin{equation}
-  f_X(x)=\sum_{k=1}^K\pi_k f_k(x).
+  f_X(x)=\sum_{k=1}^K\pi_k f_k(x),
+  \qquad \pi_k\ge0,\quad \sum_{k=1}^K\pi_k=1.
   \label{eq:finite-mixture}
 \end{equation}
-For discrete components, the identical formula applies to their PMFs.
-The label \(Z\) may be unobserved; it is then a \emph{latent variable}.
+The \(f_k\) are called the mixture's \emph{components}.
+For discrete observations, use component PMFs in the same formula.
+If the source label is not recorded, it is an unobserved, or
+\emph{latent}, variable.
 
-The weights average \emph{distributions}. They do not mean that each
-observation is the weighted sum of one draw from every component.
-For example, choosing \(X_1\) or \(X_2\) with equal probability gives a
-mixture, whereas \((X_1+X_2)/2\) averages two observations. Those operations
-usually produce different distributions.
+\subsection{Where the pooled variance comes from}
 
-\subsection{Mean and variance of a finite mixture}
-
-Let component \(k\) have mean \(\mu_k\) and variance \(\sigma_k^2\).
-Assume finite second moments. Integrating
-\eqref{eq:finite-mixture} gives
+In the two-sensor example the overall mean is
 \[
-  \mu=\Expect[X]=\sum_{k=1}^K\pi_k\mu_k,
-  \qquad
-  \Expect[X^2]
-  =\sum_{k=1}^K\pi_k(\sigma_k^2+\mu_k^2).
+  \Expect[X]=\tfrac12(-2)+\tfrac12(2)=0.
 \]
-Subtracting \(\mu^2\) and regrouping terms gives
+Within either sensor, the second moment equals its variance plus the
+square of its mean:
+\[
+  \Expect[X^2\mid Z=1]=1+(-2)^2=5,\qquad
+  \Expect[X^2\mid Z=2]=1+2^2=5.
+\]
+Averaging these gives \(\Expect[X^2]=5\). Hence the pooled variance is
+\(5-0^2=5\), even though each sensor separately has variance one.
+
+There are two sources of spread: random fluctuation within a sensor,
+and the difference between the two sensors' centers. To separate them
+in general, let component \(k\) have mean \(\mu_k\) and variance
+\(\sigma_k^2\). Then
+\[
+  \mu=\Expect[X]=\sum_k\pi_k\mu_k,\qquad
+  \Expect[X^2]=\sum_k\pi_k(\sigma_k^2+\mu_k^2).
+\]
+Subtracting \(\mu^2\) and regrouping the terms gives
 \begin{equation}
   \boxed{
   \Var(X)
-  =\underbrace{\sum_{k=1}^K\pi_k\sigma_k^2}_{\text{within-component variation}}
-   +\underbrace{\sum_{k=1}^K\pi_k(\mu_k-\mu)^2}_{
-      \text{between-component variation}}.
+  =\underbrace{\sum_k\pi_k\sigma_k^2}_{\text{variation within sources}}
+   +\underbrace{\sum_k\pi_k(\mu_k-\mu)^2}_{\text{variation between sources}}.
   }
   \label{eq:mixture-variance}
 \end{equation}
-The spread of a pooled population includes variation within its groups and
-differences between group means.
+For the sensors, these contributions are \(1\) and \(4\), respectively.
 
-In conditional notation these identities are the laws of total expectation
-and total variance:
+The inner averages can be written as conditional expectations.
+The quantity \(\Expect[X\mid Z]\) equals \(\mu_k\) when source \(k\) is
+selected; it varies because the selected source varies.
+Similarly, \(\Var(X\mid Z)\) is the variance inside the selected source.
+The outer expectation averages over the choice of source. With this
+notation, the two identities become
 \begin{align}
   \Expect[X]&=\Expect[\Expect[X\mid Z]],\label{eq:total-expectation}\\
   \Var(X)&=\Expect[\Var(X\mid Z)]
        +\Var(\Expect[X\mid Z]).\label{eq:total-variance}
 \end{align}
-Here \(\Expect[X\mid Z]\) is itself a random variable: its value is
-\(\mu_k\) when \(Z=k\). Likewise, \(\Var(X\mid Z)=\sigma_k^2\).
-The outer expectation averages over the component label.
+These are the \emph{laws of total expectation and total variance}.
+We have derived them for a finite mixture with finite second moments.
 
-\begin{example}[Two sensor settings]
-Choose either setting with probability \(1/2\), and suppose
-\[
-  X\mid Z=1\sim\mathcal N(-2,1),\qquad
-  X\mid Z=2\sim\mathcal N(2,1).
-\]
-The pooled mean is zero. Its variance is
-\[
-  \Var(X)=\underbrace{1}_{\text{within settings}}
-         +\underbrace{4}_{\text{between settings}}=5.
-\]
-The density has two peaks. The single Gaussian \(\mathcal N(0,5)\) has
-the same mean and variance but a different shape
+\subsection{The same mean and variance can hide different shapes}
+
+A single Gaussian \(\mathcal N(0,5)\) has the same mean and variance as
+the two-sensor mixture. Its most likely region is near zero, whereas
+the mixture has two peaks near the sensor biases
 (Figure~\ref{fig:gaussian-mixture}).
-For instance, the mixture gives
-\[
-  \Prob(|X|\le1)=\Phi(3)-\Phi(1)\approx0.1573,
-\]
-whereas \(\mathcal N(0,5)\) gives
-\(2\Phi(1/\sqrt5)-1\approx0.3453\).
-Matching two moments does not identify a distribution.
-\end{example}
 
-\begin{figure}[tbp]
+\begin{figure}[htbp]
   \centering
   \input{figures/gaussian-mixture}
-  \caption{A Gaussian mixture and a Gaussian with the same mean and variance.
-  The dotted curves show the weighted component densities; they add to the
-  blue mixture curve. Equal first and second moments do not imply equal
-  probabilities for an interval.}
+  \caption{Pooling two biased sensors produces the blue mixture density.
+  The dotted curves are the weighted sensor densities, which add to the
+  blue curve. A single Gaussian with the same mean and variance puts
+  substantially more probability near zero.}
   \label{fig:gaussian-mixture}
 \end{figure}
 
-If instead \(X_1\sim\mathcal N(-2,1)\) and
-\(X_2\sim\mathcal N(2,1)\) are independent and we average them, then
+For example, in sensor 1 the event \(-1\le X\le1\) corresponds to a
+standardized error between one and three. Sensor 2 gives the same
+probability by symmetry. Therefore the pooled probability is
+\[
+  \Prob(|X|\le1)=\Phi(3)-\Phi(1)\approx0.1573.
+\]
+The Gaussian \(\mathcal N(0,5)\) instead gives
+\(2\Phi(1/\sqrt5)-1\approx0.3453\).
+Knowing the mean and variance alone does not determine interval
+probabilities.
+
+Also distinguish selecting one sensor from averaging two readings.
+If we take one independent reading from \emph{each} sensor and average
+them, their opposite biases cancel:
 \[
   \frac{X_1+X_2}{2}\sim\mathcal N(0,1/2).
 \]
-This is neither the mixture nor the Gaussian that matches its moments.
+A mixture chooses which source supplies an observation. An average
+combines observations from both sources. These are different experiments.
 
-\subsection{A continuous distribution of parameters}
+\subsection{Different users have different message rates}
 
-Heterogeneity need not consist of a few categories. Let a parameter
-\(\Theta\) have density \(g\), and generate \(X\) conditional on its value.
-The marginal density or PMF is
-\[
-  p_X(x)=\int p(x\mid\theta)g(\theta)\,d\theta.
-\]
-For continuous \(X\), \(p(x\mid\theta)\) denotes a conditional density;
-for discrete \(X\), it denotes a conditional probability mass.
-The integral averages over possible parameters. In general, replacing
-\(\Theta\) by \(\Expect[\Theta]\) inside \(p(x\mid\Theta)\) does not produce
-the same distribution.
+Two sensors give a small number of groups. In a user population, the
+differences can vary continuously. Some users receive very few messages;
+others receive many. This variation between members of a population is
+called \emph{heterogeneity}.
 
-Equations~\eqref{eq:total-expectation} and \eqref{eq:total-variance} also
-hold for this continuous mixing parameter when the relevant moments exist.
-They allow moment calculations without evaluating the full mixture integral.
-
-\subsection{Different users have different event rates}
-
-Suppose the count \(N\) for a randomly chosen user over a fixed observation
-window satisfies
+Observe each user for one day. Let \(\Lambda\) be the user's expected
+number of messages in that day. A particular user's value, denoted
+\(\lambda\), is fixed during the observation; the uppercase variable
+\(\Lambda\) varies when we choose a different user.
+Assume that, for a user with value \(\lambda\),
 \[
   N\mid\Lambda=\lambda\sim\operatorname{Poisson}(\lambda).
 \]
-Here \(\Lambda\) is the user's expected count for that window; all users
-are observed over the same duration. Conditional means and variances are
-both \(\Lambda\), hence
+Thus even for a fixed user the realized count \(N\) fluctuates from day
+to day. Across users there is additional variation in the mean count.
+
+The within-user mean and variance both equal \(\Lambda\). Averaging over
+users, the laws of total expectation and variance give
 \[
   \Expect[N]=\Expect[\Lambda],\qquad
   \Var(N)=\Expect[\Lambda]+\Var(\Lambda).
 \]
-If users differ in their rates, the marginal variance exceeds the mean.
-This is \emph{overdispersion} relative to a Poisson model.
-It can occur even when each individual user's count is Poisson.
-Other mechanisms, such as dependent arrivals, can also cause overdispersion.
+The first contribution to the variance is daily Poisson variation.
+The second is variation in the users' average activity.
+If the latter is positive, the pooled variance exceeds the pooled mean.
+This is called \emph{overdispersion} relative to a Poisson distribution.
 
-Take \(\Lambda\sim\operatorname{Gamma}(\alpha,\beta)\), in the rate
-convention. Combining two distributions already studied gives
+Replacing every user's rate by the population average removes this
+second contribution. It also misses the extra zeros contributed by
+quiet users and the large counts contributed by busy users.
+
+\subsection{A Gamma distribution of Poisson means}
+
+We need a distribution for the positive quantity \(\Lambda\).
+One possible choice is the Gamma family, whose shape and rate let us
+describe different amounts of variation among users:
+\[
+  \Lambda\sim\operatorname{Gamma}(\alpha,\beta).
+\]
+The Gamma moments immediately give
 \[
   \Expect[N]=\frac{\alpha}{\beta},\qquad
   \Var(N)=\frac{\alpha}{\beta}+\frac{\alpha}{\beta^2}.
 \]
-For completeness, the mixture PMF follows from the gamma integral:
+For \(\alpha=2,\beta=1/2\), the mean user count is four and
+the variance between user means is eight. The pooled count therefore
+has mean four and variance \(4+8=12\).
+
+We can also find the full count distribution. Let \(g(\lambda)\) be the
+Gamma density of user means. To find the probability of \(k\) messages,
+average the Poisson probability over all possible user means:
+\[
+  \Prob(N=k)=\int_0^\infty
+       \Prob(N=k\mid\Lambda=\lambda)\,g(\lambda)\,d\lambda.
+\]
+This is the continuous version of the weighted sum for the sensors:
+possible user means replace the discrete source labels, and the integral
+replaces the sum. The count remains discrete; it is the mixing parameter
+that varies continuously.
+
+Substituting the Poisson PMF and Gamma density gives
 \begin{align*}
   \Prob(N=k)
   &=\int_0^\infty
-      \frac{e^{-\lambda}\lambda^k}{k!}
-      \frac{\beta^\alpha}{\Gamma(\alpha)}
-          \lambda^{\alpha-1}e^{-\beta\lambda}\,d\lambda\\
+     \frac{e^{-\lambda}\lambda^k}{k!}
+     \frac{\beta^\alpha}{\Gamma(\alpha)}
+       \lambda^{\alpha-1}e^{-\beta\lambda}\,d\lambda\\
   &=\frac{\Gamma(k+\alpha)}{\Gamma(\alpha)k!}
       \left(\frac{\beta}{\beta+1}\right)^\alpha
-      \left(\frac1{\beta+1}\right)^k,\qquad k\ge0.
+      \left(\frac1{\beta+1}\right)^k,\qquad k=0,1,\ldots.
 \end{align*}
-This is a \emph{negative binomial distribution}, in a convention that counts
-failures and permits any real shape \(\alpha>0\).
-Its construction, rather than its name, explains why it is useful for
-heterogeneous counts.
+The second line follows by combining the powers and exponentials,
+then using the gamma integral with shape \(k+\alpha\) and rate
+\(\beta+1\). The resulting distribution is called \emph{negative binomial}.
+Here its meaning is supplied by the construction: a Poisson count whose
+mean differs from user to user according to a Gamma distribution.
 
-For \(\alpha=2,\beta=1/2\), the mean is \(4\) and the variance is \(12\).
-A Poisson distribution with mean \(4\) has variance only \(4\).
-The heterogeneous model also gives
+For our numerical example,
 \[
-  \Prob(N=0)=\left(\frac13\right)^2=\frac19\approx0.1111,
+  \Prob(N=0)=\left(\frac{1/2}{1+1/2}\right)^2
+            =\frac19\approx0.1111.
 \]
-compared with \(e^{-4}\approx0.0183\) under the single-rate Poisson model.
+A single \(\operatorname{Poisson}(4)\) distribution instead gives
+\(e^{-4}\approx0.0183\). The mean counts agree, but the predicted fraction
+of users receiving no messages is very different.
 
-\begin{figure}[tbp]
+\begin{figure}[htbp]
   \centering
   \input{figures/heterogeneous-counts}
-  \caption{Count distributions with the same mean, four.
-  Mixing Poisson rates with a \(\operatorname{Gamma}(2,1/2)\) distribution
-  produces more zeros and a longer upper tail; its variance is twelve.
-  The displayed values are probability masses, not a continuous density.}
+  \caption{Both populations average four messages per user per day.
+  With a common Poisson mean of four, the variance is four.
+  With Gamma-distributed user means, the variance is twelve, with more
+  users receiving zero messages or unusually many messages.}
   \label{fig:heterogeneous-counts}
 \end{figure}
 
-\subsection{One random probability or a new one for every trial?}
+The conditional-moment rules used here extend the finite-mixture
+identities by replacing weighted sums with integrals. They require
+finite moments, but they do not require us to evaluate the full mixture
+PMF before calculating its mean and variance.
 
-Let \(P\in[0,1]\) be a random success probability and
-\(B\mid P=p\sim\operatorname{Bernoulli}(p)\). Then
+\subsection{Ten responses from one user or one response from ten users?}
+
+Heterogeneity also matters for binary observations, but the way we group
+observations changes the result. Suppose half the users click with
+probability \(0.1\), and half with probability \(0.9\).
+A randomly chosen user's response is a click with probability
 \[
-  \Prob(B=1)=\Expect[P],
+  \tfrac12(0.1)+\tfrac12(0.9)=0.5.
 \]
-so a single observation is still Bernoulli with parameter
-\(q=\Expect[P]\). Heterogeneity cannot be identified from the marginal
-distribution of one binary observation alone.
+That overall probability does not tell us how much the individual user
+probabilities differ.
 
-For repeated trials, the sampling mechanism matters. If a user has one
-shared probability \(P\) and, conditional on it,
-\(S\mid P\sim\operatorname{Binomial}(n,P)\), then
+Now compare two experiments. In the first, choose one user and show
+them ten posts, with independent responses once their click probability
+is fixed. The chosen user is likely to click about once or about nine
+times, depending on which group they belong to.
+In the second, choose ten users independently and record one response
+from each. Each response is independently a click with probability
+\(0.5\), so the count is \(\operatorname{Binomial}(10,0.5)\).
+
+The means are both five. The variances are different.
+Write \(P\) for the first experiment's shared user probability and
+\(S\) for the ten-response count. Within either user group, the variance
+is \(10(0.1)(0.9)=0.9\). The group means are one and nine, whose variance
+around five is sixteen. Therefore
+\[
+  \Var(S)=0.9+16=16.9,
+\]
+whereas the second experiment has variance \(10(0.5)(0.5)=2.5\).
+
+More generally, let \(q=\Expect[P]\) and suppose
+\(S\mid P\sim\operatorname{Binomial}(n,P)\). Then
 \begin{align*}
   \Expect[S]&=nq,\\
   \Var(S)
-   &=n\Expect[P(1-P)]+n^2\Var(P)\\
-   &=nq(1-q)+n(n-1)\Var(P).
+    &=n\Expect[P(1-P)]+n^2\Var(P)\\
+    &=nq(1-q)+n(n-1)\Var(P).
 \end{align*}
-If \(n>1\) and \(\Var(P)>0\), the variance exceeds \(nq(1-q)\).
-Trials are independent
-conditional on the user's probability, but generally dependent after
-pooling users with different probabilities.
+The final step uses
+\(\Expect[P(1-P)]=q(1-q)-\Var(P)\), obtained by expanding
+\(\Expect[P^2]=\Var(P)+q^2\).
+The extra variance comes from sharing the same random user probability
+across trials.
 
-If instead each trial independently draws a fresh \(P_i\) from the same
-distribution and then independently generates \(B_i\mid P_i\), the
-unconditional \(B_i\) are independent \(\operatorname{Bernoulli}(q)\),
-and their sum is \(\operatorname{Binomial}(n,q)\).
-The choice of what is shared across observations is part of the model.
+If a fresh \(P_i\) is independently drawn for each trial instead, and the
+responses are independently generated given those probabilities, the
+responses are independent Bernoulli variables with parameter \(q\).
+Their sum is \(\operatorname{Binomial}(n,q)\).
+Which quantities are shared across observations is part of specifying
+the experiment.
 
 \section{Extension: Gaussian scale mixtures and Student's \texorpdfstring{\(t\)}{t}}
 \label{sec:student}
 
-Hidden groups may differ in spread even when they have the same mean.
-One simple \emph{contaminated Gaussian} model is
-\[
-  X\sim (1-\varepsilon)\mathcal N(\mu,\sigma^2)
-       +\varepsilon\mathcal N(\mu,a^2\sigma^2),
-  \qquad 0<\varepsilon<1,\quad a>1.
-\]
-A fraction \(\varepsilon\) of observations comes from a noisier component.
-The mean remains \(\mu\), while
-\[
-  \Var(X)=\sigma^2[(1-\varepsilon)+\varepsilon a^2].
-\]
-Even a small fraction can greatly increase the total variance.
+Return to measurement errors. So far the two sensors differed in their
+average errors. Another possibility is that a sensor is usually precise
+but occasionally operates under much noisier conditions, without changing
+its average error.
 
-A continuous version randomizes the \emph{precision}, the inverse of
-variance. Let
+For example, suppose \(95\%\) of readings have error
+\(\mathcal N(\mu,\sigma^2)\), and the remaining \(5\%\) have standard
+deviation \(5\sigma\):
 \[
-  \tau\sim\operatorname{Gamma}(\nu/2,\nu/2),\qquad
-  Z\mid\tau\sim\mathcal N(0,\tau^{-1}),\qquad \nu>0.
+  X\sim0.95\,\mathcal N(\mu,\sigma^2)
+      +0.05\,\mathcal N(\mu,25\sigma^2).
 \]
-Integrating out \(\tau\) gives the standard Student distribution,
-\(Z\sim t_\nu\), with density
+This is called a \emph{contaminated Gaussian} model.
+The noisier readings make large errors more common. The mean stays
+\(\mu\), while the mixture variance is
 \[
-  f_Z(z)=
-  \frac{\Gamma((\nu+1)/2)}
+  \Var(X)=0.95\sigma^2+0.05(25\sigma^2)=2.2\sigma^2.
+\]
+
+Instead of two noise levels, we can allow a continuous range.
+Describe the noise using its inverse variance \(\tau\), often called
+\emph{precision}. A small \(\tau\) means a large variance and a noisy
+reading; a large \(\tau\) means a narrow error distribution.
+For a standardized error, use
+\[
+  Z\mid\tau\sim\mathcal N(0,1/\tau).
+\]
+
+The Gamma family is a natural candidate for a positive random precision.
+Choose
+\[
+  \tau\sim\operatorname{Gamma}(\nu/2,\nu/2),\qquad \nu>0.
+\]
+Using equal shape and rate fixes \(\Expect[\tau]=1\);
+the Gamma variance formula gives \(\Var(\tau)=2/\nu\).
+Thus \(\nu\) controls how much the noise level varies: large \(\nu\)
+keeps precision close to one, while small \(\nu\) permits more variation.
+
+Average the conditional Gaussian density over these precision values,
+just as we averaged Poisson probabilities over user means.
+Let \(g_\tau\) denote the Gamma density and \(f_{Z\mid\tau}(z\mid u)\)
+the Gaussian density with variance \(1/u\). Then
+\begin{align*}
+  f_Z(z)&=\int_0^\infty f_{Z\mid\tau}(z\mid u)\,g_\tau(u)\,du\\
+  &=\frac{\Gamma((\nu+1)/2)}
        {\sqrt{\nu\pi}\,\Gamma(\nu/2)}
-  \left(1+\frac{z^2}{\nu}\right)^{-(\nu+1)/2}.
-\]
-Small precisions correspond to occasional large conditional variances.
-The resulting tails decay as a power of \(|z|\), much more slowly than
-Gaussian tails.
+    \left(1+\frac{z^2}{\nu}\right)^{-(\nu+1)/2}.
+\end{align*}
+The product inside the integral is proportional, as a function of \(u\),
+to \(u^{(\nu-1)/2}e^{-(\nu+z^2)u/2}\).
+This is another gamma integral, now with shape \((\nu+1)/2\)
+and rate \((\nu+z^2)/2\).
+The resulting density defines \emph{Student's \(t\)-distribution},
+written \(Z\sim t_\nu\).
+In this construction, \(\nu\) controls variation in precision and
+therefore how often extreme errors occur.
 
-For \(\nu>1\), \(\Expect[Z]=0\); for \(\nu>2\),
-\[
-  \Var(Z)=\Expect[\tau^{-1}]=\frac{\nu}{\nu-2}.
-\]
-For \(1<\nu\le2\), the mean exists but the second moment is infinite;
-for \(0<\nu\le1\), the mean does not exist. Symmetry alone does not
-guarantee a finite mean.
+Occasionally drawing a small precision produces an unusually large
+Gaussian error. After averaging over precisions, extreme errors remain
+much more likely than under a standard Gaussian. This is the meaning
+of \emph{heavy tails} here: for large \(|z|\), the density decreases
+like \(|z|^{-(\nu+1)}\), rather than like \(e^{-z^2/2}\).
 
-If \(X=\mu+sZ\), where \(s>0\), then \(s\) is a scale parameter,
-not the standard deviation: when \(\nu>2\),
+For \(\nu>1\), the mean exists and is zero. For \(\nu>2\), total variance
+and the Gamma integral give
 \[
+  \Var(Z)=\Expect[1/\tau]=\frac{\nu}{\nu-2}.
+\]
+When \(1<\nu\le2\), rare large observations make the second-moment
+integral diverge, so the variance is infinite.
+When \(0<\nu\le1\), even the absolute first moment diverges and the
+mean is undefined. This illustrates why the convergence conditions in
+the definitions of expectation and variance matter.
+
+For an error with center \(\mu\) and scale \(s>0\), write \(X=\mu+sZ\).
+For \(\nu>2\),
+\[
+  \Expect[X]=\mu,\qquad
   \Var(X)=s^2\frac{\nu}{\nu-2}.
 \]
-As \(\nu\) grows, the standard Student distribution approaches
-\(\mathcal N(0,1)\). It connects Gamma variability, Gaussian conditional
-distributions, and heavy-tailed observations in a single model.
+The scale \(s\) is therefore not its standard deviation.
+As \(\nu\) increases, precision concentrates near one and the standard
+Student distribution approaches \(\mathcal N(0,1)\).
 
+\clearpage
 \section{Distribution reference}
 \label{sec:distribution-reference}
+
+The table collects the means and variances derived above. The support lists
+the values the variable can take, distinguishing counts from waiting times
+and signed errors.
 
 \begin{center}
 \renewcommand{\arraystretch}{1.5}
@@ -1038,159 +1480,6 @@ Gaussian to Student & Mix the Gaussian precision with
 \end{tabularx}
 \end{center}
 
-\section{Exercises}
-\label{sec:distributions-exercises}
-
-\begin{exercise}[Masses, CDF, and moments]
-A discrete variable satisfies
-\[
-  p_X(-1)=a,\qquad p_X(0)=2a,\qquad p_X(2)=a.
-\]
-Find \(a\), write its CDF, and compute \(\Prob(-1<X\le2)\),
-\(\Expect[X]\), and \(\Var(X)\).
-\end{exercise}
-
-\begin{exercise}[A density and a nonlinear expectation]
-Let \(f_X(x)=cx\) for \(0\le x\le1\), and zero otherwise.
-Find \(c\), derive the CDF, and calculate \(\Prob(0.2<X\le0.7)\).
-Find \(\Expect[X]\), \(\Expect[X^2]\), and \(\Var(X)\).
-Explain why \(\Expect[X^2]\ne\Expect[X]^2\).
-\end{exercise}
-
-\begin{exercise}[One arrival process, three distributions]
-Requests follow a homogeneous Poisson process at rate \(0.5\) per minute.
-Find the probability of no requests in four minutes, the probability that
-the third request arrives within four minutes, and the mean and variance
-of the waiting time until the third request. Given that no request arrives
-in the first six minutes, find the probability of waiting at least two
-more minutes for the first request.
-\end{exercise}
-
-\begin{exercise}[Expectation of a function]
-For \(T\sim\operatorname{Exp}(\lambda)\) and \(a>0\), find
-\(\Expect[e^{-aT}]\) and \(\Var(e^{-aT})\).
-For \(\lambda=a=1\), compare \(\Expect[e^{-T}]\) with
-\(e^{-\Expect[T]}\).
-\end{exercise}
-
-\begin{exercise}[Averages and dependence]
-Let \(X_1,\ldots,X_n\) be independent, with a common mean \(\mu\) and
-variance \(\sigma^2\). Find the mean and variance of
-\(\overline X=n^{-1}\sum_iX_i\).
-What changes if \(X_1=\cdots=X_n=X\) with probability one?
-\end{exercise}
-
-\begin{exercise}[Rare successes and waiting]
-Each of \(200\) independent trials succeeds with probability \(0.01\).
-Find the count's mean, variance, exact no-success probability, and its
-Poisson approximation. In an unlimited sequence of these trials, find the
-mean and variance of the number of trials until the first success.
-\end{exercise}
-
-\begin{exercise}[Gaussian sums and standardization]
-Independent measurement errors satisfy
-\(X\sim\mathcal N(1,4)\) and \(Y\sim\mathcal N(-1,9)\).
-Find the distributions of \(X+Y\) and \(2X-Y\).
-Express \(\Prob(|X+Y|\le2)\) using \(\Phi\).
-\end{exercise}
-
-\begin{exercise}[Mixture versus average]
-Choose \(X_1\sim\mathcal N(-3,1)\) with probability \(1/4\) and
-\(X_2\sim\mathcal N(1,1)\) otherwise; call the selected value \(M\).
-Find \(\Expect[M]\) and \(\Var(M)\).
-Compare them with the mean and variance of \(A=(X_1+3X_2)/4\),
-when \(X_1,X_2\) are independent.
-\end{exercise}
-
-\begin{exercise}[Heterogeneous counts]
-For a fixed observation window, let
-\(N\mid\Lambda\sim\operatorname{Poisson}(\Lambda)\) and
-\(\Lambda\sim\operatorname{Gamma}(3,1/2)\).
-Find \(\Expect[N]\), \(\Var(N)\), and \(\Prob(N=0)\).
-Compare with a Poisson distribution having the same mean.
-\end{exercise}
-
-\begin{exercise}[A probability shared across trials]
-A user has probability \(P=0.1\) or \(P=0.5\), each with probability \(1/2\).
-Conditional on \(P\), their ten binary responses are independent.
-Find the mean and variance of the success count.
-How does its variance change if a fresh independent \(P_i\) is drawn for
-each response instead?
-\end{exercise}
-
-\begin{exercise}[Student scale]
-Let \(Z\sim t_4\) and \(X=2+3Z\). Find the mean, variance, and standard
-deviation of \(X\). What would fail if \(Z\sim t_2\)?
-\end{exercise}
-
-\subsection*{Short answers}
-
-\begin{enumerate}
-  \item \(a=1/4\), with CDF
-  \[
-    F_X(x)=
-    \begin{cases}
-      0,&x<-1,\\
-      1/4,&-1\le x<0,\\
-      3/4,&0\le x<2,\\
-      1,&x\ge2.
-    \end{cases}
-  \]
-  Then \(\Prob(-1<X\le2)=3/4\),
-  \(\Expect[X]=1/4\), \(\Expect[X^2]=5/4\), and \(\Var(X)=19/16\).
-
-  \item \(c=2\). The CDF is zero for \(x<0\), \(x^2\) on \([0,1]\),
-  and one for \(x>1\). The interval probability is \(0.45\).
-  Moreover, \(\Expect[X]=2/3\), \(\Expect[X^2]=1/2\), and
-  \(\Var(X)=1/18\). Squaring is nonlinear; the difference between the
-  two expectations in question is the positive variance.
-
-  \item The no-request probability is \(e^{-2}\approx0.1353\);
-  the third-arrival probability is \(1-5e^{-2}\approx0.3233\).
-  The third-arrival time has distribution \(\operatorname{Gamma}(3,0.5)\),
-  mean \(6\) minutes and variance \(12\) minutes squared.
-  Memorylessness gives \(e^{-1}\approx0.3679\) for the additional wait.
-
-  \item \(\Expect[e^{-aT}]=\lambda/(\lambda+a)\) and
-  \[
-    \Var(e^{-aT})
-    =\frac{\lambda}{\lambda+2a}
-     -\left(\frac{\lambda}{\lambda+a}\right)^2.
-  \]
-  At \(\lambda=a=1\), the expectation is \(1/2\), the variance is \(1/12\),
-  and \(e^{-\Expect[T]}=e^{-1}\ne1/2\).
-
-  \item In both cases the mean is \(\mu\). The independent average has
-  variance \(\sigma^2/n\); the identical-copy average equals \(X\) and has
-  variance \(\sigma^2\).
-
-  \item The count has mean \(2\), variance \(1.98\), and no-success
-  probability \(0.99^{200}\approx0.1340\); the approximation is
-  \(e^{-2}\approx0.1353\).
-  The Geometric waiting count has mean \(100\) and variance \(9900\).
-
-  \item \(X+Y\sim\mathcal N(0,13)\),
-  \(2X-Y\sim\mathcal N(3,25)\), and the interval probability is
-  \(2\Phi(2/\sqrt{13})-1\).
-
-  \item \(\Expect[M]=0\), \(\Var(M)=1+3=4\).
-  The average has mean zero and variance
-  \((1/4)^2+(3/4)^2=5/8\); in fact \(A\sim\mathcal N(0,5/8)\).
-
-  \item The mean is \(6\), the variance is \(6+12=18\), and
-  \(\Prob(N=0)=(1/3)^3=1/27\approx0.0370\).
-  A \(\operatorname{Poisson}(6)\) variable has variance \(6\) and
-  zero-count probability \(e^{-6}\approx0.00248\).
-
-  \item \(q=\Expect[P]=0.3\) and \(\Var(P)=0.04\).
-  The mean is \(3\), and the shared-probability variance is
-  \(10(0.3)(0.7)+10(9)(0.04)=5.7\).
-  With fresh independent probabilities, the variance is \(2.1\).
-
-  \item \(\Expect[X]=2\), \(\Var(X)=9\cdot4/(4-2)=18\), and
-  \(\operatorname{sd}(X)=3\sqrt2\).
-  For \(t_2\), the mean still exists but the variance is infinite.
-\end{enumerate}
 
 \subsection*{Further reading}
 
