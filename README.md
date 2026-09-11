@@ -3,7 +3,8 @@
 LaTeX source for a cumulative course conspect. The document begins with the
 complete course structure and currently contains:
 
-- Lecture 1: probability models, conditioning, Bayes' theorem, and random variables.
+- Lecture 1: probability models, conditioning, Bayes' theorem, random variables,
+  PMFs, PDFs, and CDFs.
 - Lecture 2: expectation and variance; Exponential, Poisson, Gamma, Bernoulli,
   Binomial, Geometric, and Gaussian distributions; mixtures and heterogeneity;
   and a short extension on Student's t-distribution.
