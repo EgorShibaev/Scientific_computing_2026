@@ -1,0 +1,27 @@
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.94\textwidth,height=6.5cm,
+  axis lines=left,xmin=-0.7,xmax=20.8,ymin=0,ymax=0.245,
+  xlabel={Count \(k\)},ylabel={Probability mass},
+  xtick={0,2,...,20},
+  tick label style={font=\small},label style={font=\small},
+  legend style={draw=none,font=\small,at={(0.98,0.98)},anchor=north east},
+  grid=major,grid style={black!8},
+]
+  \addplot[CourseBlue,thick,ycomb,mark=*,mark size=1.9pt]
+    coordinates {
+      (0,0.01831564) (1,0.07326256) (2,0.14652511)
+      (3,0.19536681) (4,0.19536681) (5,0.15629345)
+      (6,0.10419563) (7,0.05954036) (8,0.02977018)
+      (9,0.01323119) (10,0.00529248) (11,0.00192454)
+      (12,0.00064151) (13,0.00019739) (14,0.00005640)
+      (15,0.00001504) (16,0.00000376) (17,0.00000088)
+      (18,0.00000020) (19,0.00000004) (20,0.00000001)
+    };
+  \addlegendentry{Poisson: mean \(4\), variance \(4\)}
+  \addplot[orange!80!black,thick,ycomb,mark=square*,mark size=1.8pt,
+    samples at={0,1,...,20},domain=0:20]
+    {(x+1)/9*(2/3)^x};
+  \addlegendentry{Gamma--Poisson: mean \(4\), variance \(12\)}
+\end{axis}
+\end{tikzpicture}
