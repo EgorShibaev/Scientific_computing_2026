@@ -3,36 +3,19 @@
 \chaptermark{Joint Distributions and Random Vectors}
 \label{chap:joint-distributions}
 
-\section{Two observations from the same user}
+\section{Joint and marginal distributions}
 \label{sec:joint-tables}
 
-Show two posts to one randomly chosen user. Let \(X\) indicate a click
-on the first post and \(Y\) a click on the second. Each variable is
-either zero or one. Knowing the click probability for each post does not
-yet tell us the probability of two clicks: we also need to know how the
-responses are related.
-
-Use the population from Section~\ref{sec:mixtures}: half the users have
-click probability \(0.1\), and half have click probability \(0.9\).
-Once a user is selected, their two responses are independent with that
-user's probability. Write \(P\) for this shared probability.
-
-For either post, the marginal click probability is
+In the shared-user experiment of Section~\ref{sec:mixtures}, record
+the first two responses separately: \(X,Y\in\{0,1\}\), rather than
+only their total. Their \emph{joint probability mass function}
 \[
-  \Prob(X=1)=\Prob(Y=1)=\tfrac12(0.1)+\tfrac12(0.9)=0.5.
+  p_{X,Y}(x,y)=\Prob(X=x,Y=y)
 \]
-But the probability of two clicks is
-\[
-  \Prob(X=1,Y=1)
-  =\tfrac12(0.1)^2+\tfrac12(0.9)^2=0.41,
-\]
-not \(0.5\times0.5=0.25\). The same user supplies both responses, so
-both share the same tendency to click. Similarly,
-\[
-  \Prob(X=1,Y=0)
-  =\tfrac12(0.1)(0.9)+\tfrac12(0.9)(0.1)=0.09.
-\]
-The four possible pairs give the following table.
+records the probability of each pair. With the same equally likely
+user probabilities \(0.1\) and \(0.9\), it is the table below. For
+example, the two-click cell is
+\(p_{X,Y}(1,1)=\tfrac12(0.1)^2+\tfrac12(0.9)^2=0.41\).
 
 \begin{center}
 \renewcommand{\arraystretch}{1.3}
@@ -48,20 +31,7 @@ Column total & \(0.50\) & \(0.50\) & \(1\)\\
 \end{tabular}
 \end{center}
 
-\subsection{Joint and marginal probabilities}
-
-The entries inside the table form the \emph{joint probability mass
-function}:
-\[
-  p_{X,Y}(x,y)=\Prob(X=x,Y=y).
-\]
-The comma means that both equalities hold in the same repetition of the
-experiment. A joint PMF must be nonnegative and satisfy
-\(\sum_x\sum_y p_{X,Y}(x,y)=1\). To find the probability of an event,
-add the cells that satisfy it. For example,
-\[
-  \Prob(X=Y)=0.41+0.41=0.82.
-\]
+\subsection{Marginalizing a table}
 
 If we only care about the first response, either value of the second is
 acceptable. We therefore add across a row:
@@ -79,57 +49,34 @@ every interior cell would be \(0.25\). The row and column totals would
 still be \(0.5\). Thus the same two marginal distributions can belong
 to very different joint distributions.
 
-\subsection{Conditioning selects and renormalizes a row}
+\subsection{Conditional PMFs and factorization}
 
-Suppose we observe a click on the first post. Among the cases in the
-\(X=1\) row, the fraction with a second click is
+Applying conditional probability \eqref{eq:conditional-probability} to
+the table gives
 \[
-  \Prob(Y=1\mid X=1)=\frac{0.41}{0.50}=0.82.
-\]
-After a first non-click, it is instead
-\[
+  \Prob(Y=1\mid X=1)=\frac{0.41}{0.50}=0.82,\qquad
   \Prob(Y=1\mid X=0)=\frac{0.09}{0.50}=0.18.
 \]
-Each conditional distribution divides the selected row by its total so
-that its entries add to one. In general, for \(p_X(x)>0\),
+For a fixed \(x\), the \emph{conditional PMF} is the selected row
+divided by its total. In notation, for \(p_X(x)>0\),
 \begin{equation}
   p_{Y\mid X}(y\mid x)=\frac{p_{X,Y}(x,y)}{p_X(x)},
   \qquad
   p_{X,Y}(x,y)=p_X(x)p_{Y\mid X}(y\mid x).
   \label{eq:joint-factorization-discrete}
 \end{equation}
-
-The first click is informative because it changes which type of user
-we think we selected. Bayes' theorem gives
-\[
-  \Prob(P=0.9\mid X=1)=\frac{0.9(0.5)}{0.5}=0.9.
-\]
-Averaging the second-click probability over this updated population
-gives \(0.9(0.9)+0.1(0.1)=0.82\), as the table did.
-Nothing in this model says that the first click \emph{causes} the second:
-both reflect the same unobserved user probability.
-
-\subsection{Independence means the joint distribution factors}
-
-For independent responses, learning \(X\) would leave the distribution
-of \(Y\) unchanged. In a discrete model this is equivalent to
+The independence condition \eqref{eq:independence}, applied to all
+pairs of values, becomes
 \begin{equation}
   p_{X,Y}(x,y)=p_X(x)p_Y(y)\quad\text{for every }x,y.
   \label{eq:joint-independence-discrete}
 \end{equation}
-For general random variables, independence means
-\[
-  \Prob(X\in A,Y\in B)=\Prob(X\in A)\Prob(Y\in B)
-\]
-for all measurable sets \(A,B\). The PMF condition checks this using
-individual cells. We write \(X\independent Y\).
-
-In our example, the responses are \emph{conditionally independent}
-given \(P\): for either fixed user probability, their conditional joint
-PMF factors. They are not independent when that probability is unknown
-and averaged out. This distinction explains why repeated observations
-from one person can behave differently from observations from different
-people.
+The table fails this test: \(0.41\ne0.5\cdot0.5\). Once the user's
+probability \(P\) is fixed, however, the conditional joint PMF factors.
+This is \emph{conditional independence}, written
+\(X\independent Y\mid P\). The shared-user effect from Chapter~2
+is therefore a distinction between conditional and unconditional
+factorization, not a causal effect of one click on the other.
 
 \section{Joint densities: probability over a region}
 \label{sec:joint-densities}
@@ -233,25 +180,21 @@ In general, wherever \(f_X(x)>0\), the conditional-density formula is
   f_{Y\mid X}(y\mid x)=\frac{f_{X,Y}(x,y)}{f_X(x)}.
   \label{eq:joint-conditional-density}
 \end{equation}
-This is not a division by \(\Prob(X=x)\), which is zero for a continuous
-variable. One way to understand the formula is to condition on a narrow
-interval around \(x\), then shrink that interval. In a smooth density
-model this leaves the normalized slice above. Conditional densities
-need only be specified for almost every conditioning value, meaning
-that changing them on a set of \(X\)-probability zero has no effect.
+In a smooth density model, conditioning on a shrinking interval around
+\(x\) gives this normalized slice. The denominator is a marginal
+density, not a point probability. Conditional densities are specified
+up to changes on sets of conditioning values with probability zero.
 
 For a pair with a joint density, independence is equivalent to
 \(f_{X,Y}(x,y)=f_X(x)f_Y(y)\) almost everywhere. The ordered times fail
 this test: both marginals are positive inside \((0,1)\), but their
 joint density is zero whenever \(t_1>t_2\).
 
-\section{Averaging a function of two observations}
+\subsection{Functions of the pair}
 \label{sec:joint-expectations}
 
-Sometimes we care about a quantity computed from the pair, such as the
-total clicks \(X+Y\), the indicator of two clicks \(XY\), or the gap
-\(T_2-T_1\). As in Section~\ref{sec:expectation}, calculate the quantity
-at each outcome and average it with the outcome's probability:
+Applying the expectation rule \eqref{eq:expectation-function} to the
+joint distribution gives
 \begin{equation}
   \Expect[g(X,Y)]=
   \begin{cases}
@@ -263,84 +206,36 @@ at each outcome and average it with the outcome's probability:
   \label{eq:joint-function-expectation}
 \end{equation}
 We require \(\Expect[|g(X,Y)|]<\infty\) for a finite expectation.
-There is no need to derive the distribution of \(g(X,Y)\) first.
-
-For the click pair, \(XY\) is one only in the \((1,1)\) cell, so
-\[
-  \Expect[XY]=0.41,\qquad
-  \Expect[X+Y]=\Expect[X]+\Expect[Y]=1.
-\]
-Linearity applies to the sum even though the clicks are dependent.
-For the ordered arrival times, the average gap is
+For example, the average gap between the ordered arrivals is
 \begin{align*}
   \Expect[T_2-T_1]
     &=\int_0^1\int_t^1(s-t)\,2\,ds\,dt\\
     &=\int_0^1(1-t)^2\,dt=\frac13\text{ hour}.
 \end{align*}
-The separate means give the same answer:
-\(\Expect[T_1]=1/3\) and \(\Expect[T_2]=2/3\), obtained by integrating
-against their marginal densities.
 
-If \(X,Y\) are independent and have finite absolute first moments,
-their joint probabilities factor, so
-\begin{align*}
-  \Expect[XY]
-    &=\sum_x\sum_y xy\,p_X(x)p_Y(y)\\
-    &=\left(\sum_x x p_X(x)\right)
-      \left(\sum_y y p_Y(y)\right)
-     =\Expect[X]\Expect[Y].
-\end{align*}
-Integrals give the same result for independent variables with densities.
-This factorization also applies to integrable functions of independent
-variables: \(\Expect[a(X)b(Y)]=\Expect[a(X)]\Expect[b(Y)]\).
-The click table shows why it cannot be assumed without independence.
-
-\section{Covariance and correlation}
+\section{Correlation and nonlinear dependence}
 \label{sec:covariance-correlation}
 
-In Chapter~\ref{chap:distributions}, covariance appeared as the extra
-term in the variance of a sum. We can now compute it from a joint
-distribution and examine what it does, and does not, tell us.
-
-\subsection{Do deviations reinforce or cancel each other?}
-
-Let \(\mu_X=\Expect[X]\) and \(\mu_Y=\Expect[Y]\), and assume both
-variables have finite second moments. When both observations are above
-their means, or both are below, the product
-\((X-\mu_X)(Y-\mu_Y)\) is positive. When they deviate in opposite
-directions, it is negative. Covariance averages these products:
-\begin{align}
-  \Cov(X,Y)
-    &=\Expect[(X-\mu_X)(Y-\mu_Y)]\notag\\
-    &=\Expect[XY]-\Expect[X]\Expect[Y].
+For variables with finite second moments, expanding the covariance
+definition from Section~\ref{sec:variance} gives a convenient calculation
+from a joint distribution:
+\begin{equation}
+  \Cov(X,Y)=\Expect[XY]-\Expect[X]\Expect[Y].
   \label{eq:covariance-product}
-\end{align}
-The second line follows by expanding the product and taking expectations.
-
-For the two clicks,
+\end{equation}
+For the click table, \(XY\) is one only in the \((1,1)\) cell, so
+\(\Expect[XY]=0.41\) and
 \[
   \Cov(X,Y)=0.41-(0.5)(0.5)=0.16.
 \]
-The agreement cells \((0,0)\) and \((1,1)\) have more probability than
-the disagreement cells. Their positive centered products dominate.
-Consequently, the two-click total is more variable than the total of
-two independent \(\operatorname{Bernoulli}(0.5)\) variables:
-\[
-  \Var(X+Y)=0.25+0.25+2(0.16)=0.82,
-\]
-instead of \(0.5\). Indeed, the total is zero or two with probability
-\(0.41\) each, and one with probability \(0.18\).
-
-Covariance depends on units. If \(X\) is measured in minutes and \(Y\)
-in bytes, covariance is measured in minute-bytes. More generally,
-\[
-  \Cov(aX+b,cY+d)=ac\,\Cov(X,Y).
-\]
-Shifts do not change deviations; scaling changes their product.
 
 \subsection{Correlation removes the units}
 
-For positive standard deviations \(\sigma_X,\sigma_Y\), define
+Converting one measurement from minutes to seconds multiplies its
+covariance with another by \(60\), although the relationship has not
+changed. To remove this dependence on units, use \emph{correlation}.
+For means \(\mu_X,\mu_Y\) and positive standard deviations
+\(\sigma_X,\sigma_Y\), it is
 \begin{equation}
   \rho_{X,Y}=\frac{\Cov(X,Y)}{\sigma_X\sigma_Y}
   =\Expect\!\left[
@@ -368,10 +263,10 @@ has variance zero: a constant has no fluctuations to standardize.
 
 \subsection{Zero covariance can hide complete dependence}
 
-Independence implies zero covariance because expectations of products
-factor. The reverse implication fails: positive and negative
-contributions to covariance can cancel even when one variable
-determines the other.
+The distinction between zero covariance and independence noted in
+Section~\ref{sec:variance} has a particularly sharp example: one
+variable can determine the other completely while their correlation
+is zero.
 
 Let \(X\) be uniform on \([-1,1]\), and let \(Y=X^2\). Then
 \[
@@ -392,136 +287,20 @@ Correlation detects alignment of signed deviations, not every possible
 relationship. An upward-then-downward or U-shaped relationship can
 have zero correlation while remaining highly informative.
 
-\section{Conditional expectation and two sources of variation}
+\section{Conditional means as prediction rules}
 \label{sec:conditional-moments}
 
-\subsection{A mean that depends on what we observe}
-
-Before seeing the first response, our average prediction for the second
-click is \(0.5\). After seeing it, the relevant average is \(0.18\) or
-\(0.82\). The function
-\[
-  m(x)=\Expect[Y\mid X=x]
-\]
-assigns a mean to each conditional distribution. In the click example,
-\[
-  m(0)=0.18,\qquad m(1)=0.82.
-\]
-For fixed \(x\), \(m(x)\) is a number. Before \(X\) is observed,
-\(m(X)\) is a random variable. This random variable is denoted
-\(\Expect[Y\mid X]\). The same distinction applies to
-\(\Expect[X\mid Y]\): the variable after the bar specifies the
-information available, and the variable before it is averaged.
-
-The conditional mean uses the usual expectation formula with a
-conditional distribution:
-\[
-  m(x)=
-  \begin{cases}
-    \displaystyle\sum_y y\,p_{Y\mid X}(y\mid x),
-      &\text{discrete},\\[6pt]
-    \displaystyle\int_{-\infty}^{\infty}y f_{Y\mid X}(y\mid x)\,dy,
-      &\text{with a conditional density}.
-  \end{cases}
-\]
-For a binary outcome, its conditional mean is simply its conditional
-probability of being one.
-
-For the ordered arrival times, \(T_2\mid T_1=t\) is uniform on
-\((t,1)\), so its mean is the midpoint:
-\[
-  \Expect[T_2\mid T_1=t]=\frac{t+1}{2},\qquad
-  \Expect[T_2-T_1\mid T_1=t]=\frac{1-t}{2}.
-\]
-If the first person arrives at minute fifteen, the expected remaining
-wait is \((1-1/4)/2=3/8\) hour, or \(22.5\) minutes.
-
-\subsection{Averaging conditional means returns the overall mean}
-
-Half of first responses are clicks. Averaging the two corresponding
-second-click probabilities gives
-\[
-  \Expect[m(X)]=\tfrac12(0.18)+\tfrac12(0.82)=0.5=\Expect[Y].
-\]
-This is the law of total expectation from Chapter~\ref{chap:distributions},
-now applied to an observed response rather than a hidden group label.
-For integrable \(Y\),
-\begin{equation}
-  \Expect[\Expect[Y\mid X]]=\Expect[Y].
-  \label{eq:tower-joint}
-\end{equation}
-In a discrete model the reason is visible by expanding both averages:
-\[
-  \sum_x\left(\sum_y y\,p_{Y\mid X}(y\mid x)\right)p_X(x)
-  =\sum_x\sum_y y\,p_{X,Y}(x,y)=\Expect[Y].
-\]
-For a pair with a density, replace the sums by integrals. For the
-arrival example,
-\[
-  \Expect[T_2]
-  =\Expect\!\left[\frac{T_1+1}{2}\right]
-  =\frac{1/3+1}{2}=\frac23.
-\]
-There is no independence assumption: the formula explicitly accounts
-for how the conditional distribution changes with \(X\).
-
-\subsection{Within-group variation and variation of group means}
-
-The conditional variance is
-\[
-  v(x)=\Var(Y\mid X=x)
-      =\Expect[(Y-m(x))^2\mid X=x].
-\]
-It measures the uncertainty left after the value of \(X\) is known.
-The notation \(\Var(Y\mid X)=v(X)\) is again a random variable.
-
-Write \(\mu=\Expect[Y]\). Each deviation from the overall mean splits as
-\[
-  Y-\mu=\underbrace{Y-m(X)}_{\text{deviation from conditional mean}}
-       +\underbrace{m(X)-\mu}_{\text{shift of conditional mean}}.
-\]
-Within a group with fixed \(X=x\), the first term has mean zero, and
-the second term is constant. Their product therefore has conditional
-mean zero. Square the decomposition and average, first within groups
-and then over \(X\), to obtain
-\begin{equation}
-  \boxed{\Var(Y)=\Expect[\Var(Y\mid X)]
-                    +\Var(\Expect[Y\mid X]).}
-  \label{eq:total-variance-joint}
-\end{equation}
-This holds when \(Y\) has a finite second moment. It generalizes the
-within-source and between-source decomposition in
-\eqref{eq:mixture-variance} to arbitrary conditioning information.
-
-In the click example, both conditional Bernoulli variances are
-\(0.18(0.82)=0.1476\). The conditional means lie \(0.32\) on either
-side of \(0.5\), giving
-\[
-  \underbrace{0.25}_{\Var(Y)}
-  =\underbrace{0.1476}_{\Expect[\Var(Y\mid X)]}
-   +\underbrace{0.1024}_{\Var(\Expect[Y\mid X])}.
-\]
-Observing the first click removes some uncertainty about the second,
-but it does not determine the second response.
-
-Total variance implies that the \emph{average} conditional variance is
-at most the unconditional variance. It does not require every group to
-have smaller variance. In the noisy-sensor mixture of
-Section~\ref{sec:student}, identifying a reading as coming from the
-noisy component gives variance \(25\sigma^2\), larger than the pooled
-variance \(2.2\sigma^2\).
-
-\subsection{Why the conditional mean is useful for prediction}
-
-Suppose we predict \(Y\) using only \(X\), with a rule \(a(X)\).
-Inside a fixed group \(X=x\), expanding a square gives
+The conditional moments from Section~\ref{sec:mixtures} also determine
+which prediction rule has the smallest mean squared error. Write
+\(m(x)=\Expect[Y\mid X=x]\) and \(v(x)=\Var(Y\mid X=x)\), and assume
+\(Y\) has a finite second moment. For a prediction \(a(x)\), expand
+\(Y-a(x)=(Y-m(x))+(m(x)-a(x))\) inside the group \(X=x\):
 \[
   \Expect[(Y-a(x))^2\mid X=x]
   =v(x)+(m(x)-a(x))^2.
 \]
-The cross term disappears because the deviations from \(m(x)\) have
-conditional mean zero. Consequently, for a rule with finite mean
-squared error,
+The cross term has conditional mean zero. Applying total expectation
+\eqref{eq:total-expectation}, for a rule with finite mean squared error,
 \[
   \Expect[(Y-a(X))^2]
   =\Expect[v(X)]+\Expect[(m(X)-a(X))^2].
@@ -530,9 +309,10 @@ The first term is uncertainty left in \(Y\) after observing \(X\).
 The second is the extra error from predicting something other than the
 conditional mean. It is nonnegative and vanishes for \(a(X)=m(X)\).
 Thus the conditional mean gives the smallest expected squared prediction
-error among rules using the same information. For the clicks, the
-constant rule \(0.5\) has error \(0.25\), whereas the conditional-mean
-rule has error \(0.1476\). This is a property of the probability model;
+error among rules using the same information. In the click table,
+\(m(0)=0.18\) and \(m(1)=0.82\), so its error is
+\(0.18(0.82)=0.1476\), compared with \(0.25\) for the constant
+prediction \(0.5\). This is a property of the probability model;
 estimating such a rule from a dataset is a separate statistical problem.
 
 \section{Random vectors and covariance matrices}
@@ -662,11 +442,6 @@ Both new means are zero, and matrix multiplication gives
   \Cov\!\begin{pmatrix}M\\D\end{pmatrix}
   =A\begin{pmatrix}1&0.8\\0.8&1\end{pmatrix}A^\top
   =\begin{pmatrix}0.9&0\\0&0.4\end{pmatrix}.
-\]
-In scalar form,
-\[
-  \Var(M)=\frac{1+1+2(0.8)}4=0.9,\qquad
-  \Var(D)=1+1-2(0.8)=0.4.
 \]
 Positively correlated errors often move together, so averaging them
 removes little of the shared error. Subtracting them cancels that
@@ -941,13 +716,9 @@ not have a linear mean or a constant variance.
   \label{fig:gaussian-conditional-density}
 \end{figure}
 
-Total variance checks the result directly:
-\[
-  \underbrace{\sigma_Y^2}_{\text{total variance}}
-  =\underbrace{\sigma_Y^2(1-\rho^2)}_{\text{remaining after observing }X}
-   +\underbrace{\rho^2\sigma_Y^2}_{\text{variation of the conditional mean}}.
-\]
-In the numerical model, \(1=0.36+0.64\). If \(\rho=0\), observing
+As a check using total variance \eqref{eq:total-variance}, the numerical
+model gives \(1=0.36+0.64\): residual variance plus variance of the
+conditional mean. If \(\rho=0\), observing
 \(X\) changes neither the mean nor the variance, consistent with
 Gaussian independence. As \(|\rho|\) approaches one, the remaining
 variance approaches zero. At \(|\rho|=1\), the relationship is exact
@@ -956,26 +727,15 @@ and the conditional distribution is a point mass.
 \section{Gaussian class-conditional models}
 \label{sec:gaussian-classification}
 
-Suppose an object belongs to one of several classes, recorded by
-\(C\in\{1,\ldots,K\}\), and \(\mathbf X\) is its vector of measured
-features. A Gaussian class-conditional model assumes
+Let \(C\) denote the class label, taking values \(1,\ldots,K\). Use
+Gaussian class-conditional densities in \eqref{eq:bayesian-classifier}:
 \[
   \Prob(C=k)=\pi_k,\qquad
   \mathbf X\mid C=k\sim\mathcal N_d(\boldsymbol\mu_k,\Sigma_k).
 \]
-Each class has its own center and covariance. For positive-definite
-\(\Sigma_k\), let \(f_k\) denote its Gaussian density. Bayes' theorem
-from Chapter~\ref{chap:probability-models} now gives
-\begin{equation}
-  \Prob(C=k\mid\mathbf X=\mathbf x)
-  =\frac{\pi_k f_k(\mathbf x)}{\sum_j\pi_j f_j(\mathbf x)}.
-  \label{eq:gaussian-class-posterior}
-\end{equation}
-For a continuous feature vector, this is a density-based conditional
-probability, just as in \eqref{eq:joint-conditional-density}.
-The denominator is the feature density after the class label is
-ignored: a Gaussian mixture of the kind introduced in
-Section~\ref{sec:mixtures}.
+For positive-definite \(\Sigma_k\), let \(f_k\) be the corresponding
+Gaussian density. The new modeling choice is the covariance structure
+\emph{within each class}.
 
 \subsection{The relationship between features can identify the class}
 
