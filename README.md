@@ -8,10 +8,19 @@ complete course structure and currently contains:
 - Lecture 2: expectation and variance; Exponential, Poisson, Gamma, Bernoulli,
   Binomial, Geometric, and Gaussian distributions; mixtures and heterogeneity;
   and a short extension on Student's t-distribution.
+- Lecture 3: joint, marginal, and conditional distributions; covariance and
+  correlation; conditional expectation and total variance; random vectors and
+  covariance matrices; multivariate Gaussians, linear transformations, and
+  Gaussian class-conditional models.
 
 Lecture 2 develops each distribution from a concrete experiment, with worked
 examples, derivations, five original vector figures, and a distribution
 reference table.
+
+Lecture 3 builds on the shared-user and sensor examples from Lecture 2. It
+includes worked discrete and continuous joint distributions, proofs of the
+conditional-moment identities, three vector figures, and an example where
+the relationship between two features carries all the class information.
 
 ## Build
 

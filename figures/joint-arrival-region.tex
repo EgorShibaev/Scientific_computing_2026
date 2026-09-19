@@ -1,0 +1,22 @@
+\begin{tikzpicture}[x=5.2cm,y=5.2cm]
+  \fill[CourseBlue!12] (0,0)--(0,1)--(1,1)--cycle;
+  \fill[CourseBlue!45] (0,0)--(0,0.5)--(0.5,0.5)--cycle;
+  \draw[CourseBlue,thick] (0,0)--(1,1)--(0,1);
+  \draw[->] (-0.02,0)--(1.12,0) node[right]{\(t_1\)};
+  \draw[->] (0,-0.02)--(0,1.12) node[above]{\(t_2\)};
+  \draw[orange!80!black,very thick] (0.25,0.25)--(0.25,1);
+  \draw[orange!80!black,dashed] (0.25,0)--(0.25,0.25);
+  \draw[dashed,CourseGray] (0,0.5)--(0.5,0.5);
+  \foreach \x/\lab in {0.25/{1/4},0.5/{1/2},1/1}{
+    \draw (\x,0)--(\x,-0.018) node[below,font=\small]{\(\lab\)};
+  }
+  \foreach \y/\lab in {0.5/{1/2},1/1}{
+    \draw (0,\y)--(-0.018,\y) node[left,font=\small]{\(\lab\)};
+  }
+  \node[below left,font=\small] at (0,0){\(0\)};
+  \node[font=\small,CourseDark] at (0.54,0.84){Density \(2\)};
+  \node[font=\small,CourseGray] at (0.73,0.25){Impossible};
+  \node[anchor=west,font=\small,text=orange!80!black] at (1.18,0.80)
+    {Fix \(t_1=1/4\)};
+  \draw[->,orange!80!black] (1.17,0.74)--(0.28,0.67);
+\end{tikzpicture}

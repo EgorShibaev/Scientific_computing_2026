@@ -1,0 +1,19 @@
+\begin{tikzpicture}
+\foreach \r/\offset/\heading in {0/0/{\rho=0},0.8/4.9/{\rho=0.8},-0.8/9.8/{\rho=-0.8}}{
+  \begin{axis}[
+    at={(\offset cm,0)},anchor=south west,
+    width=4.8cm,height=4.8cm,scale only axis=false,
+    axis equal image,axis lines=middle,
+    xmin=-2.6,xmax=2.6,ymin=-2.6,ymax=2.6,
+    xtick={-2,0,2},ytick={-2,0,2},
+    xlabel={\(x_1\)},ylabel={\(x_2\)},
+    title={\(\heading\)},title style={font=\small},
+    tick label style={font=\scriptsize},label style={font=\small},
+    grid=major,grid style={black!6},
+    domain=0:360,samples=121,
+  ]
+    \addplot[CourseBlue,thick] ({cos(x)},{\r*cos(x)+sqrt(1-\r*\r)*sin(x)});
+    \addplot[CourseBlue,thick] ({2*cos(x)},{2*(\r*cos(x)+sqrt(1-\r*\r)*sin(x))});
+  \end{axis}
+}
+\end{tikzpicture}

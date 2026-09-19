@@ -1,0 +1,1053 @@
+\addtocontents{toc}{\protect\newpage}
+\chapter{Joint Distributions, Dependence, and Random Vectors}
+\chaptermark{Joint Distributions and Random Vectors}
+\label{chap:joint-distributions}
+
+\section{Two observations from the same user}
+\label{sec:joint-tables}
+
+Show two posts to one randomly chosen user. Let \(X\) indicate a click
+on the first post and \(Y\) a click on the second. Each variable is
+either zero or one. Knowing the click probability for each post does not
+yet tell us the probability of two clicks: we also need to know how the
+responses are related.
+
+Use the population from Section~\ref{sec:mixtures}: half the users have
+click probability \(0.1\), and half have click probability \(0.9\).
+Once a user is selected, their two responses are independent with that
+user's probability. Write \(P\) for this shared probability.
+
+For either post, the marginal click probability is
+\[
+  \Prob(X=1)=\Prob(Y=1)=\tfrac12(0.1)+\tfrac12(0.9)=0.5.
+\]
+But the probability of two clicks is
+\[
+  \Prob(X=1,Y=1)
+  =\tfrac12(0.1)^2+\tfrac12(0.9)^2=0.41,
+\]
+not \(0.5\times0.5=0.25\). The same user supplies both responses, so
+both share the same tendency to click. Similarly,
+\[
+  \Prob(X=1,Y=0)
+  =\tfrac12(0.1)(0.9)+\tfrac12(0.9)(0.1)=0.09.
+\]
+The four possible pairs give the following table.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & \(Y=0\) & \(Y=1\) & Row total\\
+\midrule
+\(X=0\) & \(0.41\) & \(0.09\) & \(0.50\)\\
+\(X=1\) & \(0.09\) & \(0.41\) & \(0.50\)\\
+\midrule
+Column total & \(0.50\) & \(0.50\) & \(1\)\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Joint and marginal probabilities}
+
+The entries inside the table form the \emph{joint probability mass
+function}:
+\[
+  p_{X,Y}(x,y)=\Prob(X=x,Y=y).
+\]
+The comma means that both equalities hold in the same repetition of the
+experiment. A joint PMF must be nonnegative and satisfy
+\(\sum_x\sum_y p_{X,Y}(x,y)=1\). To find the probability of an event,
+add the cells that satisfy it. For example,
+\[
+  \Prob(X=Y)=0.41+0.41=0.82.
+\]
+
+If we only care about the first response, either value of the second is
+acceptable. We therefore add across a row:
+\begin{equation}
+  p_X(x)=\sum_y p_{X,Y}(x,y),\qquad
+  p_Y(y)=\sum_x p_{X,Y}(x,y).
+  \label{eq:joint-marginals-discrete}
+\end{equation}
+These are the \emph{marginal} PMFs, written in the margins of the table.
+Marginalizing means ignoring a variable by summing over its possible
+values, not setting it to zero.
+
+If the two responses instead came from independently selected users,
+every interior cell would be \(0.25\). The row and column totals would
+still be \(0.5\). Thus the same two marginal distributions can belong
+to very different joint distributions.
+
+\subsection{Conditioning selects and renormalizes a row}
+
+Suppose we observe a click on the first post. Among the cases in the
+\(X=1\) row, the fraction with a second click is
+\[
+  \Prob(Y=1\mid X=1)=\frac{0.41}{0.50}=0.82.
+\]
+After a first non-click, it is instead
+\[
+  \Prob(Y=1\mid X=0)=\frac{0.09}{0.50}=0.18.
+\]
+Each conditional distribution divides the selected row by its total so
+that its entries add to one. In general, for \(p_X(x)>0\),
+\begin{equation}
+  p_{Y\mid X}(y\mid x)=\frac{p_{X,Y}(x,y)}{p_X(x)},
+  \qquad
+  p_{X,Y}(x,y)=p_X(x)p_{Y\mid X}(y\mid x).
+  \label{eq:joint-factorization-discrete}
+\end{equation}
+
+The first click is informative because it changes which type of user
+we think we selected. Bayes' theorem gives
+\[
+  \Prob(P=0.9\mid X=1)=\frac{0.9(0.5)}{0.5}=0.9.
+\]
+Averaging the second-click probability over this updated population
+gives \(0.9(0.9)+0.1(0.1)=0.82\), as the table did.
+Nothing in this model says that the first click \emph{causes} the second:
+both reflect the same unobserved user probability.
+
+\subsection{Independence means the joint distribution factors}
+
+For independent responses, learning \(X\) would leave the distribution
+of \(Y\) unchanged. In a discrete model this is equivalent to
+\begin{equation}
+  p_{X,Y}(x,y)=p_X(x)p_Y(y)\quad\text{for every }x,y.
+  \label{eq:joint-independence-discrete}
+\end{equation}
+For general random variables, independence means
+\[
+  \Prob(X\in A,Y\in B)=\Prob(X\in A)\Prob(Y\in B)
+\]
+for all measurable sets \(A,B\). The PMF condition checks this using
+individual cells. We write \(X\independent Y\).
+
+In our example, the responses are \emph{conditionally independent}
+given \(P\): for either fixed user probability, their conditional joint
+PMF factors. They are not independent when that probability is unknown
+and averaged out. This distinction explains why repeated observations
+from one person can behave differently from observations from different
+people.
+
+\section{Joint densities: probability over a region}
+\label{sec:joint-densities}
+
+For a pair with a joint density, replace the probability table by a density over
+the plane. Near \((x,y)\), a small rectangle of side lengths
+\(\Delta x,\Delta y\) has probability approximately
+\(f_{X,Y}(x,y)\Delta x\Delta y\). Adding small rectangles becomes a
+double integral. For a region \(R\),
+\[
+  \Prob((X,Y)\in R)=\iint_R f_{X,Y}(x,y)\,dx\,dy.
+\]
+The density is nonnegative, and its integral over the whole plane is one.
+
+\subsection{Two arrival times, put in order}
+
+Suppose two people each independently choose an arrival time uniformly
+within a one-hour window. Let \(U,V\) be their times in hours after the
+window begins. Their unordered pair is uniform on the unit square:
+\(f_{U,V}(u,v)=1\) for \(0<u,v<1\).
+
+Now record the earlier and later times,
+\[
+  T_1=\min(U,V),\qquad T_2=\max(U,V).
+\]
+For \(t_1<t_2\), the ordered pair near \((t_1,t_2)\) can arise from
+\((U,V)\) near either \((t_1,t_2)\) or \((t_2,t_1)\). These two
+equally sized regions contribute equally. Hence
+\[
+  f_{T_1,T_2}(t_1,t_2)=
+  \begin{cases}
+    2,&0<t_1<t_2<1,\\
+    0,&\text{otherwise}.
+  \end{cases}
+\]
+The allowed triangle has area \(1/2\); multiplying by the density two
+gives total probability one. Sorting has introduced dependence: the
+later time cannot be smaller than the earlier time.
+
+For instance, both arrivals occur in the first half-hour exactly when
+\(T_2\le1/2\). The relevant triangle has area
+\(\tfrac12(\tfrac12)^2=1/8\), so
+\[
+  \Prob(T_2\le1/2)=2\cdot\frac18=\frac14.
+\]
+This agrees with the probability that both independent original times
+fall in the first half of the window.
+
+\subsection{Marginalizing integrates along a slice}
+
+Fix an earlier time \(t\). The later time can range from \(t\) to one,
+so the marginal density of the earlier time is
+\[
+  f_{T_1}(t)=\int_t^1 2\,ds=2(1-t),\qquad 0<t<1.
+\]
+There are more possible later arrivals when the first arrival is early.
+Conversely, if the later arrival is at \(s\), the earlier one can be
+anywhere between zero and \(s\):
+\[
+  f_{T_2}(s)=\int_0^s2\,dt=2s,\qquad 0<s<1.
+\]
+The general marginalization rules are
+\begin{equation}
+  f_X(x)=\int_{-\infty}^{\infty}f_{X,Y}(x,y)\,dy,
+  \qquad
+  f_Y(y)=\int_{-\infty}^{\infty}f_{X,Y}(x,y)\,dx.
+  \label{eq:joint-marginals-continuous}
+\end{equation}
+Although the bounds are written over the whole line, the integrand is
+zero outside the joint support. The triangular support is what produced
+the variable integration limits in the example.
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/joint-arrival-region}
+  \caption{Every possible ordered pair lies above the diagonal
+  \(t_2=t_1\). The dark triangle represents two arrivals before half an
+  hour. At a fixed \(t_1=1/4\), the later time ranges along the marked
+  vertical segment from \(1/4\) to one. Marginalizing adds density along
+  such a segment; conditioning normalizes the segment's density.}
+  \label{fig:joint-arrival-region}
+\end{figure}
+
+\subsection{A conditional density is a normalized slice}
+
+If the first arrival is at time \(t\), how much longer do we wait for
+the second? Dividing the joint density by the earlier-time marginal gives
+\[
+  f_{T_2\mid T_1}(s\mid t)
+  =\frac{2}{2(1-t)}=\frac1{1-t},\qquad t<s<1.
+\]
+Thus, conditional on the earlier time, the later time is uniform over
+the remaining part of the window. At \(t=1/4\), for example,
+\[
+  \Prob(T_2>3/4\mid T_1=1/4)
+  =\int_{3/4}^{1}\frac{1}{1-1/4}\,ds=\frac13.
+\]
+
+In general, wherever \(f_X(x)>0\), the conditional-density formula is
+\begin{equation}
+  f_{Y\mid X}(y\mid x)=\frac{f_{X,Y}(x,y)}{f_X(x)}.
+  \label{eq:joint-conditional-density}
+\end{equation}
+This is not a division by \(\Prob(X=x)\), which is zero for a continuous
+variable. One way to understand the formula is to condition on a narrow
+interval around \(x\), then shrink that interval. In a smooth density
+model this leaves the normalized slice above. Conditional densities
+need only be specified for almost every conditioning value, meaning
+that changing them on a set of \(X\)-probability zero has no effect.
+
+For a pair with a joint density, independence is equivalent to
+\(f_{X,Y}(x,y)=f_X(x)f_Y(y)\) almost everywhere. The ordered times fail
+this test: both marginals are positive inside \((0,1)\), but their
+joint density is zero whenever \(t_1>t_2\).
+
+\section{Averaging a function of two observations}
+\label{sec:joint-expectations}
+
+Sometimes we care about a quantity computed from the pair, such as the
+total clicks \(X+Y\), the indicator of two clicks \(XY\), or the gap
+\(T_2-T_1\). As in Section~\ref{sec:expectation}, calculate the quantity
+at each outcome and average it with the outcome's probability:
+\begin{equation}
+  \Expect[g(X,Y)]=
+  \begin{cases}
+    \displaystyle\sum_x\sum_y g(x,y)p_{X,Y}(x,y),
+      &\text{discrete pair},\\[6pt]
+    \displaystyle\iint_{\Real^2}g(x,y)f_{X,Y}(x,y)\,dx\,dy,
+      &\text{pair with a density}.
+  \end{cases}
+  \label{eq:joint-function-expectation}
+\end{equation}
+We require \(\Expect[|g(X,Y)|]<\infty\) for a finite expectation.
+There is no need to derive the distribution of \(g(X,Y)\) first.
+
+For the click pair, \(XY\) is one only in the \((1,1)\) cell, so
+\[
+  \Expect[XY]=0.41,\qquad
+  \Expect[X+Y]=\Expect[X]+\Expect[Y]=1.
+\]
+Linearity applies to the sum even though the clicks are dependent.
+For the ordered arrival times, the average gap is
+\begin{align*}
+  \Expect[T_2-T_1]
+    &=\int_0^1\int_t^1(s-t)\,2\,ds\,dt\\
+    &=\int_0^1(1-t)^2\,dt=\frac13\text{ hour}.
+\end{align*}
+The separate means give the same answer:
+\(\Expect[T_1]=1/3\) and \(\Expect[T_2]=2/3\), obtained by integrating
+against their marginal densities.
+
+If \(X,Y\) are independent and have finite absolute first moments,
+their joint probabilities factor, so
+\begin{align*}
+  \Expect[XY]
+    &=\sum_x\sum_y xy\,p_X(x)p_Y(y)\\
+    &=\left(\sum_x x p_X(x)\right)
+      \left(\sum_y y p_Y(y)\right)
+     =\Expect[X]\Expect[Y].
+\end{align*}
+Integrals give the same result for independent variables with densities.
+This factorization also applies to integrable functions of independent
+variables: \(\Expect[a(X)b(Y)]=\Expect[a(X)]\Expect[b(Y)]\).
+The click table shows why it cannot be assumed without independence.
+
+\section{Covariance and correlation}
+\label{sec:covariance-correlation}
+
+In Chapter~\ref{chap:distributions}, covariance appeared as the extra
+term in the variance of a sum. We can now compute it from a joint
+distribution and examine what it does, and does not, tell us.
+
+\subsection{Do deviations reinforce or cancel each other?}
+
+Let \(\mu_X=\Expect[X]\) and \(\mu_Y=\Expect[Y]\), and assume both
+variables have finite second moments. When both observations are above
+their means, or both are below, the product
+\((X-\mu_X)(Y-\mu_Y)\) is positive. When they deviate in opposite
+directions, it is negative. Covariance averages these products:
+\begin{align}
+  \Cov(X,Y)
+    &=\Expect[(X-\mu_X)(Y-\mu_Y)]\notag\\
+    &=\Expect[XY]-\Expect[X]\Expect[Y].
+  \label{eq:covariance-product}
+\end{align}
+The second line follows by expanding the product and taking expectations.
+
+For the two clicks,
+\[
+  \Cov(X,Y)=0.41-(0.5)(0.5)=0.16.
+\]
+The agreement cells \((0,0)\) and \((1,1)\) have more probability than
+the disagreement cells. Their positive centered products dominate.
+Consequently, the two-click total is more variable than the total of
+two independent \(\operatorname{Bernoulli}(0.5)\) variables:
+\[
+  \Var(X+Y)=0.25+0.25+2(0.16)=0.82,
+\]
+instead of \(0.5\). Indeed, the total is zero or two with probability
+\(0.41\) each, and one with probability \(0.18\).
+
+Covariance depends on units. If \(X\) is measured in minutes and \(Y\)
+in bytes, covariance is measured in minute-bytes. More generally,
+\[
+  \Cov(aX+b,cY+d)=ac\,\Cov(X,Y).
+\]
+Shifts do not change deviations; scaling changes their product.
+
+\subsection{Correlation removes the units}
+
+For positive standard deviations \(\sigma_X,\sigma_Y\), define
+\begin{equation}
+  \rho_{X,Y}=\frac{\Cov(X,Y)}{\sigma_X\sigma_Y}
+  =\Expect\!\left[
+      \frac{X-\mu_X}{\sigma_X}\frac{Y-\mu_Y}{\sigma_Y}
+    \right].
+  \label{eq:correlation}
+\end{equation}
+This is the average product of the standardized deviations. Changing
+minutes to seconds no longer affects the answer. Reversing the sign of
+one variable reverses the sign of the correlation. For our clicks,
+\(\sigma_X=\sigma_Y=0.5\), hence \(\rho_{X,Y}=0.64\).
+
+To see why correlation lies between \(-1\) and one, put
+\(U=(X-\mu_X)/\sigma_X\) and \(V=(Y-\mu_Y)/\sigma_Y\). Both have
+mean zero and variance one, so
+\[
+  0\le\Expect[(U-V)^2]=2-2\rho_{X,Y},\qquad
+  0\le\Expect[(U+V)^2]=2+2\rho_{X,Y}.
+\]
+At \(\rho=1\), the first square has expectation zero, so \(U=V\)
+with probability one. At \(\rho=-1\), \(U=-V\) with probability one.
+Thus perfect correlation means an exact affine relationship, with
+positive or negative slope. Correlation is undefined if either variable
+has variance zero: a constant has no fluctuations to standardize.
+
+\subsection{Zero covariance can hide complete dependence}
+
+Independence implies zero covariance because expectations of products
+factor. The reverse implication fails: positive and negative
+contributions to covariance can cancel even when one variable
+determines the other.
+
+Let \(X\) be uniform on \([-1,1]\), and let \(Y=X^2\). Then
+\[
+  \Expect[X]=0,\qquad \Expect[Y]=\Expect[X^2]=\frac13,
+  \qquad \Expect[XY]=\Expect[X^3]=0.
+\]
+The odd powers average to zero by symmetry. Thus
+\(\Cov(X,Y)=0\), and the correlation is zero since both variances
+are positive. Yet knowing \(X\) tells us \(Y\) exactly.
+
+An event calculation also rules out independence. Here
+\(Y\le1/4\) is exactly the event \(|X|\le1/2\), so
+\[
+  \Prob(Y\le1/4\mid |X|\le1/2)=1,
+  \qquad \Prob(Y\le1/4)=\frac12.
+\]
+Correlation detects alignment of signed deviations, not every possible
+relationship. An upward-then-downward or U-shaped relationship can
+have zero correlation while remaining highly informative.
+
+\section{Conditional expectation and two sources of variation}
+\label{sec:conditional-moments}
+
+\subsection{A mean that depends on what we observe}
+
+Before seeing the first response, our average prediction for the second
+click is \(0.5\). After seeing it, the relevant average is \(0.18\) or
+\(0.82\). The function
+\[
+  m(x)=\Expect[Y\mid X=x]
+\]
+assigns a mean to each conditional distribution. In the click example,
+\[
+  m(0)=0.18,\qquad m(1)=0.82.
+\]
+For fixed \(x\), \(m(x)\) is a number. Before \(X\) is observed,
+\(m(X)\) is a random variable. This random variable is denoted
+\(\Expect[Y\mid X]\). The same distinction applies to
+\(\Expect[X\mid Y]\): the variable after the bar specifies the
+information available, and the variable before it is averaged.
+
+The conditional mean uses the usual expectation formula with a
+conditional distribution:
+\[
+  m(x)=
+  \begin{cases}
+    \displaystyle\sum_y y\,p_{Y\mid X}(y\mid x),
+      &\text{discrete},\\[6pt]
+    \displaystyle\int_{-\infty}^{\infty}y f_{Y\mid X}(y\mid x)\,dy,
+      &\text{with a conditional density}.
+  \end{cases}
+\]
+For a binary outcome, its conditional mean is simply its conditional
+probability of being one.
+
+For the ordered arrival times, \(T_2\mid T_1=t\) is uniform on
+\((t,1)\), so its mean is the midpoint:
+\[
+  \Expect[T_2\mid T_1=t]=\frac{t+1}{2},\qquad
+  \Expect[T_2-T_1\mid T_1=t]=\frac{1-t}{2}.
+\]
+If the first person arrives at minute fifteen, the expected remaining
+wait is \((1-1/4)/2=3/8\) hour, or \(22.5\) minutes.
+
+\subsection{Averaging conditional means returns the overall mean}
+
+Half of first responses are clicks. Averaging the two corresponding
+second-click probabilities gives
+\[
+  \Expect[m(X)]=\tfrac12(0.18)+\tfrac12(0.82)=0.5=\Expect[Y].
+\]
+This is the law of total expectation from Chapter~\ref{chap:distributions},
+now applied to an observed response rather than a hidden group label.
+For integrable \(Y\),
+\begin{equation}
+  \Expect[\Expect[Y\mid X]]=\Expect[Y].
+  \label{eq:tower-joint}
+\end{equation}
+In a discrete model the reason is visible by expanding both averages:
+\[
+  \sum_x\left(\sum_y y\,p_{Y\mid X}(y\mid x)\right)p_X(x)
+  =\sum_x\sum_y y\,p_{X,Y}(x,y)=\Expect[Y].
+\]
+For a pair with a density, replace the sums by integrals. For the
+arrival example,
+\[
+  \Expect[T_2]
+  =\Expect\!\left[\frac{T_1+1}{2}\right]
+  =\frac{1/3+1}{2}=\frac23.
+\]
+There is no independence assumption: the formula explicitly accounts
+for how the conditional distribution changes with \(X\).
+
+\subsection{Within-group variation and variation of group means}
+
+The conditional variance is
+\[
+  v(x)=\Var(Y\mid X=x)
+      =\Expect[(Y-m(x))^2\mid X=x].
+\]
+It measures the uncertainty left after the value of \(X\) is known.
+The notation \(\Var(Y\mid X)=v(X)\) is again a random variable.
+
+Write \(\mu=\Expect[Y]\). Each deviation from the overall mean splits as
+\[
+  Y-\mu=\underbrace{Y-m(X)}_{\text{deviation from conditional mean}}
+       +\underbrace{m(X)-\mu}_{\text{shift of conditional mean}}.
+\]
+Within a group with fixed \(X=x\), the first term has mean zero, and
+the second term is constant. Their product therefore has conditional
+mean zero. Square the decomposition and average, first within groups
+and then over \(X\), to obtain
+\begin{equation}
+  \boxed{\Var(Y)=\Expect[\Var(Y\mid X)]
+                    +\Var(\Expect[Y\mid X]).}
+  \label{eq:total-variance-joint}
+\end{equation}
+This holds when \(Y\) has a finite second moment. It generalizes the
+within-source and between-source decomposition in
+\eqref{eq:mixture-variance} to arbitrary conditioning information.
+
+In the click example, both conditional Bernoulli variances are
+\(0.18(0.82)=0.1476\). The conditional means lie \(0.32\) on either
+side of \(0.5\), giving
+\[
+  \underbrace{0.25}_{\Var(Y)}
+  =\underbrace{0.1476}_{\Expect[\Var(Y\mid X)]}
+   +\underbrace{0.1024}_{\Var(\Expect[Y\mid X])}.
+\]
+Observing the first click removes some uncertainty about the second,
+but it does not determine the second response.
+
+Total variance implies that the \emph{average} conditional variance is
+at most the unconditional variance. It does not require every group to
+have smaller variance. In the noisy-sensor mixture of
+Section~\ref{sec:student}, identifying a reading as coming from the
+noisy component gives variance \(25\sigma^2\), larger than the pooled
+variance \(2.2\sigma^2\).
+
+\subsection{Why the conditional mean is useful for prediction}
+
+Suppose we predict \(Y\) using only \(X\), with a rule \(a(X)\).
+Inside a fixed group \(X=x\), expanding a square gives
+\[
+  \Expect[(Y-a(x))^2\mid X=x]
+  =v(x)+(m(x)-a(x))^2.
+\]
+The cross term disappears because the deviations from \(m(x)\) have
+conditional mean zero. Consequently, for a rule with finite mean
+squared error,
+\[
+  \Expect[(Y-a(X))^2]
+  =\Expect[v(X)]+\Expect[(m(X)-a(X))^2].
+\]
+The first term is uncertainty left in \(Y\) after observing \(X\).
+The second is the extra error from predicting something other than the
+conditional mean. It is nonnegative and vanishes for \(a(X)=m(X)\).
+Thus the conditional mean gives the smallest expected squared prediction
+error among rules using the same information. For the clicks, the
+constant rule \(0.5\) has error \(0.25\), whereas the conditional-mean
+rule has error \(0.1476\). This is a property of the probability model;
+estimating such a rule from a dataset is a separate statistical problem.
+
+\section{Random vectors and covariance matrices}
+\label{sec:random-vectors}
+
+A pair is the simplest example of several measurements made together.
+For a single object we might record height, width, temperature, and two
+sensor readings. Collect \(d\) measurements into a column vector
+\[
+  \mathbf X=
+  \begin{pmatrix}X_1\\ \vdots\\ X_d\end{pmatrix}\in\Real^d.
+\]
+This is a \emph{random vector}: all coordinates refer to the same
+randomly selected object or experimental repetition. A lowercase
+\(\mathbf x\) denotes one realized vector. The joint distribution
+specifies probabilities for regions in \(\Real^d\).
+
+The mean vector averages each coordinate:
+\[
+  \boldsymbol\mu=\Expect[\mathbf X]
+  =\begin{pmatrix}\Expect[X_1]\\ \vdots\\ \Expect[X_d]\end{pmatrix}.
+\]
+To record how every pair of coordinates fluctuates together, arrange
+their covariances into a matrix.
+
+\begin{definition}[Covariance matrix]
+For a random vector with finite second moments,
+\begin{equation}
+  \Sigma=\Expect[(\mathbf X-\boldsymbol\mu)
+                    (\mathbf X-\boldsymbol\mu)^\top],
+  \qquad \Sigma_{ij}=\Cov(X_i,X_j).
+  \label{eq:covariance-matrix}
+\end{equation}
+The superscript \(\top\) denotes transpose: it turns the column of
+deviations into a row. Their product is a \(d\times d\) matrix whose
+\((i,j)\) entry is the product of the two deviations.
+\end{definition}
+
+The diagonal entries are variances; the off-diagonal entries are
+covariances. For the two-click vector,
+\[
+  \boldsymbol\mu=\begin{pmatrix}0.5\\0.5\end{pmatrix},\qquad
+  \Sigma=\begin{pmatrix}0.25&0.16\\0.16&0.25\end{pmatrix}.
+\]
+The matrix is symmetric because \(\Cov(X_i,X_j)=\Cov(X_j,X_i)\).
+If the coordinates have positive variances, standardizing each one
+gives the correlation matrix, with entries
+\(R_{ij}=\Sigma_{ij}/\sqrt{\Sigma_{ii}\Sigma_{jj}}\) and ones on its
+diagonal. For the clicks its off-diagonal entries are \(0.64\).
+
+\subsection{A covariance matrix cannot imply a negative variance}
+
+Take a weighted sum \(S=a_1X_1+\cdots+a_dX_d=\mathbf a^\top\mathbf X\).
+Expanding its squared centered value gives
+\begin{equation}
+  \Var(S)=\sum_{i=1}^d\sum_{j=1}^d
+            a_i a_j\Cov(X_i,X_j)
+         =\mathbf a^\top\Sigma\mathbf a\ge0.
+  \label{eq:variance-quadratic-form}
+\end{equation}
+A symmetric matrix satisfying this inequality for every real vector
+\(\mathbf a\) is called \emph{positive semidefinite}. Every covariance
+matrix must have this property. It is \emph{positive definite} if the
+inequality is strict for every nonzero \(\mathbf a\), meaning that no
+nontrivial weighted combination has zero variance.
+
+For example, the symmetric matrix
+\[
+  M=\begin{pmatrix}1&2\\2&1\end{pmatrix}
+\]
+cannot be a covariance matrix. It would imply
+\(\Var(X_1-X_2)=1+1-2(2)=-2\). Positive diagonal entries alone do not
+make a covariance matrix valid. In two dimensions, a symmetric matrix
+\[
+  \begin{pmatrix}v_1&c\\c&v_2\end{pmatrix}
+\]
+is positive semidefinite exactly when
+\(v_1\ge0\), \(v_2\ge0\), and \(c^2\le v_1v_2\).
+For positive variances, the last condition is the correlation bound
+\(|\rho|\le1\).
+
+A diagonal covariance matrix means that distinct coordinates are
+uncorrelated. It does not generally mean that they are independent:
+\((X,X^2)\), with \(X\) uniform on \([-1,1]\), remains a counterexample.
+
+\section{Linear transformations of random vectors}
+\label{sec:random-linear-transforms}
+
+Two sensors measuring the same quantity can be summarized by their
+average and their difference. Converting units, subtracting a known
+bias, or combining features into a score are other examples of linear
+combinations. We want rules for the means and covariances of the results.
+
+Let \(A\) be a fixed \(k\times d\) matrix and \(\mathbf b\in\Real^k\)
+a fixed vector, and set
+\[
+  \mathbf W=A\mathbf X+\mathbf b.
+\]
+Row \(i\) of \(A\) supplies the weights for the \(i\)-th new variable.
+Linearity of expectation gives
+\begin{equation}
+  \Expect[\mathbf W]=A\boldsymbol\mu+\mathbf b.
+  \label{eq:linear-mean-vector}
+\end{equation}
+Subtracting this mean yields
+\(\mathbf W-\Expect[\mathbf W]=A(\mathbf X-\boldsymbol\mu)\). Hence
+\begin{align}
+  \Cov(\mathbf W)
+    &=\Expect[A(\mathbf X-\boldsymbol\mu)
+                  (\mathbf X-\boldsymbol\mu)^\top A^\top]\notag\\
+    &=A\Sigma A^\top.
+  \label{eq:linear-covariance-vector}
+\end{align}
+Here \(\Cov(\mathbf W)\) denotes the covariance matrix of a vector.
+These rules need finite second moments, not independence or Gaussian
+distributions.
+
+\begin{example}[Average error and disagreement between sensors]
+Let \(X_1,X_2\) be centered sensor errors with variances one and
+covariance \(0.8\). Define
+\[
+  M=\frac{X_1+X_2}{2},\qquad D=X_1-X_2,\qquad
+  A=\begin{pmatrix}1/2&1/2\\1&-1\end{pmatrix}.
+\]
+Both new means are zero, and matrix multiplication gives
+\[
+  \Cov\!\begin{pmatrix}M\\D\end{pmatrix}
+  =A\begin{pmatrix}1&0.8\\0.8&1\end{pmatrix}A^\top
+  =\begin{pmatrix}0.9&0\\0&0.4\end{pmatrix}.
+\]
+In scalar form,
+\[
+  \Var(M)=\frac{1+1+2(0.8)}4=0.9,\qquad
+  \Var(D)=1+1-2(0.8)=0.4.
+\]
+Positively correlated errors often move together, so averaging them
+removes little of the shared error. Subtracting them cancels that
+shared variation. With independent unit-variance errors, the two
+variances would instead be \(0.5\) and \(2\).
+\end{example}
+
+The zero covariance between \(M\) and \(D\) follows from the equal
+original variances. It does not by itself establish independence. The
+Gaussian model below supplies an important case where it does.
+
+\section{The multivariate Gaussian}
+\label{sec:multivariate-gaussian}
+
+\subsection{Construct correlated readings from independent noise}
+
+Let \(Z_1,Z_2\) be independent standard Gaussian variables. Consider
+the sensor-error model
+\[
+  X_1=Z_1,\qquad X_2=0.8Z_1+0.6Z_2.
+\]
+Both sensors contain the disturbance \(Z_1\); the second also has an
+independent disturbance \(Z_2\). The known rules for independent
+Gaussian sums give
+\[
+  \Expect[X_1]=\Expect[X_2]=0,\qquad
+  \Var(X_1)=1,\qquad \Var(X_2)=0.8^2+0.6^2=1,
+\]
+and
+\[
+  \Cov(X_1,X_2)=0.8\Var(Z_1)+0.6\Cov(Z_1,Z_2)=0.8.
+\]
+Thus both marginal distributions are standard Gaussian, but their
+joint distribution is correlated. It is a \emph{bivariate Gaussian}.
+
+The construction extends to any number of measurements.
+
+\begin{definition}[Multivariate Gaussian]
+Let \(\mathbf Z\) have \(m\) independent standard Gaussian coordinates,
+and let \(A\) be a fixed \(d\times m\) matrix. A vector of the form
+\[
+  \mathbf X=\boldsymbol\mu+A\mathbf Z
+\]
+has a multivariate Gaussian distribution, written
+\[
+  \mathbf X\sim\mathcal N_d(\boldsymbol\mu,\Sigma),
+  \qquad \Sigma=AA^\top.
+\]
+Its mean vector is \(\boldsymbol\mu\), and its covariance matrix is
+\(\Sigma\).
+\end{definition}
+
+The independent noises supply the randomness; the rows of \(A\) specify
+which noises each measurement shares. Equivalently, a vector is jointly
+Gaussian if every real linear combination of its coordinates is a
+univariate Gaussian, allowing a constant when the variance is zero.
+For the construction above this follows because each combination is
+itself a sum of independent Gaussian noises. In particular,
+\begin{equation}
+  \mathbf a^\top\mathbf X
+  \sim\mathcal N(\mathbf a^\top\boldsymbol\mu,
+                 \mathbf a^\top\Sigma\mathbf a).
+  \label{eq:gaussian-linear-combination}
+\end{equation}
+
+\subsection{From circular to elliptical density contours}
+
+Independence gives the joint density of two standard noises:
+\[
+  f_{Z_1,Z_2}(z_1,z_2)
+  =\phi(z_1)\phi(z_2)
+  =\frac1{2\pi}\exp\!\left[-\frac{z_1^2+z_2^2}{2}\right].
+\]
+It has the same value wherever \(z_1^2+z_2^2\) is constant, so its
+equal-density contours are circles centered at zero. These contours
+describe density values, not a claim that all observations lie inside
+a particular circle.
+
+For a correlation \(-1<\rho<1\), replace the numerical sensor model by
+\[
+  X_1=Z_1,\qquad X_2=\rho Z_1+\sqrt{1-\rho^2}\,Z_2.
+\]
+The inverse relations are
+\(z_1=x_1\) and
+\(z_2=(x_2-\rho x_1)/\sqrt{1-\rho^2}\).
+The transformation scales areas by \(\sqrt{1-\rho^2}\), so preserving
+probabilities requires dividing the density by this factor. Substitution
+then gives
+\begin{equation}
+  f_{X_1,X_2}(x_1,x_2)
+  =\frac1{2\pi\sqrt{1-\rho^2}}
+    \exp\!\left[-\frac{x_1^2-2\rho x_1x_2+x_2^2}
+                         {2(1-\rho^2)}\right].
+  \label{eq:bivariate-standard-density}
+\end{equation}
+The cross term changes which pairs are likely. With positive \(\rho\),
+equal-sign deviations are favored; with negative \(\rho\), opposite-sign
+deviations are favored. Both marginals are still \(\mathcal N(0,1)\).
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/gaussian-correlation-contours}
+  \caption{Equal-density contours for three bivariate Gaussian models.
+  In every panel both individual features have mean zero and variance
+  one. Correlation changes the joint shape, which separate histograms
+  of the features cannot reveal. Each curve joins points with the same
+  density; the outer curve has lower density than the inner one.}
+  \label{fig:gaussian-correlation-contours}
+\end{figure}
+
+The ellipse directions can be understood without a matrix decomposition.
+For \(\rho=0.8\), use the rotated coordinates
+\[
+  U=\frac{X_1+X_2}{\sqrt2},\qquad
+  V=\frac{X_1-X_2}{\sqrt2}.
+\]
+Their variances are \(1+\rho=1.8\) and \(1-\rho=0.2\), respectively,
+and their covariance is zero. In these coordinates the expression in
+the exponent becomes
+\[
+  q=\frac{u^2}{1.8}+\frac{v^2}{0.2}.
+\]
+For fixed \(q=c>0\), the ellipse extends by \(\sqrt{1.8c}\) along
+the equal-sign direction and \(\sqrt{0.2c}\) along the opposite-sign
+direction. The first is three times longer than the second. Shared
+sensor fluctuations stretch the distribution along the diagonal.
+
+\subsection{The density in matrix notation}
+
+For a positive-definite covariance matrix, the general Gaussian density
+is
+\begin{equation}
+  f_{\mathbf X}(\mathbf x)
+  =\frac{1}{(2\pi)^{d/2}\sqrt{\det\Sigma}}
+    \exp\!\left[-\frac12(\mathbf x-\boldsymbol\mu)^\top
+      \Sigma^{-1}(\mathbf x-\boldsymbol\mu)\right].
+  \label{eq:multivariate-gaussian-density}
+\end{equation}
+Here \(\Sigma^{-1}\) is the inverse matrix, and \(\det\Sigma\) is its
+determinant. These are the matrix versions of dividing by variance and
+correcting the density for a change of scale. For an invertible square
+\(A\), the transformation \(\mathbf x=\boldsymbol\mu+A\mathbf z\)
+scales volumes by \(|\det A|=\sqrt{\det\Sigma}\), while
+\[
+  \sum_i z_i^2
+  =(\mathbf x-\boldsymbol\mu)^\top\Sigma^{-1}
+      (\mathbf x-\boldsymbol\mu).
+\]
+This explains both parts of the density formula from the independent
+standard-noise density.
+
+In two dimensions,
+\[
+  \Sigma=\begin{pmatrix}
+    \sigma_1^2&\rho\sigma_1\sigma_2\\
+    \rho\sigma_1\sigma_2&\sigma_2^2
+  \end{pmatrix},\qquad
+  \det\Sigma=\sigma_1^2\sigma_2^2(1-\rho^2).
+\]
+For positive \(\sigma_1,\sigma_2\) and \(|\rho|<1\), putting
+\(u=(x_1-\mu_1)/\sigma_1\), \(v=(x_2-\mu_2)/\sigma_2\) gives
+\[
+  (\mathbf x-\boldsymbol\mu)^\top\Sigma^{-1}
+      (\mathbf x-\boldsymbol\mu)
+  =\frac{u^2-2\rho uv+v^2}{1-\rho^2}.
+\]
+For a diagonal covariance matrix this reduces to a sum of squared
+standardized deviations, and the density factors into the univariate
+Gaussian densities.
+
+The quadratic expression is called the \emph{squared Mahalanobis
+distance}. It measures how unusual a displacement is relative to the
+model's spread and dependence. In the unit-variance model with
+\(\rho=0.8\), the points \((1,1)\) and \((1,-1)\) have the same
+ordinary distance from the origin, but
+\[
+  q(1,1)=\frac{2-1.6}{0.36}=\frac{10}{9},\qquad
+  q(1,-1)=\frac{2+1.6}{0.36}=10.
+\]
+Disagreement between the sensors is much less typical than a shared
+positive error. Euclidean distance alone misses that distinction.
+
+\subsection{Marginals, transformations, and the independence exception}
+
+Selecting some coordinates is a linear transformation. Their marginal
+distribution is Gaussian with the corresponding entries of the mean
+vector and the corresponding rows and columns of the covariance matrix.
+In particular, \(X_i\sim\mathcal N(\mu_i,\Sigma_{ii})\).
+
+More generally, for fixed \(B\) and \(\mathbf b\),
+\begin{equation}
+  B\mathbf X+\mathbf b
+  \sim\mathcal N(B\boldsymbol\mu+\mathbf b, B\Sigma B^\top).
+  \label{eq:gaussian-vector-transform}
+\end{equation}
+The result is Gaussian because substituting
+\(\mathbf X=\boldsymbol\mu+A\mathbf Z\) gives another linear
+transformation of independent standard Gaussian noises. The moment
+rules in Section~\ref{sec:random-linear-transforms} now describe the
+\emph{whole distribution}, not just two summaries of it.
+
+For jointly Gaussian variables, zero covariance \emph{does} imply
+independence. In the nondegenerate case, a diagonal covariance matrix
+makes the joint density a product of marginal densities. Therefore the
+average and difference in the sensor example are independent under
+the joint Gaussian assumption, as well as uncorrelated.
+
+It is not enough for each marginal to be Gaussian. To see why, take
+\(X\sim\mathcal N(0,1)\) and an independent random sign \(S\), equal to
+\(-1\) or one with probability \(1/2\). Set \(Y=SX\). Symmetry makes
+\(Y\sim\mathcal N(0,1)\), and
+\[
+  \Cov(X,Y)=\Expect[SX^2]=\Expect[S]\Expect[X^2]=0.
+\]
+Yet \(|Y|=|X|\) always, so they are dependent. The pair is not jointly
+Gaussian: \(X+Y\) is exactly zero with probability \(1/2\), but is not
+a constant. A nondegenerate Gaussian has no such point mass.
+
+Finally, a Gaussian covariance matrix can be singular. If
+\(X_2=X_1\sim\mathcal N(0,1)\), then
+\[
+  \Sigma=\begin{pmatrix}1&1\\1&1\end{pmatrix}.
+\]
+All pairs lie on a line. This is a valid Gaussian random vector, but it
+has no density with respect to two-dimensional area. Formula
+\eqref{eq:multivariate-gaussian-density} requires a positive-definite
+matrix; it cannot be used when the determinant is zero.
+
+\section{What one Gaussian measurement tells us about another}
+\label{sec:conditional-gaussian}
+
+Return to \(X_1=Z_1\), \(X_2=0.8Z_1+0.6Z_2\). Before seeing the
+first sensor, the second error has variance one. After observing
+\(X_1=x\), the shared noise \(Z_1\) is known and only the independent
+noise \(Z_2\) remains:
+\[
+  X_2\mid X_1=x\sim\mathcal N(0.8x,0.36).
+\]
+If the first sensor reads two units too high, the conditional mean
+error of the second is \(1.6\), with standard deviation \(0.6\).
+Marginalizing over the first sensor and conditioning on its reading are
+different operations: the marginal distribution is still
+\(\mathcal N(0,1)\).
+
+For the general bivariate Gaussian with positive marginal variances and
+\(|\rho|<1\), write
+\[
+  X=\mu_X+\sigma_X Z_1,\qquad
+  Y=\mu_Y+\sigma_Y(\rho Z_1+\sqrt{1-\rho^2}Z_2).
+\]
+Observing \(X=x\) fixes \(Z_1=(x-\mu_X)/\sigma_X\). Therefore
+\begin{equation}
+  Y\mid X=x\sim\mathcal N\!\left(
+    \mu_Y+\rho\frac{\sigma_Y}{\sigma_X}(x-\mu_X),
+    \sigma_Y^2(1-\rho^2)\right).
+  \label{eq:conditional-bivariate-gaussian}
+\end{equation}
+Equivalently, the conditional mean's slope is
+\(\Cov(X,Y)/\Var(X)\). Positive correlation shifts the conditional
+mean in the direction of the observation; negative correlation shifts
+it in the opposite direction. The conditional variance is constant in
+\(x\) for this Gaussian model. General conditional distributions need
+not have a linear mean or a constant variance.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/gaussian-conditional-density}
+  \caption{Before observing the first sensor, the second error has
+  distribution \(\mathcal N(0,1)\). After observing \(X_1=2\), it has
+  distribution \(\mathcal N(1.6,0.36)\). Knowledge of the shared
+  disturbance shifts the mean and reduces the remaining spread.}
+  \label{fig:gaussian-conditional-density}
+\end{figure}
+
+Total variance checks the result directly:
+\[
+  \underbrace{\sigma_Y^2}_{\text{total variance}}
+  =\underbrace{\sigma_Y^2(1-\rho^2)}_{\text{remaining after observing }X}
+   +\underbrace{\rho^2\sigma_Y^2}_{\text{variation of the conditional mean}}.
+\]
+In the numerical model, \(1=0.36+0.64\). If \(\rho=0\), observing
+\(X\) changes neither the mean nor the variance, consistent with
+Gaussian independence. As \(|\rho|\) approaches one, the remaining
+variance approaches zero. At \(|\rho|=1\), the relationship is exact
+and the conditional distribution is a point mass.
+
+\section{Gaussian class-conditional models}
+\label{sec:gaussian-classification}
+
+Suppose an object belongs to one of several classes, recorded by
+\(C\in\{1,\ldots,K\}\), and \(\mathbf X\) is its vector of measured
+features. A Gaussian class-conditional model assumes
+\[
+  \Prob(C=k)=\pi_k,\qquad
+  \mathbf X\mid C=k\sim\mathcal N_d(\boldsymbol\mu_k,\Sigma_k).
+\]
+Each class has its own center and covariance. For positive-definite
+\(\Sigma_k\), let \(f_k\) denote its Gaussian density. Bayes' theorem
+from Chapter~\ref{chap:probability-models} now gives
+\begin{equation}
+  \Prob(C=k\mid\mathbf X=\mathbf x)
+  =\frac{\pi_k f_k(\mathbf x)}{\sum_j\pi_j f_j(\mathbf x)}.
+  \label{eq:gaussian-class-posterior}
+\end{equation}
+For a continuous feature vector, this is a density-based conditional
+probability, just as in \eqref{eq:joint-conditional-density}.
+The denominator is the feature density after the class label is
+ignored: a Gaussian mixture of the kind introduced in
+Section~\ref{sec:mixtures}.
+
+\subsection{The relationship between features can identify the class}
+
+Consider two equally likely operating modes of a device. In mode
+\(C=+\), its two sensor errors tend to move together; in mode \(C=-\),
+they tend to move in opposite directions. Use
+\[
+  \boldsymbol\mu_+=\boldsymbol\mu_-=
+  \begin{pmatrix}0\\0\end{pmatrix},\qquad
+  \Sigma_+=\begin{pmatrix}1&0.8\\0.8&1\end{pmatrix},\qquad
+  \Sigma_-=\begin{pmatrix}1&-0.8\\-0.8&1\end{pmatrix}.
+\]
+Each feature alone has distribution \(\mathcal N(0,1)\) in both
+classes. Its value alone therefore leaves the class probabilities at
+\(1/2\). The distinguishing information is entirely in the pair.
+
+The determinants are both \(0.36\), so the density normalization
+constants cancel in the likelihood ratio. Subtracting the exponents
+in \eqref{eq:bivariate-standard-density} gives
+\[
+  \log\frac{f_+(x_1,x_2)}{f_-(x_1,x_2)}
+  =\frac{2(0.8)}{1-0.8^2}x_1x_2=\frac{40}{9}x_1x_2.
+\]
+With equal prior probabilities, mode \(+\) is more probable when
+\(x_1x_2>0\), and mode \(-\) is more probable when \(x_1x_2<0\).
+At \((1,1)\),
+\[
+  \Prob(C=+\mid\mathbf X=(1,1))
+  =\frac{1}{1+e^{-40/9}}\approx0.9884.
+\]
+At \((1,-1)\), this probability is approximately \(0.0116\).
+The individual feature values have equal marginal densities in both
+classes; their agreement or disagreement changes the conclusion.
+
+If we incorrectly replace each class density by the product of its
+feature marginals, both models become \(\phi(x_1)\phi(x_2)\). Then
+every pair receives posterior class probability \(1/2\).
+Assuming conditional independence has erased all the useful information
+in this example.
+
+\subsection{What the Gaussian decision rule uses}
+
+For positive class priors, maximizing the posterior is equivalent to
+maximizing the log-score
+\[
+  s_k(\mathbf x)=\log\pi_k-\frac12\log\det\Sigma_k
+   -\frac12(\mathbf x-\boldsymbol\mu_k)^\top
+           \Sigma_k^{-1}(\mathbf x-\boldsymbol\mu_k).
+\]
+The omitted term \(-\tfrac d2\log(2\pi)\) is the same for every class.
+The three remaining terms reflect the class's prevalence, the volume
+over which its density is spread, and the observation's displacement
+relative to the class's covariance. A broad class cannot receive the
+same peak density as a narrow class with the same total probability.
+
+If all classes share a common covariance \(\Sigma\), expanding the
+quadratic expression shows that the term
+\(-\tfrac12\mathbf x^\top\Sigma^{-1}\mathbf x\) is also common.
+The class-dependent part becomes
+\[
+  \mathbf x^\top\Sigma^{-1}\boldsymbol\mu_k
+  -\frac12\boldsymbol\mu_k^\top\Sigma^{-1}\boldsymbol\mu_k
+  +\log\pi_k,
+\]
+which is linear in the observed features, plus a constant. Comparing
+two classes therefore gives a linear boundary. If the covariance
+matrices differ, quadratic terms generally remain, as they did in the
+two-mode example.
+
+These conclusions come from specifying a joint probability model and
+conditioning on an observation. How to learn the means, covariance
+matrices, and class probabilities from data belongs to statistical
+estimation. Here the important point is that a feature's usefulness
+can depend on its relationship with other features, not just its own
+distribution.
