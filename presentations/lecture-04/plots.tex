@@ -1,0 +1,170 @@
+% Presentation-sized PGFPlots figures. All curves use the conspect's data.
+% Data paths are relative to lecture-04.tex in this directory.
+\pgfplotsset{
+  lecture axis/.style={
+    scale only axis,axis lines=left,enlargelimits=false,
+    axis line style={draw=Muted!65,line width=0.45pt},
+    tick style={draw=Muted!65},
+    tick label style={font=\footnotesize,text=Muted},
+    label style={font=\footnotesize,text=Ink},
+    title style={font=\footnotesize,text=Ink},
+    grid=major,grid style={draw=Muted!16,line width=0.3pt},
+    minor tick num=0,scaled ticks=false,
+    legend style={draw=none,fill=none,font=\footnotesize,text=Ink,
+      at={(0.5,1.04)},anchor=south,legend cell align=left,
+      /tikz/every even column/.append style={column sep=1em}},
+    every axis plot/.append style={line width=1.15pt,no marks,
+      line join=round,line cap=round},
+  },
+  lecture wide/.style={lecture axis,width=12.25cm,height=3.65cm},
+  lecture pair/.style={lecture axis,width=5.45cm,height=3.10cm,
+    title style={font=\footnotesize,text=Ink,yshift=-5pt}},
+}
+
+\newcommand{\SamplingPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture wide,
+  xmin=0,xmax=16,ymin=0,ymax=0.45,
+  xlabel={Average waiting time (minutes)},ylabel={Density},
+  xtick={0,2,4,6,8,10,12,14,16},ytick={0,0.1,0.2,0.3,0.4},
+  legend columns=3]
+  \addplot[Blue] table[x=x,y=n1] {../../figures/data/ch4-sampling-density.dat};
+  \addlegendentry{$n=1$}
+  \addplot[Orange,dashed] table[x=x,y=n4] {../../figures/data/ch4-sampling-density.dat};
+  \addlegendentry{$n=4$}
+  \addplot[Teal,densely dotted,line width=1.5pt] table[x=x,y=n25] {../../figures/data/ch4-sampling-density.dat};
+  \addlegendentry{$n=25$}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\RunningMeansPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture wide,
+  xmode=log,log basis x=10,xmin=1,xmax=1000,ymin=0,ymax=12,
+  xlabel={Number of observations $n$ (log scale)},
+  ylabel={Running average (minutes)},
+  xtick={1,10,100,1000},xticklabels={1,10,100,1000},ytick={0,2,4,6,8,10,12},
+  legend columns=4]
+  \addplot[Blue] table[x=n,y=path1] {../../figures/data/ch4-running-means.dat};
+  \addlegendentry{Dataset 1}
+  \addplot[Orange,dashed] table[x=n,y=path2] {../../figures/data/ch4-running-means.dat};
+  \addlegendentry{Dataset 2}
+  \addplot[Teal,dashdotted] table[x=n,y=path3] {../../figures/data/ch4-running-means.dat};
+  \addlegendentry{Dataset 3}
+  \addplot[Muted,densely dotted,line width=0.8pt] coordinates {(1,5) (1000,5)};
+  \addlegendentry{Mean $=5$}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\CLTPair}[2]{%
+\begin{tikzpicture}
+\begin{groupplot}[
+  lecture pair,group style={group size=2 by 1,horizontal sep=1.50cm},
+  xmin=-4,xmax=5,ymin=0,ymax=1.1,
+  xtick={-4,-2,0,2,4},ytick={0,0.5,1},
+  xlabel={Standardized average $z$},ylabel={Density}]
+\nextgroupplot[title={$n=#1$}]
+  \addplot[Blue] table[x=z,y=exact] {../../figures/data/ch4-clt-n#1.dat};
+  \addplot[Orange,dashed] table[x=z,y=normal] {../../figures/data/ch4-clt-n#1.dat};
+\nextgroupplot[title={$n=#2$}]
+  \addplot[Blue] table[x=z,y=exact] {../../figures/data/ch4-clt-n#2.dat};
+  \addplot[Orange,dashed] table[x=z,y=normal] {../../figures/data/ch4-clt-n#2.dat};
+\end{groupplot}
+\draw[Blue,line width=1.15pt]
+  ([xshift=2.10cm,yshift=0.79cm]group c1r1.north west) -- ++(0.55cm,0)
+  node[right,font=\footnotesize,text=Ink] {Exact density};
+\draw[Orange,line width=1.15pt,dashed]
+  ([xshift=6.45cm,yshift=0.79cm]group c1r1.north west) -- ++(0.55cm,0)
+  node[right,font=\footnotesize,text=Ink] {Standard normal};
+\end{tikzpicture}%
+}
+
+\newcommand{\TailComparisonPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture wide,
+  xmin=0,xmax=200,ymode=log,log basis y=10,ymin=0.003,ymax=1,
+  xlabel={Number of observations $n$},
+  ylabel={$\Prob(|\overline T_n-5|>1)$ (log scale)},
+  xtick={0,50,100,150,200},ytick={0.01,0.1,1},yticklabels={0.01,0.1,1},
+  legend columns=3]
+  \addplot[Blue] table[x=n,y=exact] {../../figures/data/ch4-tail-comparison.dat};
+  \addlegendentry{Exact Gamma}
+  \addplot[Orange,dashed] table[x=n,y=chebyshev] {../../figures/data/ch4-tail-comparison.dat};
+  \addlegendentry{Chebyshev bound}
+  \addplot[Teal,densely dotted,line width=1.5pt] table[x=n,y=clt] {../../figures/data/ch4-tail-comparison.dat};
+  \addlegendentry{CLT approximation}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\DependentAveragesPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture wide,
+  xmode=log,log basis x=10,xmin=1,xmax=1000,ymin=0,ymax=1,
+  xlabel={Number of observations $n$ (log scale)},
+  ylabel={Standard error / individual SD},
+  xtick={1,10,100,1000},xticklabels={1,10,100,1000},ytick={0,0.2,0.4,0.6,0.8,1},
+  legend columns=3]
+  \addplot[Blue] table[x=n,y=independent] {../../figures/data/ch4-dependent-averages.dat};
+  \addlegendentry{Independent}
+  \addplot[Orange,dashed] table[x=n,y=dependent] {../../figures/data/ch4-dependent-averages.dat};
+  \addlegendentry{Correlation $\rho=0.1$}
+  \addplot[Muted,densely dotted,line width=0.8pt]
+    coordinates {(1,0.316227766016838) (1000,0.316227766016838)};
+  \addlegendentry{Floor $\sqrt{0.1}$}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\HeavyTailPlot}{%
+\begin{tikzpicture}
+\begin{groupplot}[
+  lecture pair,height=2.60cm,
+  group style={group size=2 by 1,horizontal sep=1.50cm},
+  xmin=-4,xmax=4,ymin=0,xtick={-4,-2,0,2,4},
+  xlabel={Sample average},ylabel={Density}]
+\nextgroupplot[ymax=2.1,ytick={0,0.5,1,1.5,2},title={Standard Gaussian}]
+  \addplot[Blue] table[x=x,y=n1] {../../figures/data/ch4-heavy-tail-means.dat};
+  \addplot[Orange,dashed] table[x=x,y=n4] {../../figures/data/ch4-heavy-tail-means.dat};
+  \addplot[Teal,densely dotted,line width=1.5pt] table[x=x,y=n25] {../../figures/data/ch4-heavy-tail-means.dat};
+\nextgroupplot[ymax=0.35,ytick={0,0.1,0.2,0.3},title={Standard Cauchy}]
+  \addplot[Ink] table[x=x,y=cauchy] {../../figures/data/ch4-heavy-tail-means.dat};
+  \node[font=\footnotesize,text=Ink,anchor=north west,align=left,
+    fill=white,inner sep=2pt] at (rel axis cs:0.02,0.97) {Same density\\for every $n$};
+\end{groupplot}
+\draw[Blue,line width=1.15pt]
+  ([xshift=0.15cm,yshift=0.81cm]group c1r1.north west) -- ++(0.40cm,0)
+  node[right,font=\footnotesize,text=Ink] {$n=1$};
+\draw[Orange,line width=1.15pt,dashed]
+  ([xshift=1.95cm,yshift=0.81cm]group c1r1.north west) -- ++(0.40cm,0)
+  node[right,font=\footnotesize,text=Ink] {$n=4$};
+\draw[Teal,line width=1.5pt,densely dotted]
+  ([xshift=3.75cm,yshift=0.81cm]group c1r1.north west) -- ++(0.40cm,0)
+  node[right,font=\footnotesize,text=Ink] {$n=25$};
+\draw[Ink,line width=1.15pt]
+  ([xshift=1.90cm,yshift=0.81cm]group c2r1.north west) -- ++(0.40cm,0)
+  node[right,font=\footnotesize,text=Ink] {Every $n$};
+\end{tikzpicture}%
+}
+
+\newcommand{\MonteCarloPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture wide,width=12.00cm,
+  xmode=log,ymode=log,log basis x=10,log basis y=10,
+  xmin=10,xmax=10000,ymin=0.002,ymax=0.1,
+  xlabel={Number of independent draws $n$ (log scale)},
+  ylabel={Root mean squared error (log scale)},
+  xtick={10,100,1000,10000},xticklabels={10,100,1000,10000},
+  ytick={0.003,0.01,0.03,0.1},yticklabels={0.003,0.01,0.03,0.1},
+  legend columns=2]
+  \addplot[Blue] table[x=n,y=theory] {../../figures/data/ch4-monte-carlo-error.dat};
+  \addlegendentry{Exact RMSE}
+  \addplot[Orange,only marks,mark=*,mark size=2.0pt,
+    mark options={fill=Orange,draw=white,line width=0.3pt}]
+    table[x=n,y=simulated] {../../figures/data/ch4-monte-carlo-error.dat};
+  \addlegendentry{Simulation (2,000 runs)}
+\end{axis}
+\end{tikzpicture}%
+}

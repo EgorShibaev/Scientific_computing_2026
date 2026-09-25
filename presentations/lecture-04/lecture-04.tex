@@ -1,0 +1,495 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+
+% Build from the repository root: make lecture-04-slides
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,booktabs,array}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+\usefonttheme{professionalfonts}
+
+\definecolor{Ink}{HTML}{16324F}
+\definecolor{Blue}{HTML}{1F4E79}
+\definecolor{Orange}{HTML}{C46A13}
+\definecolor{Teal}{HTML}{007D80}
+\definecolor{Muted}{HTML}{526477}
+\setbeamercolor{normal text}{fg=Ink,bg=white}
+\setbeamercolor{frametitle}{fg=Ink}
+\setbeamercolor{structure}{fg=Blue}
+\setbeamercolor{footline}{fg=Muted}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{footline}{size=\tiny}
+\setbeamersize{text margin left=8mm,text margin right=8mm}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{frametitle}{%
+  \vspace{3mm}\insertframetitle\par\vspace{1mm}}
+\newcommand{\conspectsection}{4.1}
+\setbeamertemplate{footline}{%
+  \hspace{8mm}\usebeamerfont{footline}\usebeamercolor[fg]{footline}%
+  Conspect \S\,\conspectsection\hfill\insertframenumber\hspace{8mm}\vspace{3mm}}
+\setlength{\parskip}{0.5em}
+\setlength{\abovedisplayskip}{0.55em}
+\setlength{\belowdisplayskip}{0.55em}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\Expect}{\mathbb{E}}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\SE}{SE}
+\DeclareMathOperator{\RMSE}{RMSE}
+\newcommand{\avgX}{\overline{X}_n}
+\newcommand{\avgT}{\overline{T}_n}
+\newcommand{\focusmath}[1]{\par{\color{Blue}\large\[#1\]\par}}
+\newcommand{\takeaway}[1]{\vfill{\small\color{Muted}#1\par}}
+\newcommand{\plotcaption}[1]{\par\smallskip{\small #1\par}}
+\input{plots}
+
+\title{Samples, concentration,\texorpdfstring{\\}{ }and limit theorems}
+\subtitle{Lecture 4}
+\author{}
+\date{Scientific Computing 2026}
+\hypersetup{pdftitle={Lecture 4: Samples, concentration, and limit theorems},
+  pdfsubject={Scientific Computing 2026, Chapter 4},pdfauthor={}}
+
+\begin{document}
+
+% 1
+{\setbeamercolor{background canvas}{bg=Ink}
+\begin{frame}[plain]
+  \color{white}
+  {\large Scientific Computing 2026\par}
+  \vfill
+  {\LARGE\bfseries Samples, concentration,\\[0.2em]
+    and limit theorems\par}
+  \vfill
+  {\large Lecture 4\par}
+  \vspace{4mm}
+\end{frame}}
+
+% 2
+\begin{frame}{One hundred waiting times}
+Record 100 waits. Compute their average.\\
+Repeat with another 100 waits.
+\vfill
+\[
+  T_i\sim\operatorname{Exp}(0.2),\qquad
+  \mu=5\text{ min},\qquad \sigma=5\text{ min}.
+\]
+\vfill
+How far might either average be from five minutes?
+\takeaway{The observations follow the same model as Chapter 2.}
+\end{frame}
+
+% 3
+\begin{frame}{Samples and sampling distributions}
+An i.i.d. sample has mutually independent observations with the same distribution.
+\focusmath{\avgX=\frac{1}{n}\sum_{i=1}^{n}X_i}
+Before collection: random variables $X_1,\ldots,X_n$.\\
+After collection: recorded values $x_1,\ldots,x_n$.
+\vfill
+Repeat the whole sampling experiment. The distribution of the resulting
+averages is the \textbf{sampling distribution}.
+\end{frame}
+
+% 4
+\begin{frame}{Standard deviation and standard error}
+For i.i.d. observations with finite variance,
+\[
+  \Expect[\avgX]=\mu,\qquad \Var(\avgX)=\frac{\sigma^2}{n}.
+\]
+\focusmath{\SE(\avgX)=\frac{\sigma}{\sqrt n}}
+One wait: $\mathrm{SD}=5$ minutes.\\
+Average of 100 waits: $\mathrm{SE}=0.5$ minutes.
+\takeaway{Individual waits keep their spread as the sample grows.}
+\end{frame}
+
+% 5
+\begin{frame}{The exact distribution of an average}
+\centering\SamplingPlot
+\plotcaption{$\avgT\sim\operatorname{Gamma}(n,0.2n)$, with rate $0.2n$.
+The mean stays at five minutes.}
+\end{frame}
+
+% 6
+\begin{frame}{Unknown population variance}
+Estimate the spread within the observed sample:
+\focusmath{S_n^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\avgX)^2,\qquad n\ge2.}
+The denominator accounts for centering at the sample mean.
+We derive the correction in the estimation chapter.
+\vfill
+\[
+  \widehat{\SE}(\avgX)=\frac{S_n}{\sqrt n},\qquad S_n=\sqrt{S_n^2}.
+\]
+\takeaway{The interpretation still depends on the sampling assumptions.}
+\end{frame}
+
+\renewcommand{\conspectsection}{4.2}
+% 7
+\begin{frame}{The probability of a large error}
+Suppose the average wait should be within one minute of the population mean.
+\vfill
+\focusmath{\Prob\!\left(\left|\overline T_{100}-5\right|\ge1\right)=\,?}
+\vfill
+The standard error gives an error scale.\\
+A probability statement needs more reasoning.
+\vfill
+\end{frame}
+
+% 8
+\begin{frame}{Markov's inequality}
+Assume $W\ge0$, $a>0$, and a finite expectation.
+\[
+  W\ge a\,\mathbf{1}_{\{W\ge a\}}
+\]
+Taking expectations gives
+\[
+  \Expect[W]\ge a\,\Prob(W\ge a).
+\]
+\focusmath{\Prob(W\ge a)\le\frac{\Expect[W]}{a}}
+\takeaway{Frequent large values force the mean upward.}
+\end{frame}
+
+% 9
+\begin{frame}{Why Markov can be conservative}
+Any nonnegative wait with mean five minutes:
+\[
+  \Prob(T\ge20)\le\frac{5}{20}=0.25.
+\]
+Under the exponential model:
+\focusmath{\Prob(T\ge20)=e^{-4}\approx0.0183.}
+\vfill
+The bound is attainable: probability $\tfrac14$ at $20$ and $\tfrac34$ at $0$.
+A mean alone cannot distinguish these distributions.
+\end{frame}
+
+% 10
+\begin{frame}{Chebyshev's inequality}
+Let $X$ have mean $\mu$ and finite variance $\sigma^2$. Choose $\varepsilon>0$.
+\[
+  W=(X-\mu)^2,\qquad a=\varepsilon^2.
+\]
+\[
+  \Prob(|X-\mu|\ge\varepsilon)=\Prob(W\ge\varepsilon^2).
+\]
+\focusmath{\Prob(|X-\mu|\ge\varepsilon)\le\frac{\sigma^2}{\varepsilon^2}}
+\takeaway{Squaring deviations makes Markov apply to both tails.}
+\end{frame}
+
+% 11
+\begin{frame}{A finite-sample guarantee}
+\[
+  \Prob(|\avgX-\mu|\ge\varepsilon)
+  \le\min\!\left(1,\frac{\sigma^2}{n\varepsilon^2}\right).
+\]
+For the inbox, $\varepsilon=1$ minute and $n=100$:
+\[
+  \Prob(|\overline T_{100}-5|\ge1)\le\frac{25}{100}=0.25.
+\]
+To make the bound at most $\delta$, it suffices that
+\focusmath{n\ge\frac{\sigma^2}{\delta\varepsilon^2}.
+  \qquad \delta=0.05\text{ gives }n=500.}
+\takeaway{Use the true variance or a known upper bound.
+A sample-variance plug-in needs further justification.}
+\end{frame}
+
+\renewcommand{\conspectsection}{4.3}
+% 12
+\begin{frame}{The weak law of large numbers}
+For i.i.d. observations with mean $\mu$ and finite variance,\\
+every fixed tolerance $\varepsilon>0$ satisfies
+\focusmath{\Prob(|\avgX-\mu|>\varepsilon)\longrightarrow0
+  \qquad\text{as }n\to\infty.}
+Chebyshev proves this directly:
+\[
+  \Prob(|\avgX-\mu|>\varepsilon)
+  \le\frac{\sigma^2}{n\varepsilon^2}\longrightarrow0.
+\]
+\takeaway{This is convergence in probability.}
+\end{frame}
+
+% 13
+\begin{frame}{Running averages fluctuate}
+\centering\RunningMeansPlot
+\plotcaption{A new observation can increase the error.
+These paths illustrate the LLN.}
+\end{frame}
+
+% 14
+\begin{frame}{The scope of the law of large numbers}
+The fixed-tolerance error probability tends to zero across repeated datasets.
+\vfill
+The general i.i.d. LLN needs only
+\[
+  \Expect[|X_1|]<\infty.
+\]
+Finite variance is enough for our short proof.
+\vfill
+Sampling bias remains: recording only short waits learns the mean
+of that selected population.
+\end{frame}
+
+\renewcommand{\conspectsection}{4.4}
+% 15
+\begin{frame}{The shape of the sampling error}
+The LLN makes the error small.\\
+What distribution describes the remaining fluctuations?
+\vfill
+\[
+  \avgX-\mu\qquad\text{has standard deviation}\qquad\frac{\sigma}{\sqrt n}.
+\]
+\vfill
+The exponential example has an exact Gamma answer.\\
+For a complicated measurement or loss, we need an approximation.
+\vfill
+\end{frame}
+
+% 16
+\begin{frame}{Standardized sampling error}
+For $\sigma>0$, measure the error in standard-error units:
+\focusmath{Z_n=\frac{\avgX-\mu}{\sigma/\sqrt n}
+  =\frac{\sqrt n\,(\avgX-\mu)}{\sigma}.}
+\[
+  \Expect[Z_n]=0,\qquad\Var(Z_n)=1.
+\]
+\vfill
+Rescaling keeps the shrinking fluctuations visible.\\
+The new claim concerns their distributional shape.
+\end{frame}
+
+% 17
+\begin{frame}{The central limit theorem}
+Assume i.i.d. observations with mean $\mu$ and $0<\sigma^2<\infty$.
+\focusmath{\Prob(Z_n\le z)\longrightarrow\Phi(z)
+  \qquad\text{as }n\to\infty.}
+For every real $z$: convergence in distribution to the standard Gaussian.
+\[
+  \avgX\ \overset{\text{approx.}}{\sim}
+  \mathcal{N}\!\left(\mu,\frac{\sigma^2}{n}\right).
+\]
+\takeaway{Gaussian observations give this law exactly for every $n$.
+The original observations keep their own distribution.}
+\end{frame}
+
+% 18
+\begin{frame}{The CLT at small sample sizes}
+\centering\CLTPair{1}{4}
+\plotcaption{The support starts at $-\sqrt n$.
+Small-sample averages remain asymmetric.}
+\end{frame}
+
+% 19
+\begin{frame}{The CLT at larger sample sizes}
+\centering\CLTPair{25}{100}
+\plotcaption{The same axes reveal the change in shape as $n$ grows.}
+\end{frame}
+
+% 20
+\begin{frame}{One minute equals two standard errors}
+\[
+  n=100,\qquad\SE(\overline T_{100})=\frac{5}{\sqrt{100}}=0.5.
+\]
+\vfill
+\[
+  \Prob(|\overline T_{100}-5|>1)=\Prob(|Z_{100}|>2)
+\]
+\focusmath{\approx 2\,[1-\Phi(2)]\approx0.04550.}
+\vfill
+About $4.55\%$ under the Gaussian approximation.
+\end{frame}
+
+% 21
+\begin{frame}{Bound, approximation, and exact probability}
+The Gamma model lets us check the approximation:
+\[
+  \begin{aligned}
+    \Prob(\overline T_{100}<4)&\approx0.017108,\\
+    \Prob(\overline T_{100}>6)&\approx0.027864.
+  \end{aligned}
+\]
+\vfill
+{\small\renewcommand{\arraystretch}{1.35}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lll@{}}
+\toprule
+\textbf{Method}&\textbf{Value}&\textbf{Meaning}\\
+\midrule
+Chebyshev&$\le0.25000$&Upper bound\\
+CLT&$\approx0.04550$&Approximation\\
+Exact Gamma&$\approx0.04497$&Exact model, rounded\\
+\bottomrule
+\end{tabular*}}
+\vfill
+\end{frame}
+
+% 22
+\begin{frame}{Error probability across sample sizes}
+\centering\TailComparisonPlot
+\plotcaption{The exact and CLT curves nearly coincide here.
+Chebyshev stays an upper bound.}
+\end{frame}
+
+% 23
+\begin{frame}{Finite-sample accuracy of the CLT}
+There is no universal sample size, such as $30$, that guarantees
+a useful Gaussian approximation.
+\vfill
+Skewness and rare extreme values can delay convergence.
+\vfill
+A small absolute CDF error can still mean a large relative error
+for a tiny tail probability.
+\end{frame}
+
+\renewcommand{\conspectsection}{4.5}
+% 24
+\begin{frame}{A shared calibration error}
+\[
+  X_i=\mu+B+\epsilon_i.
+\]
+$B$ stays fixed within one dataset. A new independently calibrated
+dataset gets a fresh $B$.
+\vfill
+The reading errors $\epsilon_i$ are centered and independent,
+and independent of the centered calibration error $B$.
+\focusmath{\avgX=\mu+B+\frac1n\sum_{i=1}^{n}\epsilon_i.}
+\end{frame}
+
+% 25
+\begin{frame}{Covariance leaves a variance floor}
+Each reading has variance $\sigma^2$. Distinct pairs have
+correlation $\rho$, with $0\le\rho\le1$.
+\[
+  \begin{aligned}
+    \Var(\avgX)
+      &=\frac{n\sigma^2+n(n-1)\rho\sigma^2}{n^2}\\[0.35em]
+      &=\sigma^2\!\left[\rho+\frac{1-\rho}{n}\right].
+  \end{aligned}
+\]
+There are $n$ diagonal covariance terms and $n(n-1)$ off-diagonal terms.
+\focusmath{\Var(\avgX)\longrightarrow\rho\sigma^2
+  \qquad\text{as }n\to\infty.}
+\end{frame}
+
+% 26
+\begin{frame}{One hundred correlated readings}
+\centering\DependentAveragesPlot
+\plotcaption{For $n=100$, $\Var(\overline X_{100})=0.109\sigma^2$:
+\\the same mean variance as about $9.17$ independent readings.}
+\end{frame}
+
+% 27
+\begin{frame}{Finite mean and finite variance}
+For i.i.d. Student observations with $\nu=\tfrac32$:
+\focusmath{\Expect[|X_1|]<\infty,\qquad\Var(X_1)=\infty.}
+The general LLN applies: the sample mean converges in probability to zero.
+\vfill
+The finite-variance Chebyshev argument and classical CLT do not apply.
+There is no finite $\sigma$ for $\sigma/\sqrt n$.
+\end{frame}
+
+% 28
+\begin{frame}{Averages of i.i.d. standard Cauchy observations}
+\centering\HeavyTailPlot
+\vspace{-1mm}
+\[
+  \avgX\sim t_1,\qquad\Prob(|\avgX|>1)=\tfrac12
+  \quad\text{for every }n.
+\]
+{\footnotesize\color{Muted}The Cauchy mean is undefined.
+Zero is its symmetry center. Panel scales differ.\par}
+\end{frame}
+
+\renewcommand{\conspectsection}{4.6}
+% 29
+\begin{frame}{Monte Carlo estimation}
+To estimate $I=\Expect[g(X)]$, draw independent observations from
+the target distribution and average their evaluations.
+\focusmath{\widehat I_n=\frac1n\sum_{i=1}^{n}g(X_i)}
+$\Expect[|g(X)|]<\infty$ gives the LLN.\\
+Finite positive $\tau^2$ also gives the CLT.
+\[
+  \SE(\widehat I_n)=\frac{\tau}{\sqrt n},\qquad\tau^2=\Var(g(X)).
+\]
+\takeaway{For unknown $\tau$: $\widehat{\SE}=S_Y/\sqrt n$, with $S_Y$
+the sample SD of $g(X_i)$.}
+\end{frame}
+
+% 30
+\begin{frame}{A Monte Carlo example with a known answer}
+\[
+  T\sim\operatorname{Exp}(0.2),\qquad g(t)=e^{-t}.
+\]
+Time is in minutes. The exponent uses one per minute.
+\vfill
+\[
+  I=\Expect[g(T)]=\frac16,\qquad\Expect[g(T)^2]=\frac1{11}.
+\]
+\focusmath{\tau^2=\frac1{11}-\frac1{36}=\frac{25}{396}}
+\takeaway{The known value lets us check the numerical method.}
+\end{frame}
+
+% 31
+\begin{frame}{Precision has a computational cost}
+\[
+  \RMSE(\widehat I_n)
+  =\sqrt{\Expect[(\widehat I_n-I)^2]}=\frac{\tau}{\sqrt n}.
+\]
+Four times as many evaluations halves RMSE.\\
+A tenfold reduction costs one hundred times as many.
+\[
+  n=1000\qquad\Longrightarrow\qquad\RMSE\approx0.00795.
+\]
+\focusmath{\RMSE\le0.005\qquad\text{needs }n\ge2526.}
+\takeaway{An RMSE target does not bound the error in every run.}
+\end{frame}
+
+% 32
+\begin{frame}{Monte Carlo error across repeated runs}
+\centering\MonteCarloPlot
+\plotcaption{The dots measure variation across independent runs,
+rather than one running path.}
+\end{frame}
+
+% 33
+\begin{frame}{Uncertainty in a test-set average}
+Fix $f$ before evaluation. Use i.i.d. test observations independent
+of all data used to choose $f$.
+\[
+  L_i=\ell(f(X_i),Y_i),\qquad R(f)=\Expect[L_i],
+  \qquad\widehat R_n(f)=\frac1n\sum_{i=1}^{n}L_i.
+\]
+Population accuracy $0.8$, with $400$ independent test examples:
+\focusmath{\SE=\sqrt{\frac{0.8\cdot0.2}{400}}=0.02.}
+\takeaway{This measures test-sample variation. Choosing $f$ on the
+same test set breaks the fixed-model premise.}
+\end{frame}
+
+% 34
+\begin{frame}{Batch size and the variance of an average}
+At a fixed model, average $b$ independent losses, each with variance $\tau_L^2$.
+\focusmath{\Var(\text{batch average})=\frac{\tau_L^2}{b}}
+A fourfold increase in $b$ halves the standard deviation.
+\vfill
+For a fixed dataset, sampling indices with replacement uses its empirical
+loss variance. Dependence and sampling without replacement require
+different variance calculations.
+\end{frame}
+
+% 35
+\begin{frame}{What each result tells us}
+\small
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular*}{\textwidth}{@{}l@{\hspace{12mm}}l@{\extracolsep{\fill}}}
+\toprule
+\textbf{Result}&\textbf{Question it answers}\\
+\midrule
+Chebyshev&\shortstack[l]{How large can a finite-sample\\error probability be?}\\[0.4em]
+Law of large numbers&\shortstack[l]{Does the average approach\\the population quantity?}\\[0.4em]
+Central limit theorem&\shortstack[l]{What shape do the rescaled\\fluctuations approach?}\\
+\bottomrule
+\end{tabular*}
+\par\normalsize
+\vfill
+Independence, moment assumptions, and the sampling process determine
+which conclusion is justified.
+\end{frame}
+
+\end{document}

@@ -1,11 +1,12 @@
 # Lecture 4 presentation
 
-[Open the slide deck](lecture-04.pptx).
+[Open the PDF slide deck](lecture-04.pdf).
 
 The 35-slide, 16:9 presentation follows Chapter 4 of the cumulative conspect.
 It retains the worked examples, theorem assumptions, and short proofs.
-The deck contains editable text and formulas, two editable tables, and eleven
-native charts representing all seven figure concepts in the chapter.
+The PDF uses LaTeX Beamer for proper mathematical typesetting: fractions,
+summations, radicals, subscripts, and mathematical operators. The eleven
+vector charts represent all seven figure concepts in the chapter.
 
 | Slides | Conspect section |
 | --- | --- |
@@ -18,9 +19,28 @@ native charts representing all seven figure concepts in the chapter.
 
 The chart data come directly from `../../figures/data/ch4-*.dat`.
 The four CLT panels span two slides to keep their axes readable.
-The deck uses Arial for prose and STIX Two Math for editable mathematical text.
+The PDF uses embedded Latin Modern text and math fonts.
 
-## Source
+## LaTeX source and PDF build
+
+- `lecture-04.tex` contains the slides and formulas.
+- `plots.tex` contains the PGFPlots charts and LaTeX axis labels.
+
+Install Tectonic, then run from the repository root:
+
+```sh
+make lecture-04-slides
+```
+
+This compiles into `build/lecture-04-slides/` and copies the PDF here.
+The conspect and its normal `make` build remain independent of the presentation.
+
+## Original PowerPoint version
+
+The [original PowerPoint deck](lecture-04.pptx) is retained separately.
+Its text, tables, and charts remain editable, but its formulas use Unicode
+text rather than the LaTeX typesetting in the PDF. The files below rebuild
+that earlier PowerPoint version, not the PDF:
 
 - `build.mjs` contains the slide content, layouts, and native chart definitions.
 - `set-chart-log-axes.py` sets explicit native logarithmic axes and chart
@@ -44,5 +64,3 @@ python3 presentations/lecture-04/set-chart-log-axes.py \
 These commands write drafts into the ignored `tmp/` directory. The published
 deck also includes embedded chart-data workbooks, added during presentation
 finalization. Review a rebuilt draft before replacing the published deck.
-
-The conspect and its normal `make` build are independent of this presentation.
