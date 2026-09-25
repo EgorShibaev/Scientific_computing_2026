@@ -7,6 +7,9 @@ It retains the worked examples, theorem assumptions, and short proofs.
 The PDF uses LaTeX Beamer for proper mathematical typesetting: fractions,
 summations, radicals, subscripts, and mathematical operators. The eleven
 vector charts represent all seven figure concepts in the chapter.
+Blue Beamer blocks identify definitions, teal blocks state theorems, and
+neutral blocks highlight key results. Proofs and worked examples remain outside
+these blocks.
 
 | Slides | Conspect section |
 | --- | --- |

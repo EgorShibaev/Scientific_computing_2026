@@ -42,6 +42,29 @@
 \newcommand{\focusmath}[1]{\par{\color{Blue}\large\[#1\]\par}}
 \newcommand{\takeaway}[1]{\vfill{\small\color{Muted}#1\par}}
 \newcommand{\plotcaption}[1]{\par\smallskip{\small #1\par}}
+
+% Native Beamer blocks separate statements from proofs and worked examples.
+\setbeamertemplate{blocks}[default]
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+\setbeamerfont{block body}{size=\normalsize}
+\newenvironment{coursebox}[2]{%
+  \begingroup
+  \setbeamercolor{block title}{fg=#1,bg=#1!13!white}
+  \setbeamercolor{block body}{fg=Ink,bg=#1!4!white}
+  \begin{block}{#2}
+  \setlength{\parskip}{0.2em}
+  \setlength{\abovedisplayskip}{0.3em}
+  \setlength{\belowdisplayskip}{0.3em}
+}{\end{block}\endgroup}
+\newenvironment{definitionbox}[1]
+  {\begin{coursebox}{Blue}{Definition: #1}}{\end{coursebox}}
+\newenvironment{theorembox}[1]
+  {\begin{coursebox}{Teal}{Theorem: #1}}{\end{coursebox}}
+\newenvironment{resultbox}[1]
+  {\begin{coursebox}{Muted}{Key result: #1}}{\end{coursebox}}
+% Math-only blocks need no extra display-math paragraph above the formula.
+\newcommand{\blockmath}[1]{\par\smallskip
+  {\centering\(\displaystyle #1\)\par}\smallskip}
 \input{plots}
 
 \title{Samples, concentration,\texorpdfstring{\\}{ }and limit theorems}
@@ -82,13 +105,18 @@ How far might either average be from five minutes?
 
 % 3
 \begin{frame}{Samples and sampling distributions}
+\begin{definitionbox}{Sample mean and sampling distribution}
 An i.i.d. sample has mutually independent observations with the same distribution.
-\focusmath{\avgX=\frac{1}{n}\sum_{i=1}^{n}X_i}
+Its sample mean is
+\[
+  \avgX=\frac{1}{n}\sum_{i=1}^{n}X_i.
+\]
+The distribution of $\avgX$ across repeated datasets is its
+\textbf{sampling distribution}.
+\end{definitionbox}
+\vfill
 Before collection: random variables $X_1,\ldots,X_n$.\\
 After collection: recorded values $x_1,\ldots,x_n$.
-\vfill
-Repeat the whole sampling experiment. The distribution of the resulting
-averages is the \textbf{sampling distribution}.
 \end{frame}
 
 % 4
@@ -97,7 +125,13 @@ For i.i.d. observations with finite variance,
 \[
   \Expect[\avgX]=\mu,\qquad \Var(\avgX)=\frac{\sigma^2}{n}.
 \]
-\focusmath{\SE(\avgX)=\frac{\sigma}{\sqrt n}}
+\begin{definitionbox}{Standard error}
+A statistic's standard deviation across repeated samples.
+For an i.i.d. sample mean,
+\[
+  \SE(\avgX)=\frac{\sigma}{\sqrt n}.
+\]
+\end{definitionbox}
 One wait: $\mathrm{SD}=5$ minutes.\\
 Average of 100 waits: $\mathrm{SE}=0.5$ minutes.
 \takeaway{Individual waits keep their spread as the sample grows.}
@@ -112,8 +146,11 @@ The mean stays at five minutes.}
 
 % 6
 \begin{frame}{Unknown population variance}
-Estimate the spread within the observed sample:
-\focusmath{S_n^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\avgX)^2,\qquad n\ge2.}
+\begin{definitionbox}{Sample variance}
+\blockmath{
+  S_n^2=\frac{1}{n-1}\sum_{i=1}^{n}(X_i-\avgX)^2,\qquad n\ge2.
+}
+\end{definitionbox}
 The denominator accounts for centering at the sample mean.
 We derive the correction in the estimation chapter.
 \vfill
@@ -137,15 +174,18 @@ A probability statement needs more reasoning.
 
 % 8
 \begin{frame}{Markov's inequality}
-Assume $W\ge0$, $a>0$, and a finite expectation.
+\begin{theorembox}{Markov's inequality}
+If $W\ge0$, $\Expect[W]<\infty$, and $a>0$, then
+\[
+  \Prob(W\ge a)\le\frac{\Expect[W]}{a}.
+\]
+\end{theorembox}
+\textbf{Proof.} On the event $W\ge a$, the value of $W$ is at least $a$:
 \[
   W\ge a\,\mathbf{1}_{\{W\ge a\}}
-\]
-Taking expectations gives
-\[
+  \quad\Longrightarrow\quad
   \Expect[W]\ge a\,\Prob(W\ge a).
 \]
-\focusmath{\Prob(W\ge a)\le\frac{\Expect[W]}{a}}
 \takeaway{Frequent large values force the mean upward.}
 \end{frame}
 
@@ -164,14 +204,16 @@ A mean alone cannot distinguish these distributions.
 
 % 10
 \begin{frame}{Chebyshev's inequality}
-Let $X$ have mean $\mu$ and finite variance $\sigma^2$. Choose $\varepsilon>0$.
+\begin{theorembox}{Chebyshev's inequality}
+If $\Expect[X]=\mu$ and $\Var(X)=\sigma^2<\infty$, then for $\varepsilon>0$,
 \[
-  W=(X-\mu)^2,\qquad a=\varepsilon^2.
+  \Prob(|X-\mu|\ge\varepsilon)\le\frac{\sigma^2}{\varepsilon^2}.
 \]
+\end{theorembox}
+\textbf{Proof.} Apply Markov with $W=(X-\mu)^2$ and $a=\varepsilon^2$:
 \[
   \Prob(|X-\mu|\ge\varepsilon)=\Prob(W\ge\varepsilon^2).
 \]
-\focusmath{\Prob(|X-\mu|\ge\varepsilon)\le\frac{\sigma^2}{\varepsilon^2}}
 \takeaway{Squaring deviations makes Markov apply to both tails.}
 \end{frame}
 
@@ -195,11 +237,15 @@ A sample-variance plug-in needs further justification.}
 \renewcommand{\conspectsection}{4.3}
 % 12
 \begin{frame}{The weak law of large numbers}
+\begin{theorembox}{Weak LLN, finite-variance version}
 For i.i.d. observations with mean $\mu$ and finite variance,\\
 every fixed tolerance $\varepsilon>0$ satisfies
-\focusmath{\Prob(|\avgX-\mu|>\varepsilon)\longrightarrow0
-  \qquad\text{as }n\to\infty.}
-Chebyshev proves this directly:
+\[
+  \Prob(|\avgX-\mu|>\varepsilon)\longrightarrow0
+  \qquad\text{as }n\to\infty.
+\]
+\end{theorembox}
+\textbf{Proof.} Chebyshev gives
 \[
   \Prob(|\avgX-\mu|>\varepsilon)
   \le\frac{\sigma^2}{n\varepsilon^2}\longrightarrow0.
@@ -218,10 +264,12 @@ These paths illustrate the LLN.}
 \begin{frame}{The scope of the law of large numbers}
 The fixed-tolerance error probability tends to zero across repeated datasets.
 \vfill
-The general i.i.d. LLN needs only
+\begin{theorembox}{LLN with a finite first moment}
+For i.i.d. observations, $\Expect[|X_1|]<\infty$ is enough:
 \[
-  \Expect[|X_1|]<\infty.
+  \avgX\xrightarrow{\Prob}\Expect[X_1].
 \]
+\end{theorembox}
 Finite variance is enough for our short proof.
 \vfill
 Sampling bias remains: recording only short waits learns the mean
@@ -245,9 +293,13 @@ For a complicated measurement or loss, we need an approximation.
 
 % 16
 \begin{frame}{Standardized sampling error}
+\begin{definitionbox}{Standardized sample mean}
 For $\sigma>0$, measure the error in standard-error units:
-\focusmath{Z_n=\frac{\avgX-\mu}{\sigma/\sqrt n}
-  =\frac{\sqrt n\,(\avgX-\mu)}{\sigma}.}
+\[
+  Z_n=\frac{\avgX-\mu}{\sigma/\sqrt n}
+  =\frac{\sqrt n\,(\avgX-\mu)}{\sigma}.
+\]
+\end{definitionbox}
 \[
   \Expect[Z_n]=0,\qquad\Var(Z_n)=1.
 \]
@@ -258,10 +310,15 @@ The new claim concerns their distributional shape.
 
 % 17
 \begin{frame}{The central limit theorem}
-Assume i.i.d. observations with mean $\mu$ and $0<\sigma^2<\infty$.
-\focusmath{\Prob(Z_n\le z)\longrightarrow\Phi(z)
-  \qquad\text{as }n\to\infty.}
-For every real $z$: convergence in distribution to the standard Gaussian.
+\begin{theorembox}{Classical CLT}
+For i.i.d. observations with mean $\mu$ and $0<\sigma^2<\infty$,
+\[
+  \Prob(Z_n\le z)\longrightarrow\Phi(z)
+  \qquad\text{as }n\to\infty,
+\]
+for every real $z$.
+\end{theorembox}
+This is convergence in distribution to the standard Gaussian.
 \[
   \avgX\ \overset{\text{approx.}}{\sim}
   \mathcal{N}\!\left(\mu,\frac{\sigma^2}{n}\right).
@@ -364,8 +421,12 @@ correlation $\rho$, with $0\le\rho\le1$.
   \end{aligned}
 \]
 There are $n$ diagonal covariance terms and $n(n-1)$ off-diagonal terms.
-\focusmath{\Var(\avgX)\longrightarrow\rho\sigma^2
-  \qquad\text{as }n\to\infty.}
+\begin{resultbox}{Variance floor}
+\blockmath{
+  \Var(\avgX)\longrightarrow\rho\sigma^2
+  \qquad\text{as }n\to\infty.
+}
+\end{resultbox}
 \end{frame}
 
 % 26
@@ -400,9 +461,12 @@ Zero is its symmetry center. Panel scales differ.\par}
 \renewcommand{\conspectsection}{4.6}
 % 29
 \begin{frame}{Monte Carlo estimation}
-To estimate $I=\Expect[g(X)]$, draw independent observations from
-the target distribution and average their evaluations.
-\focusmath{\widehat I_n=\frac1n\sum_{i=1}^{n}g(X_i)}
+\begin{definitionbox}{Monte Carlo estimator}
+For $I=\Expect[g(X)]$, draw $X_i$ independently from the target distribution:
+\[
+  \widehat I_n=\frac1n\sum_{i=1}^{n}g(X_i).
+\]
+\end{definitionbox}
 $\Expect[|g(X)|]<\infty$ gives the LLN.\\
 Finite positive $\tau^2$ also gives the CLT.
 \[
@@ -428,10 +492,14 @@ Time is in minutes. The exponent uses one per minute.
 
 % 31
 \begin{frame}{Precision has a computational cost}
-\[
+\begin{definitionbox}{Root mean squared error}
+\blockmath{
   \RMSE(\widehat I_n)
-  =\sqrt{\Expect[(\widehat I_n-I)^2]}=\frac{\tau}{\sqrt n}.
-\]
+  =\sqrt{\Expect[(\widehat I_n-I)^2]}.
+}
+\end{definitionbox}
+For our Monte Carlo average, $\RMSE(\widehat I_n)=\tau/\sqrt n$.
+\par\smallskip
 Four times as many evaluations halves RMSE.\\
 A tenfold reduction costs one hundred times as many.
 \[
@@ -452,20 +520,25 @@ rather than one running path.}
 \begin{frame}{Uncertainty in a test-set average}
 Fix $f$ before evaluation. Use i.i.d. test observations independent
 of all data used to choose $f$.
-\[
+\begin{definitionbox}{Risk and empirical risk}
+\blockmath{
   L_i=\ell(f(X_i),Y_i),\qquad R(f)=\Expect[L_i],
   \qquad\widehat R_n(f)=\frac1n\sum_{i=1}^{n}L_i.
-\]
+}
+\end{definitionbox}
 Population accuracy $0.8$, with $400$ independent test examples:
 \focusmath{\SE=\sqrt{\frac{0.8\cdot0.2}{400}}=0.02.}
-\takeaway{This measures test-sample variation. Choosing $f$ on the
-same test set breaks the fixed-model premise.}
+\takeaway{Test-sample variation only. Choosing $f$ on this test set breaks the fixed-model premise.}
 \end{frame}
 
 % 34
 \begin{frame}{Batch size and the variance of an average}
+\begin{resultbox}{Variance of a batch average}
 At a fixed model, average $b$ independent losses, each with variance $\tau_L^2$.
-\focusmath{\Var(\text{batch average})=\frac{\tau_L^2}{b}}
+\[
+  \Var(\text{batch average})=\frac{\tau_L^2}{b}.
+\]
+\end{resultbox}
 A fourfold increase in $b$ halves the standard deviation.
 \vfill
 For a fixed dataset, sampling indices with replacement uses its empirical
