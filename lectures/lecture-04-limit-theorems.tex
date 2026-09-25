@@ -1,0 +1,611 @@
+\chapter{Samples, Concentration, and Limit Theorems}
+\chaptermark{Samples, Concentration, and Limit Theorems}
+\label{chap:limit-theorems}
+
+\begingroup
+\clubpenalty=10000
+\widowpenalty=10000
+
+\section{An average changes from dataset to dataset}
+\label{sec:samples}
+
+Record one hundred waiting times from the inbox of
+Section~\ref{sec:exponential} and report their average. Repeat the
+experiment with another hundred waits. The two averages will usually
+differ. How far might either average be from the population mean,
+and how does collecting more observations change that uncertainty?
+
+Keep the same model: independent waits
+\(T_i\sim\operatorname{Exp}(0.2)\), measured in minutes. Their mean
+and standard deviation are both five minutes, as calculated in
+Chapter~\ref{chap:distributions}. Here the new object is the
+\emph{dataset} and the average computed from it, not another distribution
+for an individual wait.
+
+\subsection{A population, a sample, and a sampling distribution}
+
+The \emph{population distribution} describes the observations we want
+to learn about. A \emph{sample} is the collection
+\(X_1,\ldots,X_n\) that we observe. We call these observations
+\emph{independent and identically distributed}, abbreviated i.i.d.,
+when they are mutually independent and all follow the same distribution.
+Both requirements matter: measurements from different operating
+conditions need not share a distribution, and repeated measurements
+of one object need not be independent.
+
+Before collection, \(X_1,\ldots,X_n\) are random variables; after
+collection, \(x_1,\ldots,x_n\) are the recorded numbers. The
+\emph{sample mean} is
+\begin{equation}
+  \bar X_n=\frac1n\sum_{i=1}^n X_i.
+  \label{eq:sample-mean}
+\end{equation}
+Its distribution over repetitions of the entire sampling experiment
+is a \emph{sampling distribution}. It is not the distribution of
+values within one dataset. To visualize the distinction, imagine
+collecting many independent datasets of size one hundred, calculating
+one average for each, and plotting those averages.
+
+For i.i.d. observations with finite mean \(\mu\) and variance
+\(\sigma^2\), the sum and scaling rules from
+Sections~\ref{sec:expectation} and~\ref{sec:variance} immediately give
+\begin{equation}
+  \Expect[\bar X_n]=\mu,\qquad
+  \Var(\bar X_n)=\frac{\sigma^2}{n}.
+  \label{eq:sample-mean-moments}
+\end{equation}
+This is the general form of the click-proportion calculation in
+Section~\ref{sec:bernoulli-binomial}. We now use it to study accuracy.
+
+\subsection{Standard deviation versus standard error}
+
+The standard deviation of a statistic across repeated samples is
+called its \emph{standard error}. For an i.i.d. sample mean,
+\begin{equation}
+  \operatorname{SE}(\bar X_n)=\frac{\sigma}{\sqrt n}.
+  \label{eq:standard-error}
+\end{equation}
+For the inbox, a single wait has standard deviation five minutes,
+while the average of one hundred waits has standard error
+\(5/\sqrt{100}=0.5\) minutes. Individual waits remain just as variable
+when the dataset grows. It is their average that becomes more precise.
+
+In this particular model, the Gamma sum result in
+Section~\ref{sec:gamma} supplies an exact sampling distribution:
+\begin{equation}
+  \sum_{i=1}^n T_i\sim\operatorname{Gamma}(n,0.2),\qquad
+  \bar T_n\sim\operatorname{Gamma}(n,0.2n).
+  \label{eq:exponential-sample-mean}
+\end{equation}
+The second parameter is a rate. Dividing a positive variable by \(n\)
+multiplies its Gamma rate by \(n\). Figure~\ref{fig:ch4-sampling}
+shows how the resulting density narrows while retaining mean five.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/ch4-sampling-density}
+  \caption{Exact sampling densities of the mean of \(n\) independent
+  exponential waits, each with mean five minutes. For \(n=1\), the
+  curve is the distribution of a single observation. The larger-sample
+  curves describe averages of entire datasets, not less variable
+  individual waits. Their standard errors are \(5\), \(2.5\), and
+  \(1\) minutes.}
+  \label{fig:ch4-sampling}
+\end{figure}
+
+In a real dataset, the population variance is usually unknown. A common
+measure of the observed spread is the \emph{sample variance},
+\[
+  S_n^2=\frac1{n-1}\sum_{i=1}^n(X_i-\bar X_n)^2,
+  \qquad n\ge2.
+\]
+The denominator \(n-1\) corrects for centering the data at their own
+sample mean; the statistical-estimation chapter will derive that
+correction. Writing \(S_n=\sqrt{S_n^2}\), the corresponding estimate
+of the mean's standard error is \(S_n/\sqrt n\). It is an estimate,
+not the exact value of \(\sigma/\sqrt n\), and its interpretation
+depends on the sampling assumptions.
+
+\section{Bounding the probability of a large error}
+\label{sec:concentration}
+
+Suppose we want the average waiting time to be within one minute of
+the population mean. Knowing its standard error gives a scale for
+the error, but does not by itself give a probability. We first seek a
+bound that does not require the full sampling distribution.
+
+\subsection{Markov: a nonnegative quantity cannot often be very large}
+
+Let \(W\ge0\) have finite expectation. On the event \(W\ge a\),
+where \(a>0\), its contribution is at least \(a\). Pointwise,
+\[
+  W\ge a\,\mathbf1_{\{W\ge a\}}.
+\]
+Taking expectations, using the indicator rule from
+Section~\ref{sec:expectation}, gives
+\(\Expect[W]\ge a\Prob(W\ge a)\). Rearranging yields
+\begin{theorem}[Markov's inequality]
+For \(W\ge0\), \(\Expect[W]<\infty\), and \(a>0\),
+\begin{equation}
+  \Prob(W\ge a)\le\frac{\Expect[W]}{a}.
+  \label{eq:markov}
+\end{equation}
+\end{theorem}
+
+For a nonnegative wait with mean five minutes, Markov gives
+\(\Prob(T\ge20)\le1/4\). The exponential model gives the much smaller
+exact value \(e^{-4}\approx0.0183\). Markov is valid for \emph{every}
+nonnegative distribution with that mean, including one that puts
+probability \(1/4\) at twenty and \(3/4\) at zero. For that latter
+distribution the bound is attained. Without more information about
+the distribution, we cannot improve this bound uniformly.
+
+Nonnegativity is essential. A signed quantity could take very large
+positive and negative values whose contributions cancel in its mean.
+To control deviations on both sides, apply Markov to their squares.
+
+\subsection{Chebyshev: turn a variance into an error bound}
+
+For \(X\) with mean \(\mu\) and finite variance \(\sigma^2\), take
+\(W=(X-\mu)^2\) and \(a=\varepsilon^2\) in Markov's inequality.
+The event \(W\ge\varepsilon^2\) is exactly
+\(|X-\mu|\ge\varepsilon\). Thus
+\begin{theorem}[Chebyshev's inequality]
+For \(\varepsilon>0\),
+\begin{equation}
+  \Prob(|X-\mu|\ge\varepsilon)
+  \le\frac{\sigma^2}{\varepsilon^2}.
+  \label{eq:chebyshev}
+\end{equation}
+\end{theorem}
+
+Applying this to \(\bar X_n\), using
+\eqref{eq:sample-mean-moments}, gives
+\begin{equation}
+  \Prob(|\bar X_n-\mu|\ge\varepsilon)
+  \le\min\!\left(1,\frac{\sigma^2}{n\varepsilon^2}\right).
+  \label{eq:chebyshev-mean}
+\end{equation}
+The minimum with one simply discards a bound larger than any probability.
+For one hundred inbox waits and tolerance one minute,
+\[
+  \Prob(|\bar T_{100}-5|\ge1)\le\frac{25}{100}=0.25.
+\]
+This is an upper bound, not a prediction that a quarter of datasets
+will miss the target.
+
+Conversely, a sufficient sample size for failure probability at most
+\(\delta\in(0,1)\) is
+\[
+  n\ge\frac{\sigma^2}{\delta\varepsilon^2}.
+\]
+For the inbox, \(n=500\) guarantees an error below one minute except
+on an event of probability at most \(0.05\). The guarantee uses the
+true variance, or a known upper bound on it. Substituting a random
+sample variance without further justification does not preserve the
+same finite-sample guarantee.
+
+\section{The law of large numbers}
+\label{sec:lln}
+
+Chebyshev answers a question at a specified sample size. It also gives
+a limiting conclusion: for a fixed error tolerance, the probability
+of exceeding it tends to zero as the number of observations grows.
+
+\begin{theorem}[Weak law of large numbers: finite-variance version]
+Let \(X_1,X_2,\ldots\) be i.i.d. with mean \(\mu\) and finite
+variance. Then, for every \(\varepsilon>0\),
+\begin{equation}
+  \lim_{n\to\infty}\Prob(|\bar X_n-\mu|>\varepsilon)=0.
+  \label{eq:weak-lln}
+\end{equation}
+\end{theorem}
+\begin{proof}
+By \eqref{eq:chebyshev-mean}, the probability is bounded above by
+\(\sigma^2/(n\varepsilon^2)\), which tends to zero.
+\end{proof}
+
+This statement is called \emph{convergence in probability}, written
+\(\bar X_n\xrightarrow{\Prob}\mu\). Choose a fixed tolerance first,
+such as one minute or one tenth of a minute. Among repeatedly collected
+datasets, the fraction whose average lies outside that tolerance becomes
+arbitrarily small as the dataset size increases.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/ch4-running-means}
+  \caption{Three independent simulated sequences of exponential waits.
+  Each curve uses the first \(n\) observations of its own sequence.
+  The horizontal axis is logarithmic. Averages can move away from the
+  mean after a new observation; convergence does not mean monotone
+  improvement. These are illustrative paths, not a probability bound.}
+  \label{fig:ch4-running}
+\end{figure}
+
+The theorem does not require the error to decrease at every step of
+one running experiment. A new large wait can move an otherwise accurate
+average farther from five. Nor does it claim that individual waits
+approach five: their distribution is unchanged. The running averages
+in Figure~\ref{fig:ch4-running} fluctuate even as their overall spread
+shrinks.
+
+Finite variance is sufficient for this short proof, but is not necessary
+for the i.i.d. law of large numbers. The more general result requires
+only \(\Expect[|X_1|]<\infty\). That distinction will matter for the
+heavy-tailed examples in Section~\ref{sec:averaging-failures}.
+
+The distribution being sampled also matters. If only short waits are
+recorded, their average can settle very precisely near the mean of that
+selected population, not the mean of all waits. Increasing sample size
+reduces sampling fluctuations; it does not correct an unrepresentative
+sampling process.
+
+\section{The central limit theorem}
+\label{sec:clt}
+
+The law of large numbers tells us that the error becomes small. It does
+not tell us its shape. For the inbox we have an exact Gamma answer;
+for a complicated observation or a model's loss, that distribution may
+be unavailable. The central limit theorem supplies a broadly applicable
+approximation under stated assumptions.
+
+\subsection{Keep the shrinking fluctuations visible}
+
+The error \(\bar X_n-\mu\) has standard deviation
+\(\sigma/\sqrt n\). Divide by this scale:
+\[
+  Z_n=\frac{\bar X_n-\mu}{\sigma/\sqrt n}
+     =\frac{\sum_{i=1}^n(X_i-\mu)}{\sigma\sqrt n}.
+\]
+This expresses the sampling error in standard-error units. The error
+itself shrinks, while \(Z_n\) has mean zero and variance one for every
+\(n\). Equal mean and variance do not determine a shape; the new
+claim concerns the distribution of \(Z_n\).
+
+\begin{theorem}[Classical i.i.d. central limit theorem]
+Let \(X_1,X_2,\ldots\) be i.i.d. with mean \(\mu\) and
+\(0<\sigma^2=\Var(X_1)<\infty\). Then
+\begin{equation}
+  \frac{\sqrt n(\bar X_n-\mu)}{\sigma}
+  \xrightarrow{d}\mathcal N(0,1).
+  \label{eq:clt}
+\end{equation}
+Explicitly, for every real \(z\),
+\[
+  \Prob(Z_n\le z)\longrightarrow\Phi(z).
+\]
+\end{theorem}
+
+The symbol \(\xrightarrow{d}\) means \emph{convergence in distribution}:
+here, convergence of the CDFs to the Gaussian CDF. This is different
+from saying that the rescaled errors converge to zero. They retain
+nonzero spread. It also does not say that the original \(X_i\) become
+Gaussian or that the unscaled sample mean approaches a Gaussian of
+fixed positive variance.
+
+Returning to the original units gives the approximation
+\[
+  \bar X_n\ \approx\ \mathcal N\!\left(\mu,\frac{\sigma^2}{n}\right).
+\]
+For Gaussian observations this distribution is exact for every \(n\),
+by Chapter~\ref{chap:joint-distributions}. For exponential observations
+it is an approximation to a Gamma density. Figure~\ref{fig:ch4-clt}
+shows the rescaled densities: the narrowing has been removed, allowing
+us to see the change in shape.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/ch4-clt-panels}
+  \caption{Exact densities of
+  \(Z_n=\sqrt n(\bar T_n-5)/5\), compared with the standard Gaussian.
+  All panels use the same axes. The original waits remain exponential;
+  it is the standardized average whose shape becomes nearly Gaussian.
+  The lower support endpoint is \(-\sqrt n\), so the small-sample
+  curves are visibly asymmetric.}
+  \label{fig:ch4-clt}
+\end{figure}
+
+\subsection{A bound, an approximation, and an exact answer}
+
+For one hundred waits, the one-minute error tolerance is two standard
+errors. The Gaussian approximation gives
+\begin{align*}
+  \Prob(|\bar T_{100}-5|>1)
+  &=\Prob(|Z_{100}|>2)\\
+  &\approx 2[1-\Phi(2)]\approx0.04550.
+\end{align*}
+The exact Gamma distribution in \eqref{eq:exponential-sample-mean}
+lets us check it. Let \(G_n\) be the CDF of
+\(\operatorname{Gamma}(n,0.2n)\). The count--waiting-time identity
+\eqref{eq:arrivals-counts} gives, for \(t\ge0\),
+\[
+  G_n(t)=1-e^{-0.2nt}\sum_{j=0}^{n-1}\frac{(0.2nt)^j}{j!}.
+\]
+Numerically,
+\[
+  G_{100}(4)\approx0.017108,
+  \qquad 1-G_{100}(6)\approx0.027864.
+\]
+The two tails are unequal because the exact sampling distribution
+remains somewhat skewed. Their sum is about \(0.04497\).
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lclY@{}}
+\toprule
+Method & Value & Meaning & Information used\\
+\midrule
+Chebyshev & \(0.25000\) & Upper bound & Independence and variance\\
+CLT & \(0.04550\) & Approximation & Gaussian approximation to the average\\
+Gamma & \(0.04497\) & Exact probability & Full exponential model\\
+\bottomrule
+\end{tabularx}
+\end{center}
+The approximation is close here, but it is not a guarantee. Chebyshev
+is conservative here, but remains valid without the exponential shape
+assumption. Figure~\ref{fig:ch4-tails} compares all three across sample
+sizes rather than only at one hundred.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/ch4-tail-comparison}
+  \caption{Probability that the average wait misses five minutes by
+  more than one minute. The exact Gamma probability and CLT
+  approximation are close at moderate sample sizes in this example;
+  the Chebyshev curve is an upper bound, capped at one. The vertical
+  axis is logarithmic so small probabilities remain distinguishable.}
+  \label{fig:ch4-tails}
+\end{figure}
+
+There is no universal sample size, such as thirty, at which the
+Gaussian approximation becomes reliable for every distribution and
+every probability. Strong skewness, rare extreme values, and far-tail
+questions can require much larger samples. The theorem states
+convergence, not a numerical error guarantee at a chosen finite \(n\).
+In particular, approximation of an extremely small probability may
+have poor relative accuracy even when the CDF approximation is good
+in absolute terms.
+
+\section{The limits of averaging}
+\label{sec:averaging-failures}
+
+\subsection{A shared disturbance does not average away}
+
+The sensor example in Section~\ref{sec:random-linear-transforms}
+showed that correlated errors resist averaging. To see the consequence
+as sample size grows, suppose all observations have variance
+\(\sigma^2\) and each distinct pair has correlation
+\(\rho\in[0,1]\). The covariance formula
+\eqref{eq:variance-quadratic-form} gives
+\begin{align}
+  \Var(\bar X_n)
+  &=\frac{n\sigma^2+n(n-1)\rho\sigma^2}{n^2}\notag\\
+  &=\sigma^2\left(\rho+\frac{1-\rho}{n}\right).
+  \label{eq:correlated-mean-variance}
+\end{align}
+There are \(n\) diagonal terms and \(n(n-1)\) off-diagonal terms.
+If \(\rho>0\), the variance approaches \(\rho\sigma^2\), not zero.
+
+A model that realizes this behavior is
+\[
+  X_i=\mu+B+\varepsilon_i,
+\]
+where \(B\) is a centered calibration error shared by the whole
+dataset. A fresh \(B\) is drawn for a new independently calibrated
+dataset, but it stays fixed within that dataset's \(n\) readings.
+The \(\varepsilon_i\) are centered independent reading
+errors, independent of \(B\). Set
+\(\Var(B)=\rho\sigma^2\) and
+\(\Var(\varepsilon_i)=(1-\rho)\sigma^2\). Then
+\[
+  \bar X_n=\mu+B+\frac1n\sum_{i=1}^n\varepsilon_i.
+\]
+The independent reading errors average toward zero, leaving the
+shared error. Repeating readings with the same calibration cannot
+resolve it. Independent calibrations would provide different information.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/ch4-dependent-averages}
+  \caption{Standard error relative to the single-observation standard
+  deviation. Under independence it decreases as \(1/\sqrt n\).
+  A shared component giving pairwise correlation \(0.1\) leaves a
+  limiting value \(\sqrt{0.1}\). Both curves use the same marginal
+  variance; only the dependence changes.}
+  \label{fig:ch4-dependence}
+\end{figure}
+
+For \(n=100\) and \(\rho=0.1\), the variance is
+\(0.109\sigma^2\), versus \(0.01\sigma^2\) under independence.
+Equating this variance to \(\sigma^2/n_{\mathrm{eff}}\) gives
+\[
+  n_{\mathrm{eff}}=\frac{n}{1+(n-1)\rho}\approx9.17.
+\]
+In this specific equal-correlation model, one hundred readings have
+the same mean variance as roughly nine independent readings. This
+\emph{effective sample size} is a variance comparison, not a claim
+that the entire datasets have identical distributions. Other forms
+of dependence can still permit an LLN or a CLT, but require their
+own assumptions and variance calculation.
+
+\subsection{Finite mean and finite variance are different requirements}
+
+The Student distributions in Section~\ref{sec:student} already supply
+the examples we need. For i.i.d. observations with distribution
+\(t_{3/2}\), the absolute first moment is finite but the variance is
+infinite. The general i.i.d. law of large numbers therefore applies:
+the sample mean converges in probability to zero. The finite-variance
+Chebyshev argument and the classical CLT above do not apply. There is
+no finite \(\sigma\) to insert into \(\sigma/\sqrt n\).
+
+Standard Cauchy observations (\(t_1\)) have an exact averaging property:
+\begin{equation}
+  X_1,\ldots,X_n\stackrel{\mathrm{i.i.d.}}{\sim}t_1
+  \quad\Longrightarrow\quad
+  \bar X_n\sim t_1\quad\text{for every }n.
+  \label{eq:cauchy-average}
+\end{equation}
+Here a sample average is a finite arithmetic calculation for any
+realized finite dataset, even though its population expectation does
+not exist. Averaging independent Cauchy observations leaves their
+distribution unchanged. In particular,
+\[
+  \Prob(|\bar X_n|>1)=\frac12
+\]
+for every \(n\), rather than tending to zero. Zero is the distribution's
+center of symmetry, not its mean. Figure~\ref{fig:ch4-heavy-tails}
+contrasts this with Gaussian averaging.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/ch4-heavy-tail-means}
+  \caption{Exact densities of sample means from two centered symmetric
+  populations. Gaussian means concentrate as \(n\) grows. For standard
+  Cauchy observations the density is unchanged for every sample size,
+  so the three Cauchy curves coincide. The panels have different
+  vertical scales. Symmetry alone does not supply
+  the moment assumptions needed for averaging to become reliable.}
+  \label{fig:ch4-heavy-tails}
+\end{figure}
+
+The conclusions are distinct: infinite variance need not destroy the
+LLN, and independence alone does not guarantee that a sample mean
+concentrates. Check the assumptions for the particular theorem being
+used, not just whether the data look roughly symmetric.
+
+\section{Monte Carlo and averages in machine learning}
+\label{sec:monte-carlo}
+
+\subsection{Replace an integral by independent evaluations}
+
+Suppose the quantity we need is \(I=\Expect[g(X)]\). When evaluating
+the corresponding integral is difficult but generating observations
+is feasible, draw \(X_1,\ldots,X_n\) independently from the target
+distribution and compute
+\begin{equation}
+  \widehat I_n=\frac1n\sum_{i=1}^n g(X_i).
+  \label{eq:monte-carlo}
+\end{equation}
+This is \emph{Monte Carlo estimation}. The earlier theorems now apply
+to \(Y_i=g(X_i)\). If \(\Expect[|g(X)|]<\infty\), the LLN gives
+convergence to \(I\). If also
+\(0<\tau^2=\Var(g(X))<\infty\), then
+\[
+  \operatorname{SE}(\widehat I_n)=\frac{\tau}{\sqrt n},\qquad
+  \frac{\sqrt n(\widehat I_n-I)}{\tau}
+  \xrightarrow{d}\mathcal N(0,1).
+\]
+The relevant variance is that of the \emph{evaluated quantity}
+\(g(X)\), not necessarily that of \(X\). Even a heavy-tailed input
+can give a bounded output, such as an event indicator, whose variance
+is finite.
+
+Use the response score from Section~\ref{sec:expectation} as a case
+with a known answer. For \(T\sim\operatorname{Exp}(0.2)\) and
+\(g(t)=e^{-t}\), with time expressed in minutes, the earlier moment
+calculation gives
+\[
+  I=\frac16,\qquad
+  \Expect[g(T)^2]=\frac1{11},\qquad
+  \tau^2=\frac1{11}-\frac1{36}=\frac{25}{396}.
+\]
+The coefficient of \(t\) in the exponent is one per minute, making
+the exponent dimensionless. We can compare simulated estimates
+against \(1/6\) to check the numerical method before using it for
+an expectation with no closed-form answer.
+
+\subsection{Precision has a computational cost}
+
+Because \(\Expect[\widehat I_n]=I\), its root mean squared error over
+independent datasets is
+\begin{equation}
+  \operatorname{RMSE}(\widehat I_n)
+  =\sqrt{\Expect[(\widehat I_n-I)^2]}
+  =\frac{\tau}{\sqrt n}.
+  \label{eq:mc-rmse}
+\end{equation}
+For the score, \(\tau\approx0.25126\); thus \(n=1000\) gives
+RMSE about \(0.00795\). Multiplying the number of evaluations by
+four halves this error scale. Reducing it by a factor of ten requires
+one hundred times as many evaluations, if the variance stays the same.
+
+For a target RMSE of \(0.005\), a sufficient integer sample size in
+this example is
+\[
+  n\ge\left\lceil\frac{25/396}{0.005^2}\right\rceil=2526,
+\]
+where \(\lceil\cdot\rceil\) rounds upward. An RMSE target is not a
+bound on the error in every run, nor does it specify a failure
+probability. The two are different accuracy requirements.
+
+\begin{figure}[H]
+  \centering
+  \input{figures/ch4-monte-carlo-error}
+  \caption{Monte Carlo error for the response score \(e^{-T}\).
+  The theoretical curve is the exact RMSE \(\sqrt{25/396}/\sqrt n\).
+  The simulated points estimate RMSE from repeated independent runs;
+  they are not the absolute error of one running estimate. Both axes
+  are logarithmic, so the \(n^{-1/2}\) rate is a straight line.}
+  \label{fig:ch4-monte-carlo}
+\end{figure}
+
+When \(\tau\) is unknown, compute the sample standard deviation
+\(S_Y\) of the values \(g(X_i)\) and report \(S_Y/\sqrt n\) as an
+estimated standard error. Increasing \(n\) does not fix a wrong
+sampling distribution or a faulty implementation of \(g\).
+
+\subsection{A test-set average estimates a population quantity}
+
+Fix a prediction rule \(f\) before examining the evaluation data.
+Let \((X_i,Y_i)\) be i.i.d. test observations, independent of any
+data used to choose \(f\). For a per-observation loss
+\(L_i=\ell(f(X_i),Y_i)\), the population quantity and its empirical
+average are
+\[
+  R(f)=\Expect[\ell(f(X),Y)],\qquad
+  \widehat R_n(f)=\frac1n\sum_{i=1}^n\ell(f(X_i),Y_i).
+\]
+This is the same Monte Carlo construction. Conditional on the fixed
+model, the variation comes from which evaluation examples happen to
+be sampled. With finite loss variance,
+\[
+  \operatorname{SE}(\widehat R_n(f))
+  =\frac{\sqrt{\Var(\ell(f(X),Y))}}{\sqrt n}.
+\]
+The squared-error interpretation from
+Section~\ref{sec:conditional-moments} supplies one choice of loss;
+classification error indicators supply another. The new point is
+that a reported average itself fluctuates across test sets.
+
+For a fixed classifier with population accuracy \(0.8\), four hundred
+independent test examples give standard error
+\[
+  \sqrt{\frac{0.8(0.2)}{400}}=0.02.
+\]
+This describes test-set sampling variation,
+not variation caused by retraining the model. Selecting the model
+with the best score on that same test set breaks the fixed-model
+premise. More observations from an unrepresentative test population
+also do not establish performance on the intended population.
+
+\subsection{What increasing the batch size changes}
+
+At a fixed model, average the losses of \(b\) independent examples.
+If each has variance \(\tau_L^2\), the batch-average variance is
+\(\tau_L^2/b\). Thus a fourfold batch-size increase halves the
+standard deviation of that average. This is an averaging statement,
+not a claim that training becomes four times better or faster.
+
+For a fixed finite dataset, independent sampling of indices
+\emph{with replacement} gives the same rule conditional on that
+dataset, using its empirical loss variance. Sampling without
+replacement gives a different variance, and correlated examples need
+the covariance terms from \eqref{eq:correlated-mean-variance} or the
+general quadratic-form rule. The number of rows in a batch is not
+enough to determine its information content.
+
+The three tools answer different questions. Chebyshev bounds an error
+probability at a finite sample size. The LLN establishes convergence
+under growing sample size. The CLT describes rescaled fluctuations
+and supports approximations. A reliable use of averages keeps those
+claims, and their assumptions, separate.
+\endgroup

@@ -1,0 +1,27 @@
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.95\textwidth,height=6.9cm,
+  axis lines=left,xmode=log,ymode=log,log basis x=10,log basis y=10,
+  xmin=10,xmax=10000,ymin=0.002,ymax=0.12,
+  xlabel={Number of independent draws \(n\) (log scale)},
+  ylabel={Root mean square error (log scale)},
+  xtick={10,100,1000,10000},xticklabels={10,100,1000,10000},
+  ytick={0.003,0.01,0.03,0.1},yticklabels={0.003,0.01,0.03,0.1},
+  tick label style={font=\small},label style={font=\small},
+  grid=major,grid style={black!8},
+  legend style={draw=none,font=\small,at={(0.5,1.04)},anchor=south,
+    legend columns=2,column sep=1.1em},
+]
+  \addplot[CourseBlue,very thick] table[x=n,y=theory] {figures/data/ch4-monte-carlo-error.dat};
+  \addlegendentry{Theory: \(\sqrt{25/(396n)}\)}
+  \addplot[orange!85!black,only marks,mark=*,mark size=2.1pt,
+    mark options={fill=white,line width=0.9pt}]
+    table[x=n,y=simulated] {figures/data/ch4-monte-carlo-error.dat};
+  \addlegendentry{Simulation (2,000 repetitions)}
+  \draw[CourseGray,thick,dashed] (axis cs:100,0.07) -- (axis cs:400,0.07)
+    -- (axis cs:400,0.035);
+  \node[font=\small,text=CourseGray,anchor=south] at (axis cs:200,0.073) {\(4\times n\)};
+  \node[font=\small,text=CourseGray,anchor=west,fill=white,inner sep=2pt]
+    at (axis cs:420,0.0495) {\(\tfrac12\times\) error};
+\end{axis}
+\end{tikzpicture}

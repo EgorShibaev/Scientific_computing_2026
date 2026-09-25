@@ -1,0 +1,29 @@
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={group size=2 by 1,horizontal sep=1.25cm},
+  width=0.44\textwidth,height=5.8cm,
+  axis lines=left,xmin=-4,xmax=4,ymin=0,
+  xlabel={Sample average},ylabel={Density},xtick={-4,-2,0,2,4},
+  tick label style={font=\small},label style={font=\small},
+  title style={font=\small,text=CourseDark},
+  grid=major,grid style={black!8},
+]
+\nextgroupplot[ymax=2.15,ytick={0,0.5,1,1.5,2},title={Standard Gaussian}]
+  \addplot[CourseBlue,very thick] table[x=x,y=n1] {figures/data/ch4-heavy-tail-means.dat};
+  \addplot[orange!85!black,very thick,dashed] table[x=x,y=n4] {figures/data/ch4-heavy-tail-means.dat};
+  \addplot[teal!80!black,very thick,densely dotted] table[x=x,y=n25] {figures/data/ch4-heavy-tail-means.dat};
+  \node[font=\footnotesize,text=CourseDark,anchor=north west,align=left]
+    at (rel axis cs:0.03,0.96) {\(n=25\):\\narrowest};
+\nextgroupplot[ymax=0.36,ytick={0,0.1,0.2,0.3},title={Standard Cauchy}]
+  \addplot[CourseDark,very thick] table[x=x,y=cauchy] {figures/data/ch4-heavy-tail-means.dat};
+  \node[font=\footnotesize,text=CourseDark,anchor=north west,align=left,
+    fill=white,inner sep=2pt]
+    at (rel axis cs:0.01,0.96) {Same density\\for every \(n\)};
+\end{groupplot}
+\draw[CourseBlue,very thick] ([xshift=-3.7cm,yshift=0.8cm]group c1r1.north east) -- ++(0.5cm,0)
+  node[right,font=\small,text=CourseDark] {\(n=1\)};
+\draw[orange!85!black,very thick,dashed] ([xshift=-1.6cm,yshift=0.8cm]group c1r1.north east) -- ++(0.5cm,0)
+  node[right,font=\small,text=CourseDark] {\(n=4\)};
+\draw[teal!80!black,very thick,densely dotted] ([xshift=0.5cm,yshift=0.8cm]group c1r1.north east) -- ++(0.5cm,0)
+  node[right,font=\small,text=CourseDark] {\(n=25\)};
+\end{tikzpicture}

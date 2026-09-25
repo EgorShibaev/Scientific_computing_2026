@@ -1,0 +1,39 @@
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={group size=2 by 2,horizontal sep=1.15cm,vertical sep=1.6cm},
+  width=0.44\textwidth,height=4.9cm,
+  axis lines=left,xmin=-4,xmax=5,ymin=0,ymax=1.12,
+  xtick={-4,-2,0,2,4},ytick={0,0.5,1},
+  xlabel={Standardized average \(z\)},ylabel={Density},
+  tick label style={font=\small},label style={font=\small},
+  title style={font=\small,text=CourseDark},
+  grid=major,grid style={black!8},
+]
+\nextgroupplot[title={\(n=1\)}]
+  \addplot[CourseBlue,very thick] table[x=z,y=exact] {figures/data/ch4-clt-n1.dat};
+  \addplot[orange!85!black,thick,dashed] table[x=z,y=normal] {figures/data/ch4-clt-n1.dat};
+  \addplot[CourseGray,thin,densely dotted] coordinates {(-1,0) (-1,1.04)};
+  \node[font=\footnotesize,text=CourseGray,anchor=north east,fill=white,inner sep=2pt]
+    at (axis cs:-1.15,0.86) {\(z\geq-1\)};
+\nextgroupplot[title={\(n=4\)}]
+  \addplot[CourseBlue,very thick] table[x=z,y=exact] {figures/data/ch4-clt-n4.dat};
+  \addplot[orange!85!black,thick,dashed] table[x=z,y=normal] {figures/data/ch4-clt-n4.dat};
+  \addplot[CourseGray,thin,densely dotted] coordinates {(-2,0) (-2,0.76)};
+  \node[font=\footnotesize,text=CourseGray,anchor=south west,fill=white,inner sep=2pt]
+    at (axis cs:-2,0.77) {\(z\geq-2\)};
+\nextgroupplot[title={\(n=25\)}]
+  \addplot[CourseBlue,very thick] table[x=z,y=exact] {figures/data/ch4-clt-n25.dat};
+  \addplot[orange!85!black,thick,dashed] table[x=z,y=normal] {figures/data/ch4-clt-n25.dat};
+  \node[font=\footnotesize,text=CourseGray,anchor=north,align=center]
+    at (rel axis cs:0.5,0.92) {Support begins at \(-5\)\\(outside this window)};
+\nextgroupplot[title={\(n=100\)}]
+  \addplot[CourseBlue,very thick] table[x=z,y=exact] {figures/data/ch4-clt-n100.dat};
+  \addplot[orange!85!black,thick,dashed] table[x=z,y=normal] {figures/data/ch4-clt-n100.dat};
+  \node[font=\footnotesize,text=CourseGray,anchor=north,align=center]
+    at (rel axis cs:0.5,0.92) {Support begins at \(-10\)\\(outside this window)};
+\end{groupplot}
+\draw[CourseBlue,very thick] ([xshift=-4.7cm,yshift=0.85cm]group c1r1.north east) -- ++(0.55cm,0)
+  node[right,font=\small,text=CourseDark] {Exact density};
+\draw[orange!85!black,thick,dashed] ([xshift=0.35cm,yshift=0.85cm]group c1r1.north east) -- ++(0.55cm,0)
+  node[right,font=\small,text=CourseDark] {Standard normal};
+\end{tikzpicture}

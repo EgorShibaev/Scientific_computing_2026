@@ -12,6 +12,9 @@ complete course structure and currently contains:
   nonlinear dependence; conditional means as prediction rules; random vectors and
   covariance matrices; multivariate Gaussians, linear transformations, and
   Gaussian class-conditional models.
+- Lecture 4: samples and standard errors; Markov and Chebyshev inequalities;
+  the law of large numbers and central limit theorem; dependence and heavy
+  tails; Monte Carlo estimation and independent model evaluation.
 
 Lecture 2 develops each distribution from a concrete experiment, with worked
 examples, derivations, five original vector figures, and a distribution
@@ -26,6 +29,10 @@ the relationship between two features carries all the class information.
 The notes are cumulative: new chapters should reference earlier definitions
 and derivations rather than repeat them, even when the programme lists a
 topic again.
+
+Lecture 4 follows one exponential-waiting example from sampling variability
+to error bounds and Gaussian approximation. Seven original vector figures
+distinguish exact distributions, bounds, approximations, and simulations.
 
 ## Build
 
@@ -42,6 +49,15 @@ The compiled course PDF is written to:
 dist/scientific_computing_2026.pdf
 ```
 
+Chapter 4's numerical plot data are committed, so a normal build needs no
+Python packages. To reproduce them, including the fixed-seed simulations, run:
+
+```bash
+python3 scripts/generate_chapter4_figures.py
+```
+
+The generator uses only the Python standard library.
+
 ## Source layout
 
 - `main.tex` assembles the cumulative course document.
@@ -49,6 +65,8 @@ dist/scientific_computing_2026.pdf
 - `frontmatter/course-structure.tex` records the full course plan.
 - `lectures/` contains one source file per lecture.
 - `figures/` contains the LaTeX/PGFPlots source for the figures, rebuilt with the document.
+- `figures/data/` contains reproducible numerical tables for Chapter 4.
+- `scripts/` contains the generator for those tables.
 - `dist/` contains the current compiled PDF.
 
 The programme describes thirteen substantive lecture units but repeats the

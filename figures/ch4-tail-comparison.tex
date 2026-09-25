@@ -1,0 +1,23 @@
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.95\textwidth,height=6.9cm,
+  axis lines=left,xmin=1,xmax=200,ymode=log,ymin=0.003,ymax=1.2,
+  xlabel={Number of observations \(n\)},
+  ylabel={\(\Prob(|\overline T_n-5|>1)\) (log scale)},
+  xtick={1,50,100,150,200},ytick={0.01,0.1,1},yticklabels={0.01,0.1,1},
+  tick label style={font=\small},label style={font=\small},
+  grid=major,grid style={black!8},
+  legend style={draw=none,font=\small,at={(0.5,1.04)},anchor=south,
+    legend columns=3,column sep=0.6em},
+]
+  \addplot[CourseGray,thin,densely dotted,forget plot] coordinates {(100,0.003) (100,1)};
+  \addplot[CourseBlue,very thick] table[x=n,y=exact] {figures/data/ch4-tail-comparison.dat};
+  \addlegendentry{Exact Gamma}
+  \addplot[orange!85!black,very thick,dashed] table[x=n,y=chebyshev] {figures/data/ch4-tail-comparison.dat};
+  \addlegendentry{Chebyshev bound}
+  \addplot[teal!80!black,thick,densely dotted] table[x=n,y=clt] {figures/data/ch4-tail-comparison.dat};
+  \addlegendentry{CLT approximation}
+  \node[font=\small,text=CourseGray,anchor=north west,fill=white,inner sep=2pt]
+    at (axis cs:102,0.9) {\(n=100\)};
+\end{axis}
+\end{tikzpicture}

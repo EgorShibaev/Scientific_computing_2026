@@ -1,0 +1,22 @@
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.95\textwidth,height=6.6cm,
+  axis lines=left,xmin=0,xmax=16,ymin=0,ymax=0.46,
+  xlabel={Average waiting time (minutes)},ylabel={Density},
+  xtick={0,2,4,6,8,10,12,14,16},ytick={0,0.1,0.2,0.3,0.4},
+  tick label style={font=\small},label style={font=\small},
+  grid=major,grid style={black!8},
+  legend style={draw=none,font=\small,at={(0.5,1.04)},anchor=south,
+    legend columns=3,column sep=1.3em},
+]
+  \addplot[CourseBlue,very thick] table[x=x,y=n1] {figures/data/ch4-sampling-density.dat};
+  \addlegendentry{\(n=1\)}
+  \addplot[orange!85!black,very thick,dashed] table[x=x,y=n4] {figures/data/ch4-sampling-density.dat};
+  \addlegendentry{\(n=4\)}
+  \addplot[teal!80!black,very thick,densely dotted] table[x=x,y=n25] {figures/data/ch4-sampling-density.dat};
+  \addlegendentry{\(n=25\)}
+  \addplot[CourseGray,thin,dashed,forget plot] coordinates {(5,0) (5,0.435)};
+  \node[font=\small,anchor=west,text=CourseDark,fill=white,inner sep=3pt]
+    at (axis cs:7.2,0.35) {Same mean: 5 minutes};
+\end{axis}
+\end{tikzpicture}
