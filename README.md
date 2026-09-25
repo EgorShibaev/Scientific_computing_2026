@@ -34,6 +34,13 @@ Lecture 4 follows one exponential-waiting example from sampling variability
 to error bounds and Gaussian approximation. Seven original vector figures
 distinguish exact distributions, bounds, approximations, and simulations.
 
+## Presentations
+
+[Lecture 4 slides](presentations/lecture-04/lecture-04.pptx) follow Chapter 4
+of the conspect. The separate [presentation folder](presentations/lecture-04/)
+contains the editable deck and its source, with charts based on the same data
+as the notes.
+
 ## Build
 
 The repository uses [Tectonic](https://tectonic-typesetting.github.io/), which
