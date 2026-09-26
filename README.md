@@ -36,6 +36,11 @@ distinguish exact distributions, bounds, approximations, and simulations.
 
 ## Presentations
 
+[Lecture 3 slides (PDF)](presentations/lecture-03/lecture-03.pdf) follow Chapter 3
+in the same LaTeX Beamer format, with boxed definitions and results and vector
+charts. The [presentation folder](presentations/lecture-03/) contains the PDF,
+editable LaTeX source, and section mapping. Build with `make lecture-03-slides`.
+
 [Lecture 4 slides (PDF)](presentations/lecture-04/lecture-04.pdf) follow Chapter 4
 of the conspect. The separate [presentation folder](presentations/lecture-04/)
 contains the LaTeX Beamer source and PDF, with typeset formulas and vector

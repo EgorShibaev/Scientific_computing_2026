@@ -1,0 +1,163 @@
+% Presentation-sized vector charts for the Chapter 3 probability models.
+% All curves are analytic. No external images or data-generation step is needed.
+\pgfplotsset{
+  lecture axis/.style={
+    scale only axis,axis lines=left,enlargelimits=false,
+    axis line style={draw=Muted!65,line width=0.45pt},
+    tick style={draw=Muted!65},
+    tick label style={font=\footnotesize,text=Muted},
+    label style={font=\footnotesize,text=Ink},
+    title style={font=\footnotesize,text=Ink},
+    grid=major,grid style={draw=Muted!16,line width=0.3pt},
+    minor tick num=0,scaled ticks=false,
+    legend style={draw=none,fill=none,font=\footnotesize,text=Ink,
+      at={(0.5,1.04)},anchor=south,legend cell align=left,
+      /tikz/every even column/.append style={column sep=1em}},
+    every axis plot/.append style={line width=1.15pt,no marks,
+      line join=round,line cap=round},
+  },
+  lecture wide/.style={lecture axis,width=12.25cm,height=3.65cm},
+  lecture square/.style={lecture axis,width=4.3cm,height=3.7cm},
+}
+
+\newcommand{\ArrivalRegionPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture square,width=4.15cm,height=3.6cm,
+  xmin=0,xmax=1,ymin=0,ymax=1,
+  xtick={0,0.5,1},ytick={0,0.5,1},
+  xlabel={Earlier time $t_1$},ylabel={Later time $t_2$}]
+  \path[fill=Blue!12,draw=none]
+    (axis cs:0,0) -- (axis cs:0,1) -- (axis cs:1,1) -- cycle;
+  \path[fill=Blue!45,draw=none]
+    (axis cs:0,0) -- (axis cs:0,0.5) -- (axis cs:0.5,0.5) -- cycle;
+  \addplot[Blue] coordinates {(0,0) (1,1)};
+  \node[font=\footnotesize,text=Ink] at (axis cs:0.32,0.82) {Density $2$};
+  \node[font=\footnotesize,text=Muted] at (axis cs:0.72,0.23) {Impossible};
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\ArrivalMarginalsPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture wide,height=2.55cm,
+  xmin=0,xmax=1,ymin=0,ymax=2.1,
+  xlabel={Time within the hour},ylabel={Density},
+  xtick={0,0.25,0.5,0.75,1},ytick={0,1,2},legend columns=2,
+  domain=0:1,samples=2]
+  \addplot[Blue] {2*(1-x)};
+  \addlegendentry{Earlier arrival $T_1$}
+  \addplot[Orange,dashed] {2*x};
+  \addlegendentry{Later arrival $T_2$}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\ConditionalArrivalPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture axis,width=10.5cm,height=2.15cm,
+  xmin=0,xmax=1,ymin=0,ymax=1.5,
+  xtick={0,0.25,0.5,0.75,1},ytick={0,1.333333},yticklabels={$0$,$4/3$},
+  xlabel={Later arrival time $s$ (hours)},ylabel={Conditional density}]
+  \addplot[fill=Blue!25,draw=none]
+    coordinates {(0.75,0) (0.75,1.333333) (1,1.333333) (1,0)} \closedcycle;
+  \addplot[Blue] coordinates {(0,0) (0.25,0)};
+  \addplot[Blue,dashed,line width=0.7pt] coordinates {(0.25,0) (0.25,1.333333)};
+  \addplot[Blue] coordinates {(0.25,1.333333) (1,1.333333)};
+  \node[font=\footnotesize,text=Ink] at (axis cs:0.875,0.7) {Area $1/3$};
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\NonlinearPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture square,
+  xmin=-1,xmax=1,ymin=0,ymax=1.05,
+  xtick={-1,-0.5,0,0.5,1},ytick={0,0.25,0.5,1},
+  xlabel={$x$},ylabel={$y=x^2$},domain=-1:1,samples=121]
+  \addplot[Blue] {x^2};
+  \addplot[Orange,dashed,line width=0.8pt] coordinates {(-1,0.25) (1,0.25)};
+\end{axis}
+\end{tikzpicture}%
+}
+
+% The image of a radius-r circle under (z1,z2) -> (z1,rho*z1+sqrt(1-rho^2)*z2)
+% is exactly the contour with squared Mahalanobis distance r^2.
+\newcommand{\CorrelationContoursPlot}{%
+\begin{tikzpicture}
+\begin{groupplot}[lecture axis,width=3.45cm,height=3.45cm,
+  group style={group size=3 by 1,horizontal sep=1.25cm},
+  xmin=-2.6,xmax=2.6,ymin=-2.6,ymax=2.6,
+  xtick={-2,0,2},ytick={-2,0,2},xlabel={$x_1$},ylabel={$x_2$},
+  domain=0:360,samples=121]
+\nextgroupplot[title={$\rho=0$}]
+  \addplot[Blue] ({cos(x)},{sin(x)});
+  \addplot[Blue] ({2*cos(x)},{2*sin(x)});
+\nextgroupplot[title={$\rho=0.8$}]
+  \addplot[Blue] ({cos(x)},{0.8*cos(x)+0.6*sin(x)});
+  \addplot[Blue] ({2*cos(x)},{2*(0.8*cos(x)+0.6*sin(x))});
+\nextgroupplot[title={$\rho=-0.8$}]
+  \addplot[Blue] ({cos(x)},{-0.8*cos(x)+0.6*sin(x)});
+  \addplot[Blue] ({2*cos(x)},{2*(-0.8*cos(x)+0.6*sin(x))});
+\end{groupplot}
+\end{tikzpicture}%
+}
+
+\newcommand{\MahalanobisPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture square,width=3.8cm,height=3.8cm,
+  xmin=-3.4,xmax=3.4,ymin=-3.4,ymax=3.4,
+  xtick={-2,0,2},ytick={-2,0,2},xlabel={$x_1$},ylabel={$x_2$},
+  domain=0:360,samples=121]
+  \addplot[Blue!50] ({cos(x)},{0.8*cos(x)+0.6*sin(x)});
+  \addplot[Blue!50] ({2*cos(x)},{2*(0.8*cos(x)+0.6*sin(x))});
+  \addplot[Blue!50] ({sqrt(10)*cos(x)},{sqrt(10)*(0.8*cos(x)+0.6*sin(x))});
+  \addplot[Teal,only marks,mark=*,mark size=2pt] coordinates {(1,1)};
+  \addplot[Orange,only marks,mark=*,mark size=2pt] coordinates {(1,-1)};
+  \node[font=\footnotesize,text=Teal,anchor=south west] at (axis cs:1,1) {$(1,1)$};
+  \node[font=\footnotesize,text=Orange,anchor=north west] at (axis cs:1,-1) {$(1,-1)$};
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\RandomSignPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture square,height=2.85cm,legend columns=2,
+  xmin=-3,xmax=3,ymin=-3,ymax=3,
+  xtick={-2,0,2},ytick={-2,0,2},xlabel={$x$},ylabel={$y$},
+  domain=-3:3,samples=2]
+  \addplot[Blue] {x};
+  \addlegendentry{$S=1$}
+  \addplot[Orange,dashed] {-x};
+  \addlegendentry{$S=-1$}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\ConditionalDensityPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture wide,
+  xmin=-3.5,xmax=4,ymin=0,ymax=0.73,
+  xtick={-3,-2,-1,0,1,2,3,4},ytick={0,0.2,0.4,0.6},
+  xlabel={Second sensor error $x_2$},ylabel={Density},
+  domain=-3.5:4,samples=180,legend columns=2]
+  \addplot[Muted,dashed] {exp(-x^2/2)/sqrt(2*pi)};
+  \addlegendentry{Marginal: $\mathcal N(0,1)$}
+  \addplot[Blue] {exp(-(x-1.6)^2/(2*0.36))/(0.6*sqrt(2*pi))};
+  \addlegendentry{Given $X_1=2$: $\mathcal N(1.6,0.36)$}
+\end{axis}
+\end{tikzpicture}%
+}
+
+\newcommand{\ClassContoursPlot}{%
+\begin{tikzpicture}
+\begin{axis}[lecture square,width=3.2cm,height=3.2cm,
+  xmin=-2.6,xmax=2.6,ymin=-2.6,ymax=2.6,
+  xtick={-2,0,2},ytick={-2,0,2},xlabel={$x_1$},ylabel={$x_2$},
+  domain=0:360,samples=121]
+  \addplot[Blue] ({cos(x)},{0.8*cos(x)+0.6*sin(x)});
+  \addplot[Blue] ({2*cos(x)},{2*(0.8*cos(x)+0.6*sin(x))});
+  \addplot[Orange,dashed] ({cos(x)},{-0.8*cos(x)+0.6*sin(x)});
+  \addplot[Orange,dashed] ({2*cos(x)},{2*(-0.8*cos(x)+0.6*sin(x))});
+\end{axis}
+\end{tikzpicture}%
+}
