@@ -2,7 +2,7 @@ PROJECT := scientific_computing_2026
 BUILD := build
 DIST := dist
 
-.PHONY: all pdf lecture-03-slides lecture-04-slides clean
+.PHONY: all pdf lecture-03-slides lecture-04-slides lecture-05-slides clean
 
 all: pdf
 
@@ -20,6 +20,11 @@ lecture-04-slides:
 	mkdir -p $(BUILD)/lecture-04-slides
 	tectonic -X compile presentations/lecture-04/lecture-04.tex --outdir $(BUILD)/lecture-04-slides --keep-logs
 	cp $(BUILD)/lecture-04-slides/lecture-04.pdf presentations/lecture-04/lecture-04.pdf
+
+lecture-05-slides:
+	mkdir -p $(BUILD)/lecture-05-slides
+	tectonic -X compile presentations/lecture-05/lecture-05.tex --outdir $(BUILD)/lecture-05-slides --keep-logs
+	cp $(BUILD)/lecture-05-slides/lecture-05.pdf presentations/lecture-05/lecture-05.pdf
 
 clean:
 	rm -rf $(BUILD)

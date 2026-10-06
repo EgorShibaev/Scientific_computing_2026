@@ -1,0 +1,615 @@
+\chapter{Statistical Estimation}
+\chaptermark{Statistical Estimation}
+\label{chap:estimation}
+
+\begingroup
+\clubpenalty=10000
+\widowpenalty=10000
+\newenvironment{estimationbox}[1]{\begin{tcolorbox}[
+  colback=CourseBlue!3!white,colframe=CourseBlue!65!white,
+  colbacktitle=CourseBlue!12!white,coltitle=CourseDark,
+  fonttitle=\sffamily\bfseries,title={#1},boxrule=0.5pt,
+  arc=0pt,left=7pt,right=7pt,top=5pt,bottom=5pt]}{\end{tcolorbox}}
+\input{figures/ch5-plots}
+
+\section{An unknown parameter in a probability model}
+\label{sec:estimation-model}
+
+Suppose five independent waits between requests are
+\[
+  t_1,\ldots,t_5=1,2,3,4,5\ \text{minutes}.
+\]
+Their average is three minutes. In Chapter~\ref{chap:limit-theorems},
+we specified an exponential rate and studied how sample averages fluctuate.
+Now we keep the exponential model but treat its rate \(\lambda>0\) as
+unknown. Which rate should we report from these observations?
+
+A \emph{statistical model} is a family of possible observation laws,
+written \(\{P_\theta:\theta\in\Theta\}\). The parameter \(\theta\)
+can be a scalar or a vector, and \(\Theta\) specifies its allowed values.
+For exponential waits, \(\theta=\lambda\) and \(\Theta=(0,\infty)\).
+For a Gaussian, the unknown parameter might be \(\theta=(\mu,\sigma^2)\),
+with \(\mu\in\Real\) and \(\sigma^2>0\). Choosing a family is an
+assumption about the data-generating process; estimating its parameters
+does not establish that the family is correct.
+
+\begin{estimationbox}{Definition: estimator and estimate}
+An \emph{estimator} is a rule \(\widehat\theta=T(X_1,\ldots,X_n)\)
+that uses the observations to estimate a parameter. It is random before
+we collect the data. Its realized value \(T(x_1,\ldots,x_n)\) is an
+\emph{estimate}. The rule cannot use the unknown true parameter.
+\end{estimationbox}
+
+We retain the sample notation from Section~\ref{sec:samples}. For the waits,
+\(1/\bar T_n\) is a possible estimator, whereas \(1/3\) requests per minute
+is its value on this dataset. A point estimate supplies a single parameter
+value. Quantifying its uncertainty is a further question.
+
+The observations must also distinguish the parameter values of interest.
+A model is \emph{identifiable} when \(P_\theta=P_{\theta'}\) implies
+\(\theta=\theta'\). For example, if \(X\sim\mathcal N(a^2,1)\) and
+\(a\in\Real\), the values \(a\) and \(-a\) give exactly the same
+observation law. No amount of such data identifies the sign. Restricting
+\(a\ge0\), or estimating \(a^2\), removes this particular ambiguity.
+
+\section{Method of moments}
+\label{sec:method-moments}
+
+The model links its parameters to population summaries that we already know
+how to estimate by averaging. The method of moments solves those links in
+reverse. For exponential waits, the known relation
+\(\Expect_\lambda[T]=1/\lambda\) says that a large rate corresponds to a
+short average wait. Replacing the population mean by the observed mean gives
+\[
+  \frac1{\widehat\lambda_{\mathrm{MM}}}=\bar t_n,
+  \qquad \widehat\lambda_{\mathrm{MM}}=\frac1{\bar t_n}.
+\]
+The five waits therefore give \(\widehat\lambda_{\mathrm{MM}}=1/3\)
+requests per minute. The units also follow from inverting a mean measured
+in minutes.
+
+\begin{estimationbox}{Definition: method of moments}
+For a model with \(k\) unknown parameters, choose \(k\) population moments
+\(m_j(\theta)=\Expect_\theta[X^j]\) and their empirical counterparts
+\(\widehat m_j=n^{-1}\sum_i X_i^j\). A method-of-moments estimator solves
+\[
+  m_j(\widehat\theta_{\mathrm{MM}})=\widehat m_j,
+  \qquad j=1,\ldots,k,
+\]
+with a solution in \(\Theta\). Other chosen functions of \(X\) can replace
+the powers when their expectations identify the parameter.
+\end{estimationbox}
+
+For Bernoulli data the mean is \(p\), so matching means gives
+\(\widehat p_{\mathrm{MM}}=\bar X_n\). For Poisson data the mean is
+\(\lambda\), so \(\widehat\lambda_{\mathrm{MM}}=\bar X_n\).
+These are applications of the distribution moments from
+Chapter~\ref{chap:distributions}, not new assumptions about those moments.
+
+\subsection{Two moments for a Gamma model}
+
+Suppose instead that independent positive observations follow a Gamma
+distribution with shape \(\alpha>0\) and \emph{rate} \(\beta>0\).
+The earlier formulas are
+\[
+  \Expect[X]=\frac\alpha\beta,\qquad
+  \Var(X)=\frac\alpha{\beta^2}.
+\]
+Let \(\bar x=n^{-1}\sum_i x_i\) and
+\(v_n=n^{-1}\sum_i(x_i-\bar x)^2=\widehat m_2-\widehat m_1^2\).
+Matching the first two raw moments is equivalent to solving
+\[
+  \bar x=\frac{\widehat\alpha}{\widehat\beta},\qquad
+  v_n=\frac{\widehat\alpha}{\widehat\beta^2}.
+\]
+Dividing the second equation by the first gives
+\begin{equation}
+  \widehat\beta_{\mathrm{MM}}=\frac{\bar x}{v_n},\qquad
+  \widehat\alpha_{\mathrm{MM}}=\frac{\bar x^2}{v_n}.
+  \label{eq:gamma-moments-estimate}
+\end{equation}
+For the values \(1,2,3,4,5\), \(\bar x=3\) and \(v_n=2\), giving
+\(\widehat\alpha=4.5\) and \(\widehat\beta=1.5\) per minute.
+The Gamma fit can match both the mean and spread. An exponential fit has
+only one free parameter and ties the variance to the square of the mean.
+
+The denominator here is \(n\) because we are matching empirical raw
+moments. Replacing \(v_n\) by the variance with denominator \(n-1\)
+would give a different rule. If every observation is identical, \(v_n=0\)
+and these equations give no finite positive Gamma parameters.
+
+\subsection{When matching moments is justified}
+
+The required population moments must exist, and the chosen moments must
+distinguish the parameters. Even then, a finite dataset can give multiple
+solutions, no admissible solution, or an unstable solution. For example,
+dividing by a very small empirical variance can produce very large estimates.
+
+The LLN from Section~\ref{sec:lln} explains why the method often works:
+empirical moments approach their population values. If the inverse map from
+moments to parameters is well-defined and continuous near the true moments,
+the estimates approach the true parameters. This argument needs those
+conditions; solving equations alone does not guarantee accurate estimation.
+
+\section{Likelihood and maximum likelihood}
+\label{sec:likelihood-estimation}
+
+Matching moments uses selected summaries. Likelihood uses the joint
+probability model of the observations. We now hold the recorded data fixed
+and vary the candidate parameter.
+
+\begin{estimationbox}{Definition: likelihood and maximum likelihood estimator}
+For i.i.d. observations with PMF or density \(f_\theta\), the likelihood is
+\[
+  L(\theta;x_1,\ldots,x_n)=\prod_{i=1}^n f_\theta(x_i).
+\]
+A maximum likelihood estimator (MLE) is a parameter value attaining the
+largest likelihood within the allowed parameter space:
+\[
+  \widehat\theta_{\mathrm{ML}}\in\argmax_{\theta\in\Theta}L(\theta;x).
+\]
+The maximum need not be unique, and it need not exist.
+\end{estimationbox}
+
+For discrete observations, the likelihood is the probability of the recorded
+sample, viewed as a function of \(\theta\). For continuous observations it
+is a joint \emph{density} value. Comparing densities compares probabilities
+of small neighborhoods of the recorded observations to first order, where
+the neighborhood sizes do not depend on \(\theta\). Likelihood is not a
+probability distribution over parameter values, and it need not integrate
+to one as a function of \(\theta\).
+
+If observations are dependent, we must use their actual joint law. Multiplying
+marginal densities in that case generally gives the wrong likelihood.
+
+\subsection{Log-likelihood and the exponential rate}
+
+The logarithm is strictly increasing, so maximizing a positive likelihood
+is equivalent to maximizing its log. Under independence,
+\[
+  \ell(\theta;x)=\log L(\theta;x)=\sum_{i=1}^n\log f_\theta(x_i).
+\]
+Adding logarithms is also numerically safer than multiplying many small
+densities. A factor independent of \(\theta\) can be dropped when locating
+the maximum; a factor that depends on \(\theta\) cannot.
+
+For positive exponential waits, let \(s=\sum_i t_i>0\). Then
+\[
+  L(\lambda)=\lambda^n e^{-\lambda s},\qquad
+  \ell(\lambda)=n\log\lambda-\lambda s.
+\]
+Differentiation gives
+\[
+  \ell'(\lambda)=\frac n\lambda-s,\qquad
+  \ell''(\lambda)=-\frac n{\lambda^2}<0.
+\]
+Thus the unique maximum is
+\begin{equation}
+  \widehat\lambda_{\mathrm{ML}}=\frac n{\sum_i t_i}=\frac1{\bar t_n}.
+  \label{eq:exponential-mle}
+\end{equation}
+Here maximum likelihood and method of moments agree. For our five waits,
+both report \(1/3\) per minute. Agreement in this model does not mean the
+two methods are equivalent in general.
+
+\begin{figure}[H]
+  \centering\EstLikelihoodPlot
+  \caption{Relative likelihood \(L(\lambda)/L(\widehat\lambda)\) for two
+  illustrative datasets with the same average wait of three minutes:
+  \(n=5,s=15\), and \(n=50,s=150\). Both maximize at \(1/3\), but the
+  larger sample distinguishes nearby rates more sharply. These curves are
+  likelihood ratios, not densities over the rate.}
+  \label{fig:est-likelihood}
+\end{figure}
+
+\subsection{The support can determine the maximum}
+
+Consider a different model, \(X_i\sim\operatorname{Uniform}(0,\theta)\)
+with \(\theta>0\), using density
+\(f_\theta(x)=\theta^{-1}\mathbf1_{\{0\le x\le\theta\}}\).
+For a positive sample maximum \(x_{(n)}=\max_i x_i\), the joint likelihood is
+\[
+  L(\theta)=\theta^{-n}\mathbf1_{\{\theta\ge x_{(n)}\}}.
+\]
+Any upper endpoint below an observed value has likelihood zero. On the
+admissible region, the likelihood decreases with \(\theta\), so
+\[
+  \widehat\theta_{\mathrm{ML}}=x_{(n)},\qquad
+  \widehat\theta_{\mathrm{MM}}=2\bar x_n,
+\]
+where the moment estimate follows from \(\Expect[X]=\theta/2\).
+For \(x=(0.2,0.4,0.5,0.7,0.9)\), the two estimates are \(0.9\) and
+\(1.08\). The maximum occurs at a support boundary. Solving
+\(\ell'(\theta)=0\) would miss it entirely.
+
+More generally, a stationary point need not be a global maximum. Parameter
+constraints, boundaries, and unbounded likelihoods must be checked. For
+instance, fitting a Gaussian with free variance to identical observations
+lets the likelihood increase without bound as the variance approaches zero.
+
+\section{Fitting a Gaussian mean and variance}
+\label{sec:gaussian-estimation}
+
+Let \(X_i\) be i.i.d. \(\mathcal N(\mu,v)\), writing \(v=\sigma^2>0\)
+to keep variance distinct from standard deviation. The log-likelihood is
+\[
+  \ell(\mu,v)=-\frac n2\log(2\pi)-\frac n2\log v
+              -\frac1{2v}\sum_{i=1}^n(x_i-\mu)^2.
+\]
+For each fixed \(v\), maximizing over \(\mu\) minimizes the squared
+deviations. The identity
+\[
+  \sum_i(x_i-\mu)^2=\sum_i(x_i-\bar x)^2+n(\mu-\bar x)^2
+\]
+shows directly that \(\widehat\mu_{\mathrm{ML}}=\bar x\). With
+\(Q=\sum_i(x_i-\bar x)^2>0\), differentiate with respect to \(v\):
+\[
+  \frac{\partial\ell(\bar x,v)}{\partial v}
+  =-\frac n{2v}+\frac Q{2v^2}
+  =\frac{Q-nv}{2v^2}.
+\]
+This derivative is positive for \(v<Q/n\) and negative for \(v>Q/n\).
+
+\begin{estimationbox}{Result: Gaussian maximum likelihood estimates}
+For a nonconstant i.i.d. Gaussian sample,
+\[
+  \widehat\mu_{\mathrm{ML}}=\bar X_n,\qquad
+  \widehat v_{\mathrm{ML}}=\frac1n\sum_i(X_i-\bar X_n)^2.
+\]
+If all observations coincide, there is no finite maximizer with \(v>0\).
+\end{estimationbox}
+
+The method of moments gives these same formulas by matching
+\(\Expect[X]=\mu\) and \(\Expect[X^2]=\mu^2+v\). The two methods agree
+again, for a different reason than a general equivalence. The mean and
+variance formulas still make sense for non-Gaussian data, but their Gaussian
+maximum-likelihood interpretation then depends on using a Gaussian model.
+
+\section{Bias, variance, and consistency}
+\label{sec:estimator-quality}
+
+To evaluate a rule, imagine repeating the entire sampling experiment with
+the true parameter \(\theta\) fixed. The subscript in \(\Expect_\theta\)
+or \(\Var_\theta\) specifies that sampling distribution.
+
+\begin{estimationbox}{Definition: bias and mean squared error}
+For a scalar estimator with finite second moment,
+\[
+  \operatorname{Bias}_\theta(\widehat\theta)=\Expect_\theta[\widehat\theta]-\theta,
+  \qquad
+  \operatorname{MSE}_\theta(\widehat\theta)
+  =\Expect_\theta[(\widehat\theta-\theta)^2].
+\]
+An estimator is \emph{unbiased} if its bias is zero for every allowed
+parameter value. Expanding about \(\Expect_\theta[\widehat\theta]\) gives
+\[
+  \operatorname{MSE}_\theta(\widehat\theta)
+  =\Var_\theta(\widehat\theta)+\operatorname{Bias}_\theta(\widehat\theta)^2.
+\]
+The cross term vanishes because the centered estimator has expectation zero.
+\end{estimationbox}
+
+Bias is an average error across repeated datasets; it is not the error in
+one realized estimate. An unbiased estimator can fluctuate substantially.
+Under squared-error comparison, reducing variance can compensate for some bias.
+
+\subsection{Why the sample variance uses \(n-1\)}
+
+This answers the question left open in Section~\ref{sec:samples}.
+For i.i.d. observations with mean \(\mu\) and finite variance \(\sigma^2\),
+\[
+  \sum_i(X_i-\bar X_n)^2
+  =\sum_i(X_i-\mu)^2-n(\bar X_n-\mu)^2.
+\]
+Taking expectations and using \(\Var(\bar X_n)=\sigma^2/n\) gives
+\[
+  \Expect\!\left[\sum_i(X_i-\bar X_n)^2\right]
+  =n\sigma^2-n\frac{\sigma^2}{n}=(n-1)\sigma^2.
+\]
+Therefore
+\begin{equation}
+  \Expect[\widehat v_{\mathrm{ML}}]=\frac{n-1}{n}\sigma^2,
+  \qquad
+  \Expect[S_n^2]=\sigma^2,\quad
+  S_n^2=\frac1{n-1}\sum_i(X_i-\bar X_n)^2.
+  \label{eq:variance-bias-correction}
+\end{equation}
+Centering at the fitted mean removes part of the observed variation.
+The \(n-1\) correction makes the variance estimator unbiased for \(n\ge2\).
+This expectation calculation needs no Gaussian assumption. Under a Gaussian
+model the denominator \(n\) still maximizes the likelihood; unbiasedness
+and maximum likelihood are different criteria.
+
+\subsection{A biased estimate can have smaller squared error}
+
+For independent \(\operatorname{Uniform}(0,\theta)\) observations,
+the moment estimator \(2\bar X_n\) is unbiased, with MSE
+\(\theta^2/(3n)\). For \(M=\max_iX_i\),
+\(\Prob_\theta(M\le m)=(m/\theta)^n\) on \([0,\theta]\).
+Its density is \(nm^{n-1}/\theta^n\); integrating \(m\) and \(m^2\)
+against it gives
+\[
+  \Expect_\theta[M]=\frac n{n+1}\theta,\qquad
+  \Expect_\theta[M^2]=\frac n{n+2}\theta^2.
+\]
+Consequently its bias is \(-\theta/(n+1)\) and
+\[
+  \operatorname{MSE}_\theta(M)
+  =\Expect_\theta[M^2]-2\theta\Expect_\theta[M]+\theta^2
+  =\frac{2\theta^2}{(n+1)(n+2)}.
+\]
+At \(n=5,\theta=1\), these MSEs are \(1/15\approx0.0667\) for
+method of moments and \(1/21\approx0.0476\) for the biased MLE.
+This comparison concerns these two rules under this model and squared error;
+it does not make the MLE universally best.
+
+\begin{figure}[H]
+  \centering\EstUniformPlot
+  \caption{Estimates from 50,000 independent datasets, each containing five
+  \(\operatorname{Uniform}(0,1)\) observations. The moment estimator spreads
+  on both sides of the true endpoint. The maximum always underestimates it,
+  but its smaller spread yields the smaller MSE in this example. Curves
+  show density-normalized histogram steps on common bins.}
+  \label{fig:est-uniform}
+\end{figure}
+
+\subsection{Consistency concerns growing sample size}
+
+\begin{estimationbox}{Definition: consistency}
+A sequence of estimators is \emph{consistent} for \(\theta\) if for every
+\(\varepsilon>0\),
+\[
+  \Prob_\theta(|\widehat\theta_n-\theta|>\varepsilon)\longrightarrow0
+  \quad\text{as }n\to\infty.
+\]
+This is convergence in probability of the estimation error to zero.
+\end{estimationbox}
+
+For exponential waits, the LLN gives \(\bar T_n\to1/\lambda\) in
+probability. Taking reciprocals is continuous near this positive limit,
+so \(\widehat\lambda=n/\sum_iT_i\to\lambda\). This proves consistency
+without implying unbiasedness. In fact, for \(n>1\), the Gamma law of
+\(\sum_iT_i\) gives
+\[
+  \Expect_\lambda[\widehat\lambda]=\frac n{n-1}\lambda.
+\]
+The rate estimate has positive finite-sample bias, which tends to zero.
+For \(n=1\) its expectation is infinite, although the estimate itself is
+finite almost surely. Conversely, using just \(X_1\) as an estimate of
+the population mean is unbiased but generally inconsistent: its spread
+does not decrease when more observations become available.
+
+\section{Likelihood gives a training loss}
+\label{sec:likelihood-loss}
+
+So far one distribution described every observation. For prediction, specify
+a distribution of the response \(Y_i\) conditional on its observed features
+\(x_i\). Treat the feature values as fixed and assume responses are
+conditionally independent. The conditional likelihood is
+\(\prod_i p_\theta(y_i\mid x_i)\). Estimation chooses \(\theta\) to make
+this observed response sample have large conditional likelihood.
+
+\subsection{Gaussian regression and squared error}
+
+Let \(Y_i\mid x_i\sim\mathcal N(f_\theta(x_i),\sigma^2)\), with the
+same known \(\sigma^2>0\) for every response. Then
+\begin{equation}
+  -\ell(\theta)=\frac n2\log(2\pi\sigma^2)
+     +\frac1{2\sigma^2}\sum_i\bigl(y_i-f_\theta(x_i)\bigr)^2.
+  \label{eq:gaussian-regression-loss}
+\end{equation}
+The first term and the positive scale factor do not change which
+\(\theta\) minimizes the expression. Thus maximizing this likelihood is
+equivalent to minimizing mean squared error. This explains a familiar loss
+through an explicit noise model. Chapter~\ref{chap:joint-distributions}
+showed why a conditional mean predicts under squared error; here we estimate
+the parameters of a chosen conditional-mean model from data.
+
+If a common variance \(v\) is also unknown, keep the term
+\(\tfrac n2\log v\). For any fixed \(\theta\) with positive residual
+sum of squares, its fitted value is
+\(\widehat v(\theta)=n^{-1}\sum_i(y_i-f_\theta(x_i))^2\).
+When the model fits every response exactly, this joint likelihood is
+unbounded as \(v\downarrow0\). A finite solution then requires an
+additional constraint or a different model.
+
+\subsection{A predicted variance changes the objective}
+
+Suppose the model predicts both a mean \(\mu_\theta(x_i)\) and a positive
+variance \(v_\theta(x_i)\). Up to the constant \(\tfrac n2\log(2\pi)\),
+\begin{equation}
+  -\ell(\theta)=\frac12\sum_i\left[
+    \log v_\theta(x_i)+\frac{(y_i-\mu_\theta(x_i))^2}{v_\theta(x_i)}
+  \right].
+  \label{eq:heteroscedastic-loss}
+\end{equation}
+The inverse variance weights the squared residual, but predicting a large
+variance also increases the logarithmic term. Dropping that term would let
+the model hide every residual by making its variance arbitrarily large.
+A parameterization such as \(v_\theta(x)=e^{s_\theta(x)}\) enforces
+positivity. It does not by itself prevent variance collapse at a perfectly
+fitted observation.
+
+\begin{figure}[H]
+  \centering\EstVarianceLossPlot
+  \caption{For one fixed residual \(y-\mu=2\), Gaussian negative
+  log-likelihood, excluding its constant, is \(\log\sigma+2/\sigma^2\).
+  Its minimum occurs at \(\sigma=2\). The logarithmic term prevents
+  the scale from growing without cost. For residual zero, in contrast,
+  the loss tends to \(-\infty\) as \(\sigma\downarrow0\).}
+  \label{fig:est-variance-loss}
+\end{figure}
+
+\subsection{Bernoulli responses and binary log loss}
+
+For \(Y_i\in\{0,1\}\), let the model predict
+\(p_i=p_\theta(x_i)\in(0,1)\). The conditional PMF is
+\(p_i^{y_i}(1-p_i)^{1-y_i}\), so maximizing likelihood minimizes
+\begin{equation}
+  -\ell(\theta)
+  =-\sum_i\left[y_i\log p_i+(1-y_i)\log(1-p_i)\right].
+  \label{eq:bernoulli-log-loss}
+\end{equation}
+For an observed positive response, assigning probability \(0.9\) contributes
+\(-\log0.9\approx0.105\), whereas probability \(0.1\) contributes
+\(-\log0.1\approx2.303\). Confident wrong predictions incur a large cost.
+The information-theoretic interpretation of this loss belongs to the
+later chapter on entropy and cross-entropy.
+
+The statistical model determines the objective. An optimization algorithm
+searches for parameters that minimize it; a numerical stationary point need
+not be a global optimum. Good training likelihood also does not guarantee
+good prediction on new data. Evaluation requires the independent-data
+reasoning from Section~\ref{sec:monte-carlo}.
+
+\section{MAP estimation and prior information}
+\label{sec:map-estimation}
+
+Maximum likelihood compares how well candidate parameters account for the
+observations. A Bayesian model also specifies a prior distribution on the
+parameter before using the current data. A prior density \(\pi(\theta)\)
+describes that parameter uncertainty. Conditional on a parameter value,
+the same observation model supplies the likelihood.
+
+The conditioning rules from Chapters~\ref{chap:probability-models} and
+\ref{chap:joint-distributions} give
+\[
+  \pi(\theta\mid x)
+  =\frac{L(\theta;x)\pi(\theta)}
+         {\int_\Theta L(u;x)\pi(u)\,du},
+\]
+provided the denominator is positive and finite. For discrete parameters,
+replace the integral by a sum. The denominator is constant in \(\theta\),
+so it does not affect the location of a posterior maximum.
+
+\begin{estimationbox}{Definition: maximum a posteriori estimate}
+A MAP estimate maximizes the posterior density (or posterior mass for
+a discrete parameter):
+\[
+  \widehat\theta_{\mathrm{MAP}}\in
+  \argmax_{\theta\in\Theta}\{\ell(\theta;x)+\log\pi(\theta)\}.
+\]
+Equivalently, it minimizes negative log-likelihood plus negative log-prior.
+This is a point summary of the posterior, not the entire posterior distribution.
+\end{estimationbox}
+
+\subsection{A Bernoulli probability with a Beta prior}
+
+Take \(k\) successes in \(n\) independent Bernoulli observations.
+The likelihood is proportional to \(p^k(1-p)^{n-k}\); its MLE is
+\(k/n\), including boundary values if \(p\in[0,1]\).
+To express prior information about a probability, introduce the Beta family:
+\[
+  \pi(p)=\frac{p^{a-1}(1-p)^{b-1}}{B(a,b)},\quad 0<p<1,\quad a,b>0,
+  \qquad B(a,b)=\int_0^1u^{a-1}(1-u)^{b-1}\,du.
+\]
+Here \(a,b\) are specified prior parameters. Multiplying prior and likelihood
+adds their powers, yielding
+\[
+  p\mid x\sim\operatorname{Beta}(a+k,b+n-k).
+\]
+For \(a+k>1\) and \(b+n-k>1\), differentiation of the log posterior gives
+\begin{equation}
+  \widehat p_{\mathrm{MAP}}=\frac{k+a-1}{n+a+b-2}.
+  \label{eq:beta-map}
+\end{equation}
+The conditions ensure an interior mode. Outside them, check the boundaries
+instead of applying this formula blindly.
+
+With a \(\operatorname{Beta}(2,2)\) prior and seven successes in ten trials,
+the posterior is \(\operatorname{Beta}(9,5)\), and
+\[
+  \widehat p_{\mathrm{ML}}=\frac7{10}=0.7,\qquad
+  \widehat p_{\mathrm{MAP}}=\frac8{12}=\frac23.
+\]
+The symmetric prior favors probabilities closer to \(1/2\), moving this
+estimate slightly downward. A different prior can move it differently.
+
+\begin{figure}[H]
+  \centering\EstBetaPlot
+  \caption{The \(\operatorname{Beta}(2,2)\) prior and
+  \(\operatorname{Beta}(9,5)\) posterior after seven successes in ten trials.
+  Both are normalized densities over \(p\). The posterior mode is \(2/3\);
+  it summarizes the distribution without describing its whole spread.}
+  \label{fig:est-beta}
+\end{figure}
+
+The posterior mean is another point summary. For a Beta\((A,B)\) law,
+inserting one extra factor of \(p\) into the normalizing integral gives
+\[
+  \Expect[p]=\frac{B(A+1,B)}{B(A,B)}=\frac{A}{A+B}.
+\]
+Here it is
+\(9/14\approx0.643\), different from the MAP. The conditional-mean result
+in Section~\ref{sec:conditional-moments} makes the posterior mean the
+minimizer of posterior expected squared error. The mode answers a different
+question. For continuous parameters, MAP also depends on the chosen
+parameterization because a transformed density includes a Jacobian factor.
+
+\subsection{A Gaussian prior pulls an estimated mean toward its center}
+
+Let \(X_i\sim\mathcal N(\mu,\sigma^2)\) with known \(\sigma^2>0\),
+and use prior \(\mu\sim\mathcal N(m_0,\tau^2)\), \(\tau^2>0\).
+Here \(\sigma^2\) describes variation in observations, whereas \(\tau^2\)
+describes prior uncertainty about their mean. Terms depending on \(\mu\)
+in negative log posterior are
+\[
+  \frac1{2\sigma^2}\sum_i(x_i-\mu)^2+
+  \frac1{2\tau^2}(\mu-m_0)^2.
+\]
+Setting its derivative to zero gives
+\begin{equation}
+  \widehat\mu_{\mathrm{MAP}}
+  =\frac{(n/\sigma^2)\bar x+(1/\tau^2)m_0}{n/\sigma^2+1/\tau^2}.
+  \label{eq:gaussian-map}
+\end{equation}
+Completing the square shows that the posterior is Gaussian with this mean
+and variance \((n/\sigma^2+1/\tau^2)^{-1}\). Its mean and mode coincide
+in this special case. The weights are precisions, meaning inverse variances:
+the variance of \(\bar X_n\) is \(\sigma^2/n\), and the prior variance
+is \(\tau^2\). As \(n\) grows with the prior fixed, the data receive
+more relative weight.
+
+For \(n=4,\sigma^2=4,\bar x=1.6,m_0=0,\tau^2=1\), both precisions
+are one. The MLE is \(1.6\), the MAP is \(0.8\), and the posterior
+variance is \(1/2\).
+
+\begin{figure}[H]
+  \centering\EstGaussianPriorPlot
+  \caption{Prior \(\mathcal N(0,1)\), likelihood as a function of \(\mu\)
+  rescaled to integrate to one, and posterior \(\mathcal N(0.8,0.5)\) in
+  the stated example. The rescaled likelihood has shape \(\mathcal N(1.6,1)\);
+  its normalization is only for the plot and does not turn it into a prior
+  or posterior.}
+  \label{fig:est-gaussian-prior}
+\end{figure}
+
+\subsection{Gaussian priors and quadratic regularization}
+
+In Gaussian regression with known observation variance \(\sigma^2\),
+put a prior \(w\sim\mathcal N(0,\tau^2I)\) on the model coefficients.
+MAP minimizes, up to constants,
+\[
+  \frac1{2\sigma^2}\sum_i(y_i-f_w(x_i))^2+
+  \frac1{2\tau^2}\|w\|^2.
+\]
+Multiplying by \(2\sigma^2\) gives the equivalent objective
+\begin{equation}
+  \sum_i(y_i-f_w(x_i))^2+\alpha\|w\|^2,
+  \qquad \alpha=\frac{\sigma^2}{\tau^2}.
+  \label{eq:map-quadratic-penalty}
+\end{equation}
+For a linear model this is ridge regression, whose linear-algebra solution
+comes later in the course. If the data term is an \emph{average} squared
+error, the same prior gives coefficient \(\alpha/n\), not \(\alpha\).
+The normalization of the loss matters when interpreting a penalty.
+An unpenalized intercept would require a different prior choice for that
+coefficient. More generally, MAP imposes the penalty \(-\log\pi(w)\);
+a quadratic penalty specifically corresponds to a Gaussian prior.
+
+Method of moments matches selected population summaries to sample summaries.
+MLE maximizes the observation likelihood. MAP adds an explicit prior on the
+parameter. Their estimates can coincide, but their definitions and assumptions
+remain different. None of these point-estimation rules by itself supplies
+a confidence interval or a guarantee of predictive accuracy.
+\endgroup

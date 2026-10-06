@@ -15,6 +15,9 @@ complete course structure and currently contains:
 - Lecture 4: samples and standard errors; Markov and Chebyshev inequalities;
   the law of large numbers and central limit theorem; dependence and heavy
   tails; Monte Carlo estimation and independent model evaluation.
+- Lecture 5: statistical models and estimators; method of moments; maximum
+  likelihood; Gaussian estimation; bias, MSE, consistency, and the variance
+  correction; likelihood-based training losses; MAP and regularization.
 
 Lecture 2 develops each distribution from a concrete experiment, with worked
 examples, derivations, five original vector figures, and a distribution
@@ -47,6 +50,13 @@ contains the LaTeX Beamer source and PDF, with typeset formulas and vector
 charts based on the same data as the notes. Build with `make lecture-04-slides`.
 The original PowerPoint version remains available in the same folder.
 
+[Lecture 5 slides (PDF)](presentations/lecture-05/lecture-05.pdf) follow Chapter 5
+in the same Beamer format. The [presentation folder](presentations/lecture-05/)
+contains editable LaTeX source and the section mapping. Build with
+`make lecture-05-slides`. Five shared vector figures keep the slides and
+conspect aligned, including the distinction between normalized posterior
+densities and relative likelihood curves.
+
 ## Build
 
 The repository uses [Tectonic](https://tectonic-typesetting.github.io/), which
@@ -71,6 +81,13 @@ python3 scripts/generate_chapter4_figures.py
 
 The generator uses only the Python standard library.
 
+Chapter 5's plot tables are also committed. Reproduce their analytic curves and
+the fixed-seed uniform-estimator experiment with:
+
+```bash
+python3 scripts/generate_chapter5_figures.py
+```
+
 ## Source layout
 
 - `main.tex` assembles the cumulative course document.
@@ -78,7 +95,7 @@ The generator uses only the Python standard library.
 - `frontmatter/course-structure.tex` records the full course plan.
 - `lectures/` contains one source file per lecture.
 - `figures/` contains the LaTeX/PGFPlots source for the figures, rebuilt with the document.
-- `figures/data/` contains reproducible numerical tables for Chapter 4.
+- `figures/data/` contains reproducible numerical tables for Chapters 4 and 5.
 - `scripts/` contains the generator for those tables.
 - `dist/` contains the current compiled PDF.
 

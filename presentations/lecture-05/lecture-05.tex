@@ -1,0 +1,653 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+% Build from the repository root: make lecture-05-slides
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,booktabs,array}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usefonttheme{professionalfonts}
+\definecolor{Ink}{HTML}{16324F}
+\definecolor{Blue}{HTML}{1F4E79}
+\definecolor{Orange}{HTML}{C46A13}
+\definecolor{Teal}{HTML}{007D80}
+\definecolor{Muted}{HTML}{526477}
+\setbeamercolor{normal text}{fg=Ink,bg=white}
+\setbeamercolor{frametitle}{fg=Ink}
+\setbeamercolor{structure}{fg=Blue}
+\setbeamercolor{footline}{fg=Muted}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{footline}{size=\tiny}
+\setbeamersize{text margin left=8mm,text margin right=8mm}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{frametitle}{\vspace{3mm}\insertframetitle\par\vspace{1mm}}
+\newcommand{\conspectsection}{5.1}
+\setbeamertemplate{footline}{%
+  \hspace{8mm}\usebeamerfont{footline}\usebeamercolor[fg]{footline}%
+  Conspect \S\,\conspectsection\hfill\insertframenumber\hspace{8mm}\vspace{3mm}}
+\setlength{\parskip}{0.5em}
+\setlength{\abovedisplayskip}{0.55em}
+\setlength{\belowdisplayskip}{0.55em}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\Expect}{\mathbb{E}}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\MSE}{MSE}
+\newcommand{\takeaway}[1]{\vfill{\small\color{Muted}#1\par}}
+\newcommand{\plotcaption}[1]{\par\smallskip{\small #1\par}}
+\setbeamertemplate{blocks}[default]
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+\setbeamerfont{block body}{size=\normalsize}
+\newenvironment{coursebox}[2]{%
+  \begingroup
+  \setbeamercolor{block title}{fg=#1,bg=#1!13!white}
+  \setbeamercolor{block body}{fg=Ink,bg=#1!4!white}
+  \begin{block}{#2}
+  \setlength{\parskip}{0.2em}
+  \setlength{\abovedisplayskip}{0.3em}
+  \setlength{\belowdisplayskip}{0.3em}
+}{\end{block}\endgroup}
+\newenvironment{definitionbox}[1]
+  {\begin{coursebox}{Blue}{Definition: #1}}{\end{coursebox}}
+\newenvironment{resultbox}[1]
+  {\begin{coursebox}{Teal}{Result: #1}}{\end{coursebox}}
+\newcommand{\EstDataPath}{../../figures/data}
+\newcommand{\EstPlotWidth}{12cm}
+\newcommand{\EstPlotHeight}{3.6cm}
+\input{../../figures/ch5-plots}
+\title{Statistical estimation}
+\subtitle{Lecture 5}
+\author{}
+\date{Scientific Computing 2026}
+\hypersetup{pdftitle={Lecture 5: Statistical estimation},
+  pdfsubject={Scientific Computing 2026, Chapter 5},pdfauthor={}}
+
+\begin{document}
+
+% 1
+{\setbeamercolor{background canvas}{bg=Ink}
+\begin{frame}[plain]
+\color{white}
+{\large Scientific Computing 2026\par}
+\vfill
+{\LARGE\bfseries Statistical estimation\par}
+\vspace{0.7em}
+{\large Method of moments, maximum likelihood, and MAP\par}
+\vfill
+{\large Lecture 5\par}\vspace{4mm}
+\end{frame}}
+
+% 2
+\begin{frame}{Five observed waiting times}
+Independent waits between requests, in minutes:
+\[
+  1,\ 2,\ 3,\ 4,\ 5.
+  \qquad \bar t=3,\qquad \sum_i t_i=15.
+\]
+Keep the exponential model, but let its rate be unknown:
+\[
+  T_i\sim\operatorname{Exp}(\lambda),\qquad\lambda>0.
+\]
+Which value of $\lambda$ should we report?
+\takeaway{Chapter 4 studied variation under a specified model.
+Here the observations help us choose its parameter.}
+\end{frame}
+
+% 3
+\begin{frame}{A statistical model}
+\begin{definitionbox}{Statistical model}
+A family of possible observation laws
+\[
+  \{P_\theta:\theta\in\Theta\}.
+\]
+The parameter space $\Theta$ specifies the allowed values.
+\end{definitionbox}
+Exponential rate: $\lambda\in(0,\infty)$.\\
+Gaussian mean and variance: $(\mu,v)\in\mathbb R\times(0,\infty)$.
+\takeaway{The family is an assumption about the observations.
+Estimating its parameters does not verify that assumption.}
+\end{frame}
+
+% 4
+\begin{frame}{Estimator, estimate, and identifiability}
+\begin{definitionbox}{Estimator and estimate}
+An estimator is a data-based rule $\widehat\theta=T(X_1,\ldots,X_n)$.
+Its realized value $T(x_1,\ldots,x_n)$ is an estimate.
+\end{definitionbox}
+For the waits: the rule $1/\bar T_n$ gives $1/3$ per minute.
+\vfill
+\textbf{Identifiability:} different parameter values must give different laws.
+For $X\sim\mathcal N(a^2,1)$, the data cannot distinguish $a$ from $-a$.
+\end{frame}
+
+\renewcommand{\conspectsection}{5.2}
+% 5
+\begin{frame}{Method of moments}
+\begin{definitionbox}{Method of moments}
+Match selected model moments to their empirical counterparts:
+\[
+  \Expect_{\widehat\theta}[X^j]=\frac1n\sum_{i=1}^n x_i^j.
+\]
+Solve for the unknown parameters within their allowed space.
+\end{definitionbox}
+For exponential waits,
+\[
+  \Expect_\lambda[T]=\frac1\lambda
+  \quad\Longrightarrow\quad
+  \widehat\lambda_{\mathrm{MM}}=\frac1{\bar t}=\frac13.
+\]
+\end{frame}
+
+% 6
+\begin{frame}{Two moments for a Gamma model}
+Shape $\alpha>0$, rate $\beta>0$:
+\[
+  \Expect[X]=\frac\alpha\beta,\qquad
+  \Var(X)=\frac\alpha{\beta^2}.
+\]
+With $v_n=n^{-1}\sum_i(x_i-\bar x)^2$, match
+\[
+  \bar x=\frac{\widehat\alpha}{\widehat\beta},\qquad
+  v_n=\frac{\widehat\alpha}{\widehat\beta^2}.
+\]
+\begin{resultbox}{Gamma moment estimates}
+\[
+  \widehat\alpha=\frac{\bar x^2}{v_n},\qquad
+  \widehat\beta=\frac{\bar x}{v_n},\qquad v_n>0.
+\]
+\end{resultbox}
+\end{frame}
+
+% 7
+\begin{frame}{Matching the mean and spread}
+For $1,2,3,4,5$ minutes,
+\[
+  \bar x=3,\qquad v_n=2,\qquad
+  \widehat\alpha=4.5,\qquad\widehat\beta=1.5\text{ per minute}.
+\]
+The Gamma fit matches both summaries.\\
+The exponential fit has variance $\bar x^2=9$.
+\vfill
+The denominator $n$ follows from matching raw moments:
+\[
+  v_n=\widehat m_2-\widehat m_1^2.
+\]
+\takeaway{If $v_n=0$, these Gamma moment equations have no finite positive solution.}
+\end{frame}
+
+% 8
+\begin{frame}{Conditions for moment estimation}
+The selected population moments must exist and distinguish the parameters.
+\vfill
+The LLN makes empirical moments approach population moments.
+A well-defined, continuous inverse then makes the parameter estimates converge.
+\vfill
+Finite samples can still give no admissible solution, multiple solutions,
+or estimates that react sharply to small changes in the moments.
+\end{frame}
+
+\renewcommand{\conspectsection}{5.3}
+% 9
+\begin{frame}{Likelihood}
+\begin{definitionbox}{Likelihood for an i.i.d. sample}
+With the observations held fixed,
+\[
+  L(\theta;x)=\prod_{i=1}^n f_\theta(x_i).
+\]
+Vary $\theta$ to compare candidate models for the recorded sample.
+\end{definitionbox}
+Discrete data use probability masses. Continuous data use densities.
+\takeaway{Likelihood is not a distribution over $\theta$.
+Dependent observations require their actual joint law.}
+\end{frame}
+
+% 10
+\begin{frame}{Maximum likelihood and logarithms}
+\begin{definitionbox}{Maximum likelihood estimator}
+\[
+  \widehat\theta_{\mathrm{ML}}\in\argmax_{\theta\in\Theta}L(\theta;x).
+\]
+The maximizer may be nonunique or may fail to exist.
+\end{definitionbox}
+The increasing logarithm preserves the maximum:
+\[
+  \ell(\theta;x)=\sum_i\log f_\theta(x_i).
+\]
+\takeaway{Drop only terms independent of the parameter.
+Adding logs also avoids multiplying many very small numbers.}
+\end{frame}
+
+% 11
+\begin{frame}{The exponential rate MLE}
+For total observed waiting time $s>0$,
+\[
+  L(\lambda)=\lambda^n e^{-\lambda s},\qquad
+  \ell(\lambda)=n\log\lambda-\lambda s.
+\]
+\[
+  \ell'(\lambda)=\frac n\lambda-s,\qquad
+  \ell''(\lambda)=-\frac n{\lambda^2}<0.
+\]
+\begin{resultbox}{Unique maximum}
+\[
+  \widehat\lambda_{\mathrm{ML}}=\frac n{s}=\frac1{\bar t}.
+\]
+\end{resultbox}
+\end{frame}
+
+% 12
+\begin{frame}{Likelihood distinguishes candidate rates}
+\centering\EstLikelihoodPlot
+\plotcaption{Two illustrative datasets have average wait three minutes.
+Both estimates are $1/3$ per minute. The vertical scale is $L(\lambda)/L(\widehat\lambda)$.}
+\end{frame}
+
+% 13
+\begin{frame}{A parameter-dependent support}
+For $X_i\sim\operatorname{Uniform}(0,\theta)$, let $x_{(n)}=\max_i x_i>0$.
+\[
+  L(\theta)=\theta^{-n}\mathbf1_{\{\theta\ge x_{(n)}\}}.
+\]
+An endpoint below an observation has likelihood zero.\\
+Above the sample maximum, likelihood decreases.
+\begin{resultbox}{Uniform endpoint MLE}
+\[
+  \widehat\theta_{\mathrm{ML}}=x_{(n)}.
+\]
+\end{resultbox}
+\takeaway{The maximum lies at a boundary. No derivative-zero equation finds it.}
+\end{frame}
+
+% 14
+\begin{frame}{Moment estimates and MLEs can differ}
+Uniform model, with observations $0.2,0.4,0.5,0.7,0.9$:
+\[
+  \widehat\theta_{\mathrm{MM}}=2\bar x=1.08,\qquad
+  \widehat\theta_{\mathrm{ML}}=\max_i x_i=0.9.
+\]
+\vfill
+Moment matching uses $\Expect[X]=\theta/2$.\\
+Likelihood also uses the support restriction.
+\takeaway{Parameter constraints and global behavior matter.
+A stationary point alone does not establish a maximum.}
+\end{frame}
+
+\renewcommand{\conspectsection}{5.4}
+% 15
+\begin{frame}{A Gaussian mean estimate}
+For i.i.d. $X_i\sim\mathcal N(\mu,v)$ with $v>0$,
+\[
+  \ell(\mu,v)=-\frac n2\log(2\pi)-\frac n2\log v
+  -\frac1{2v}\sum_i(x_i-\mu)^2.
+\]
+For fixed $v$, the identity
+\[
+  \sum_i(x_i-\mu)^2
+  =\sum_i(x_i-\bar x)^2+n(\mu-\bar x)^2
+\]
+puts the maximum at $\widehat\mu=\bar x$.
+\takeaway{Here $v$ denotes variance, not standard deviation.}
+\end{frame}
+
+% 16
+\begin{frame}{A Gaussian variance estimate}
+Write $Q=\sum_i(x_i-\bar x)^2>0$.
+\[
+  \frac{\partial\ell(\bar x,v)}{\partial v}
+  =\frac{Q-nv}{2v^2}.
+\]
+The derivative changes from positive to negative at $v=Q/n$.
+\begin{resultbox}{Gaussian MLEs}
+\[
+  \widehat\mu=\bar x,\qquad
+  \widehat v=\frac1n\sum_i(x_i-\bar x)^2.
+\]
+\end{resultbox}
+\takeaway{For identical observations, $Q=0$ and the likelihood grows without
+bound as $v$ approaches zero.}
+\end{frame}
+
+\renewcommand{\conspectsection}{5.5}
+% 17
+\begin{frame}{Bias and mean squared error}
+Repeat the entire sampling experiment with true parameter $\theta$ fixed.
+\begin{definitionbox}{Bias and MSE}
+\[
+  \operatorname{Bias}_\theta(\widehat\theta)
+  =\Expect_\theta[\widehat\theta]-\theta,
+\]
+\[
+  \MSE_\theta(\widehat\theta)
+  =\Expect_\theta[(\widehat\theta-\theta)^2].
+\]
+Unbiasedness means zero bias for every allowed parameter value.
+\end{definitionbox}
+\takeaway{Bias describes repeated-sample averages. One realized estimate has an error.}
+\end{frame}
+
+% 18
+\begin{frame}{Bias and variance contribute to error}
+Write
+\[
+  \widehat\theta-\theta
+  =\bigl(\widehat\theta-\Expect_\theta\widehat\theta\bigr)
+   +\bigl(\Expect_\theta\widehat\theta-\theta\bigr).
+\]
+Square and take expectations. The cross term has expectation zero.
+\begin{resultbox}{Bias--variance decomposition}
+\[
+  \MSE_\theta(\widehat\theta)
+  =\Var_\theta(\widehat\theta)+\operatorname{Bias}_\theta(\widehat\theta)^2.
+\]
+\end{resultbox}
+\takeaway{Under squared error, smaller variance can compensate for some bias.}
+\end{frame}
+
+% 19
+\begin{frame}{The $n-1$ variance correction}
+For i.i.d. observations with finite variance,
+\[
+  \sum_i(X_i-\bar X)^2
+  =\sum_i(X_i-\mu)^2-n(\bar X-\mu)^2.
+\]
+Taking expectations gives $n\sigma^2-n(\sigma^2/n)=(n-1)\sigma^2$.
+\begin{resultbox}{Unbiased sample variance, $n\ge2$}
+\[
+  \Expect[\widehat v_{\mathrm{ML}}]=\frac{n-1}{n}\sigma^2,
+  \qquad\Expect\!\left[\frac1{n-1}\sum_i(X_i-\bar X)^2\right]=\sigma^2.
+\]
+\end{resultbox}
+\takeaway{The expectation identity needs no Gaussian assumption.
+The Gaussian likelihood still chooses denominator $n$.}
+\end{frame}
+
+% 20
+\begin{frame}{Squared error for a uniform endpoint}
+For five i.i.d. Uniform$(0,1)$ observations:
+\par\smallskip
+{\small\renewcommand{\arraystretch}{1.5}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lll@{}}
+\toprule
+Estimator & Bias & Mean squared error\\
+\midrule
+$2\bar X$ & $0$ & $1/15\approx0.0667$\\
+$\max_i X_i$ & $-1/6$ & $1/21\approx0.0476$\\
+\bottomrule
+\end{tabular*}}
+\vfill
+The maximum's smaller spread outweighs its bias in this comparison.
+\takeaway{For $M=\max_iX_i$, use $\Prob(M\le m)=m^5$ on $[0,1]$.
+Integrating its density gives the moments used in the table.}
+\end{frame}
+
+% 21
+\begin{frame}{The distribution of the estimates}
+\centering\EstUniformPlot
+\plotcaption{50,000 independent datasets of size five from Uniform$(0,1)$.
+The MLE always underestimates the endpoint, but has smaller MSE here.}
+\end{frame}
+
+% 22
+\begin{frame}{Consistency}
+\begin{definitionbox}{Consistent estimator sequence}
+For every $\varepsilon>0$,
+\[
+  \Prob_\theta(|\widehat\theta_n-\theta|>\varepsilon)\longrightarrow0.
+\]
+\end{definitionbox}
+For exponential waits, the LLN gives $\bar T_n\to1/\lambda$.
+Continuity of the reciprocal at this positive limit gives
+$1/\bar T_n\to\lambda$ in probability.
+\takeaway{This estimator is consistent but biased:
+$\Expect[\widehat\lambda]=n\lambda/(n-1)$ for $n>1$.
+Using only $X_1$ can be unbiased for a mean but inconsistent.}
+\end{frame}
+
+\renewcommand{\conspectsection}{5.6}
+% 23
+\begin{frame}{Gaussian regression gives squared error}
+Fix the features and assume conditionally independent responses:
+\[
+  Y_i\mid x_i\sim\mathcal N(f_\theta(x_i),\sigma^2),
+  \qquad\sigma^2>0\text{ known and shared}.
+\]
+\begin{resultbox}{Negative conditional log-likelihood}
+\[
+  -\ell(\theta)=\frac n2\log(2\pi\sigma^2)
+  +\frac1{2\sigma^2}\sum_i(y_i-f_\theta(x_i))^2.
+\]
+\end{resultbox}
+The parameter-dependent term is a positive multiple of squared error.
+\end{frame}
+
+% 24
+\begin{frame}{Fitting a shared noise variance}
+When the common variance $v$ is unknown, retain its logarithm:
+\[
+  -\ell(\theta,v)=\frac n2\log v
+    +\frac{\operatorname{RSS}(\theta)}{2v}+\text{constant}.
+\]
+For fixed $\theta$ with positive residual sum of squares,
+\[
+  \widehat v(\theta)=\frac{\operatorname{RSS}(\theta)}{n}.
+\]
+\takeaway{A perfect fit has RSS $=0$ and allows variance collapse.
+A finite fit then needs an additional constraint or a different model.}
+\end{frame}
+
+% 25
+\begin{frame}{Predicting a different variance for each input}
+Let $\mu_i=\mu_\theta(x_i)$ and $v_i=v_\theta(x_i)>0$.
+\begin{resultbox}{Gaussian loss with input-dependent variance}
+\[
+  -\ell(\theta)=\frac12\sum_i\left[\log v_i+
+    \frac{(y_i-\mu_i)^2}{v_i}\right]+\text{constant}.
+\]
+\end{resultbox}
+A larger variance reduces the weighted residual but increases $\log v_i$.
+\takeaway{$v_i=e^{s_i}$ enforces positivity.
+It does not prevent collapse at a perfectly fitted observation.}
+\end{frame}
+
+% 26
+\begin{frame}{The variance term has a cost}
+\centering\EstVarianceLossPlot
+\plotcaption{A fixed residual $y-\mu=2$ gives loss $\log\sigma+2/\sigma^2$.
+Omitting $\log\sigma$ would reward arbitrarily large predicted noise.}
+\end{frame}
+
+% 27
+\begin{frame}{Bernoulli responses give binary log loss}
+For $Y_i\in\{0,1\}$, predict $p_i=p_\theta(x_i)\in(0,1)$.
+\begin{resultbox}{Negative Bernoulli log-likelihood}
+\[
+  -\ell(\theta)=-\sum_i\bigl[y_i\log p_i+(1-y_i)\log(1-p_i)\bigr].
+\]
+\end{resultbox}
+For a positive response:
+\[
+  -\log0.9\approx0.105,\qquad-\log0.1\approx2.303.
+\]
+Confident wrong predictions incur a large loss.
+\end{frame}
+
+% 28
+\begin{frame}{The model, the objective, and its optimization}
+The observation model determines the likelihood and training objective.
+\vfill
+An optimization algorithm searches for parameters with a small objective.
+A stationary point need not be a global optimum.
+\vfill
+Training likelihood describes the fitted sample. Predictive evaluation
+requires independent data and the assumptions discussed in Chapter 4.
+\end{frame}
+
+\renewcommand{\conspectsection}{5.7}
+% 29
+\begin{frame}{A prior distribution over the parameter}
+Specify prior density $\pi(\theta)$ before using the current observations.
+The model supplies $L(\theta;x)$ conditional on each candidate parameter.
+\[
+  \pi(\theta\mid x)=
+  \frac{L(\theta;x)\pi(\theta)}{\int_\Theta L(u;x)\pi(u)\,du}.
+\]
+The denominator normalizes the posterior and is constant in $\theta$.
+\takeaway{The denominator must be positive and finite.
+For a discrete parameter, replace the integral by a sum.}
+\end{frame}
+
+% 30
+\begin{frame}{Maximum a posteriori estimation}
+\begin{definitionbox}{MAP estimate}
+Maximize the posterior density, or posterior mass for a discrete parameter:
+\[
+  \widehat\theta_{\mathrm{MAP}}\in
+  \argmax_{\theta\in\Theta}\{\ell(\theta;x)+\log\pi(\theta)\}.
+\]
+\end{definitionbox}
+Equivalently, minimize negative log-likelihood plus negative log-prior.
+\takeaway{MAP summarizes the posterior by its mode.
+It does not report the whole posterior or its uncertainty.}
+\end{frame}
+
+% 31
+\begin{frame}{A prior for a Bernoulli probability}
+The Beta family places a density on $0<p<1$:
+\[
+  \pi(p)=\frac{p^{a-1}(1-p)^{b-1}}{B(a,b)},\qquad a,b>0,
+\]
+\[
+  B(a,b)=\int_0^1u^{a-1}(1-u)^{b-1}\,du.
+\]
+The chosen $a,b$ describe the prior.\\
+Beta$(2,2)$ has density $6p(1-p)$ and favors values near $1/2$.
+\end{frame}
+
+% 32
+\begin{frame}{Updating a Beta prior}
+For $k$ successes in $n$ independent Bernoulli trials,
+\[
+  L(p)\pi(p)\ \propto\ p^{k+a-1}(1-p)^{n-k+b-1}.
+\]
+Thus $p\mid x\sim\operatorname{Beta}(a+k,b+n-k)$.
+\begin{resultbox}{Interior posterior mode}
+\[
+  \widehat p_{\mathrm{MAP}}=\frac{k+a-1}{n+a+b-2}.
+\]
+This formula requires $a+k>1$ and $b+n-k>1$.
+\end{resultbox}
+\end{frame}
+
+% 33
+\begin{frame}{Seven successes in ten trials}
+\centering\EstBetaPlot
+\plotcaption{Beta$(2,2)$ prior, Beta$(9,5)$ posterior.
+MLE $=0.7$ and MAP $=2/3$; the dotted line marks the posterior mode.}
+\end{frame}
+
+% 34
+\begin{frame}{Posterior mode and posterior mean}
+For the Beta$(9,5)$ posterior,
+\[
+  \text{MAP}=\frac23\approx0.667,\qquad
+  \Expect[p\mid x]=\frac9{14}\approx0.643.
+\]
+The mode maximizes density. The mean minimizes posterior expected
+squared error, by the conditional-mean result from Chapter 3.
+\takeaway{For continuous parameters, MAP depends on the parameterization:
+transforming a density introduces a Jacobian factor.}
+\end{frame}
+
+% 35
+\begin{frame}{A Gaussian prior for an unknown mean}
+Observation model: $X_i\sim\mathcal N(\mu,\sigma^2)$, known $\sigma^2>0$.
+Prior: $\mu\sim\mathcal N(m_0,\tau^2)$, with $\tau^2>0$.
+\[
+  -\log\pi(\mu\mid x)=
+  \frac1{2\sigma^2}\sum_i(x_i-\mu)^2
+  +\frac{(\mu-m_0)^2}{2\tau^2}+\text{constant}.
+\]
+\begin{resultbox}{Precision-weighted estimate}
+\[
+  \widehat\mu_{\mathrm{MAP}}=
+  \frac{(n/\sigma^2)\bar x+(1/\tau^2)m_0}{n/\sigma^2+1/\tau^2}.
+\]
+\end{resultbox}
+\end{frame}
+
+% 36
+\begin{frame}{How much weight the prior receives}
+Precision means inverse variance. The sample mean has variance
+$\sigma^2/n$, so its precision is $n/\sigma^2$.
+\[
+  n=4,\quad\sigma^2=4,\quad\bar x=1.6,\quad m_0=0,\quad\tau^2=1.
+\]
+Both precisions are one:
+\[
+  \widehat\mu_{\mathrm{ML}}=1.6,\qquad
+  \widehat\mu_{\mathrm{MAP}}=0.8.
+\]
+The posterior is $\mathcal N(0.8,0.5)$.
+\takeaway{Here the posterior mean and mode coincide.
+With the prior fixed, more observations increase the relative data weight.}
+\end{frame}
+
+% 37
+\begin{frame}{The Gaussian posterior}
+\centering\EstGaussianPriorPlot
+\plotcaption{The likelihood curve has been rescaled to integrate to one for comparison.
+That rescaling does not make it a prior or posterior.}
+\end{frame}
+
+% 38
+\begin{frame}{A Gaussian prior gives a quadratic penalty}
+Gaussian responses with known variance $\sigma^2$ and prior
+$w\sim\mathcal N(0,\tau^2I)$ give
+\[
+  -\log\pi(w\mid x,y)=\frac{\operatorname{RSS}(w)}{2\sigma^2}
+  +\frac{\|w\|^2}{2\tau^2}+\text{constant}.
+\]
+\begin{resultbox}{Equivalent MAP objective}
+\[
+  \operatorname{RSS}(w)+\alpha\|w\|^2,\qquad
+  \alpha=\frac{\sigma^2}{\tau^2}.
+\]
+\end{resultbox}
+\takeaway{For a linear model, this is ridge regression.
+The linear-algebra solution comes later in the course.}
+\end{frame}
+
+% 39
+\begin{frame}{Loss normalization changes the penalty coefficient}
+The same prior gives equivalent objectives
+\[
+  \sum_i(y_i-f_w(x_i))^2+\alpha\|w\|^2
+\]
+and
+\[
+  \frac1n\sum_i(y_i-f_w(x_i))^2+\frac\alpha n\|w\|^2.
+\]
+Replacing a sum by an average without adjusting the coefficient
+changes the relative penalty strength.
+\takeaway{An unpenalized intercept requires a different prior for that coefficient.}
+\end{frame}
+
+% 40
+\begin{frame}{Three point-estimation rules}
+\small\renewcommand{\arraystretch}{1.6}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}ll@{}}
+\toprule
+Method & Construction\\
+\midrule
+Method of moments & Match selected model and empirical moments\\
+Maximum likelihood & Maximize the observation likelihood\\
+MAP & Maximize likelihood times a specified prior\\
+\bottomrule
+\end{tabular*}\par\normalsize
+\vfill
+Their estimates can agree, but their definitions differ.
+\takeaway{Point estimates alone do not quantify uncertainty.
+Chapter 6 develops sampling distributions, confidence intervals, and bootstrap.}
+\end{frame}
+
+\end{document}

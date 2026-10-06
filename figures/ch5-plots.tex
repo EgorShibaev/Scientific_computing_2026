@@ -1,0 +1,89 @@
+% Shared analytic/simulation data charts for the conspect and the Beamer deck.
+% Callers may override dimensions and the data path before loading this file.
+\providecommand{\EstDataPath}{figures/data}
+\providecommand{\EstPlotWidth}{11.8cm}
+\providecommand{\EstPlotHeight}{4.8cm}
+\definecolor{EstBlue}{HTML}{1F4E79}
+\definecolor{EstOrange}{HTML}{C46A13}
+\definecolor{EstTeal}{HTML}{007D80}
+\definecolor{EstMuted}{HTML}{526477}
+\pgfplotsset{est axis/.style={
+  scale only axis,width=\EstPlotWidth,height=\EstPlotHeight,
+  axis lines=left,enlargelimits=false,
+  grid=major,grid style={black!9},
+  tick label style={font=\footnotesize},label style={font=\footnotesize},
+  legend style={draw=none,fill=none,font=\footnotesize,
+    at={(0.5,1.05)},anchor=south,legend columns=-1,column sep=0.8em},
+  every axis plot/.append style={no marks,line width=1.15pt},
+}}
+
+\newcommand{\EstLikelihoodPlot}{%
+\begin{tikzpicture}\begin{axis}[est axis,
+  xmin=0,xmax=1.2,ymin=0,ymax=1.06,
+  xlabel={Candidate rate $\lambda$ (per minute)},ylabel={Relative likelihood},
+  xtick={0,0.2,0.4,0.6,0.8,1,1.2}]
+  \addplot[EstBlue] table[x=rate,y=n5] {\EstDataPath/ch5-likelihood.dat};
+  \addlegendentry{$n=5$, total wait $15$}
+  \addplot[EstOrange,dashed] table[x=rate,y=n50] {\EstDataPath/ch5-likelihood.dat};
+  \addlegendentry{$n=50$, total wait $150$}
+  \addplot[EstMuted,densely dotted,forget plot] coordinates {(0.333333,0) (0.333333,1)};
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\EstUniformPlot}{%
+\begin{tikzpicture}\begin{axis}[est axis,
+  xmin=0,xmax=2,ymin=0,ymax=5.4,xlabel={Estimated upper endpoint},ylabel={Density},
+  xtick={0,0.5,1,1.5,2}]
+  \addplot[EstBlue,const plot] table[x=endpoint,y=moments] {\EstDataPath/ch5-uniform-estimates.dat};
+  \addlegendentry{Moment estimator $2\bar X$}
+  \addplot[EstOrange,const plot] table[x=endpoint,y=mle] {\EstDataPath/ch5-uniform-estimates.dat};
+  \addlegendentry{MLE $\max_iX_i$}
+  \addplot[EstMuted,densely dotted,forget plot] coordinates {(1,0) (1,5.2)};
+  \node[anchor=north west,font=\footnotesize,text=EstMuted,fill=white,inner sep=2pt]
+    at (axis cs:1.06,4.95) {True endpoint: $1$};
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\EstVarianceLossPlot}{%
+\begin{tikzpicture}\begin{axis}[est axis,
+  xmin=0.5,xmax=6,ymin=-1,ymax=8.2,
+  xlabel={Predicted standard deviation $\sigma$},ylabel={Loss contribution},
+  xtick={1,2,3,4,5,6}]
+  \addplot[EstBlue] table[x=sigma,y=total] {\EstDataPath/ch5-variance-loss.dat};
+  \addlegendentry{Total: $\log\sigma+2/\sigma^2$}
+  \addplot[EstOrange,dashed] table[x=sigma,y=scaled_residual] {\EstDataPath/ch5-variance-loss.dat};
+  \addlegendentry{$2/\sigma^2$}
+  \addplot[EstTeal,densely dotted] table[x=sigma,y=log_scale] {\EstDataPath/ch5-variance-loss.dat};
+  \addlegendentry{$\log\sigma$}
+  \addplot[EstBlue,only marks,mark=*,mark size=2pt,forget plot] coordinates {(2,1.19314718)};
+  \node[font=\footnotesize,anchor=north,text=EstBlue,fill=white,inner sep=2pt]
+    at (axis cs:2,0.8) {Minimum at $\sigma=2$};
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\EstBetaPlot}{%
+\begin{tikzpicture}\begin{axis}[est axis,
+  xmin=0,xmax=1,ymin=0,ymax=3.4,
+  xlabel={Bernoulli probability $p$},ylabel={Density over $p$},
+  xtick={0,0.2,0.4,0.6,0.8,1}]
+  \addplot[EstMuted,dashed] table[x=p,y=prior] {\EstDataPath/ch5-beta.dat};
+  \addlegendentry{Prior: Beta$(2,2)$}
+  \addplot[EstBlue] table[x=p,y=posterior] {\EstDataPath/ch5-beta.dat};
+  \addlegendentry{Posterior: Beta$(9,5)$}
+  \addplot[EstOrange,densely dotted,forget plot] coordinates {(0.6666667,0) (0.6666667,3.15)};
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\EstGaussianPriorPlot}{%
+\begin{tikzpicture}\begin{axis}[est axis,
+  xmin=-3,xmax=5,ymin=0,ymax=0.61,
+  xlabel={Candidate mean $\mu$},ylabel={Density / rescaled likelihood},
+  xtick={-2,0,0.8,1.6,3,5},xticklabels={$-2$,$0$,$0.8$,$1.6$,$3$,$5$}]
+  \addplot[EstMuted,dashed] table[x=mu,y=prior] {\EstDataPath/ch5-gaussian-prior.dat};
+  \addlegendentry{Prior}
+  \addplot[EstOrange,dashdotted] table[x=mu,y=likelihood] {\EstDataPath/ch5-gaussian-prior.dat};
+  \addlegendentry{Rescaled likelihood}
+  \addplot[EstBlue] table[x=mu,y=posterior] {\EstDataPath/ch5-gaussian-prior.dat};
+  \addlegendentry{Posterior}
+\end{axis}\end{tikzpicture}%
+}
