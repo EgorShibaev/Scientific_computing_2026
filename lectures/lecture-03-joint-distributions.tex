@@ -8,11 +8,15 @@
 
 In the shared-user experiment of Section~\ref{sec:mixtures}, record
 the first two responses separately: \(X,Y\in\{0,1\}\), rather than
-only their total. Their \emph{joint probability mass function}
+only their total.
+\begin{definition}[Joint probability mass function]
+The \emph{joint probability mass function}
 \[
   p_{X,Y}(x,y)=\Prob(X=x,Y=y)
 \]
-records the probability of each pair. With the same equally likely
+records the probability of each pair.
+\end{definition}
+With the same equally likely
 user probabilities \(0.1\) and \(0.9\), it is the table below. For
 example, the two-click cell is
 \(p_{X,Y}(1,1)=\tfrac12(0.1)^2+\tfrac12(0.9)^2=0.41\).
@@ -34,13 +38,16 @@ Column total & \(0.50\) & \(0.50\) & \(1\)\\
 \subsection{Marginalizing a table}
 
 If we only care about the first response, either value of the second is
-acceptable. We therefore add across a row:
+acceptable. We therefore add across a row.
+\begin{result}[Marginal PMFs]
+Sum the joint PMF over the other variable:
 \begin{equation}
   p_X(x)=\sum_y p_{X,Y}(x,y),\qquad
   p_Y(y)=\sum_x p_{X,Y}(x,y).
   \label{eq:joint-marginals-discrete}
 \end{equation}
 These are the \emph{marginal} PMFs, written in the margins of the table.
+\end{result}
 Marginalizing means ignoring a variable by summing over its possible
 values, not setting it to zero.
 
@@ -57,6 +64,7 @@ the table gives
   \Prob(Y=1\mid X=1)=\frac{0.41}{0.50}=0.82,\qquad
   \Prob(Y=1\mid X=0)=\frac{0.09}{0.50}=0.18.
 \]
+\begin{definition}[Conditional PMF]
 For a fixed \(x\), the \emph{conditional PMF} is the selected row
 divided by its total. In notation, for \(p_X(x)>0\),
 \begin{equation}
@@ -65,12 +73,15 @@ divided by its total. In notation, for \(p_X(x)>0\),
   p_{X,Y}(x,y)=p_X(x)p_{Y\mid X}(y\mid x).
   \label{eq:joint-factorization-discrete}
 \end{equation}
+\end{definition}
+\begin{result}[Independence and factorization]
 The independence condition \eqref{eq:independence}, applied to all
 pairs of values, becomes
 \begin{equation}
   p_{X,Y}(x,y)=p_X(x)p_Y(y)\quad\text{for every }x,y.
   \label{eq:joint-independence-discrete}
 \end{equation}
+\end{result}
 The table fails this test: \(0.41\ne0.5\cdot0.5\). Once the user's
 probability \(P\) is fixed, however, the conditional joint PMF factors.
 This is \emph{conditional independence}, written
@@ -85,11 +96,14 @@ For a pair with a joint density, replace the probability table by a density over
 the plane. Near \((x,y)\), a small rectangle of side lengths
 \(\Delta x,\Delta y\) has probability approximately
 \(f_{X,Y}(x,y)\Delta x\Delta y\). Adding small rectangles becomes a
-double integral. For a region \(R\),
+double integral.
+\begin{definition}[Joint density]
+For a pair with a joint density and a region \(R\),
 \[
   \Prob((X,Y)\in R)=\iint_R f_{X,Y}(x,y)\,dx\,dy.
 \]
 The density is nonnegative, and its integral over the whole plane is one.
+\end{definition}
 
 \subsection{Two arrival times, put in order}
 
@@ -138,6 +152,7 @@ anywhere between zero and \(s\):
 \[
   f_{T_2}(s)=\int_0^s2\,dt=2s,\qquad 0<s<1.
 \]
+\begin{result}[Marginal densities]
 The general marginalization rules are
 \begin{equation}
   f_X(x)=\int_{-\infty}^{\infty}f_{X,Y}(x,y)\,dy,
@@ -145,6 +160,7 @@ The general marginalization rules are
   f_Y(y)=\int_{-\infty}^{\infty}f_{X,Y}(x,y)\,dx.
   \label{eq:joint-marginals-continuous}
 \end{equation}
+\end{result}
 Although the bounds are written over the whole line, the integrand is
 zero outside the joint support. The triangular support is what produced
 the variable integration limits in the example.
@@ -175,11 +191,13 @@ the remaining part of the window. At \(t=1/4\), for example,
   =\int_{3/4}^{1}\frac{1}{1-1/4}\,ds=\frac13.
 \]
 
-In general, wherever \(f_X(x)>0\), the conditional-density formula is
+\begin{definition}[Conditional density]
+Wherever \(f_X(x)>0\), the conditional-density formula is
 \begin{equation}
   f_{Y\mid X}(y\mid x)=\frac{f_{X,Y}(x,y)}{f_X(x)}.
   \label{eq:joint-conditional-density}
 \end{equation}
+\end{definition}
 In a smooth density model, conditioning on a shrinking interval around
 \(x\) gives this normalized slice. The denominator is a marginal
 density, not a point probability. Conditional densities are specified
@@ -234,7 +252,8 @@ For the click table, \(XY\) is one only in the \((1,1)\) cell, so
 Converting one measurement from minutes to seconds multiplies its
 covariance with another by \(60\), although the relationship has not
 changed. To remove this dependence on units, use \emph{correlation}.
-For means \(\mu_X,\mu_Y\) and positive standard deviations
+\begin{definition}[Correlation]
+For means \(\mu_X,\mu_Y\) and finite, positive standard deviations
 \(\sigma_X,\sigma_Y\), it is
 \begin{equation}
   \rho_{X,Y}=\frac{\Cov(X,Y)}{\sigma_X\sigma_Y}
@@ -243,6 +262,7 @@ For means \(\mu_X,\mu_Y\) and positive standard deviations
     \right].
   \label{eq:correlation}
 \end{equation}
+\end{definition}
 This is the average product of the standardized deviations. Changing
 minutes to seconds no longer affects the answer. Reversing the sign of
 one variable reverses the sign of the correlation. For our clicks,
@@ -301,15 +321,19 @@ which prediction rule has the smallest mean squared error. Write
 \]
 The cross term has conditional mean zero. Applying total expectation
 \eqref{eq:total-expectation}, for a rule with finite mean squared error,
+\begin{result}[The conditional mean minimizes squared error]
+With \(m(X)=\Expect[Y\mid X]\) and \(v(X)=\Var(Y\mid X)\),
 \[
   \Expect[(Y-a(X))^2]
   =\Expect[v(X)]+\Expect[(m(X)-a(X))^2].
 \]
+The second term is nonnegative and vanishes for \(a(X)=m(X)\).
+Thus the conditional mean gives the smallest expected squared prediction
+error among rules using the same information.
+\end{result}
 The first term is uncertainty left in \(Y\) after observing \(X\).
 The second is the extra error from predicting something other than the
-conditional mean. It is nonnegative and vanishes for \(a(X)=m(X)\).
-Thus the conditional mean gives the smallest expected squared prediction
-error among rules using the same information. In the click table,
+conditional mean. In the click table,
 \(m(0)=0.18\) and \(m(1)=0.82\), so its error is
 \(0.18(0.82)=0.1476\), compared with \(0.25\) for the constant
 prediction \(0.5\). This is a property of the probability model;
@@ -365,7 +389,9 @@ diagonal. For the clicks its off-diagonal entries are \(0.64\).
 
 \subsection{A covariance matrix cannot imply a negative variance}
 
-Take a weighted sum \(S=a_1X_1+\cdots+a_dX_d=\mathbf a^\top\mathbf X\).
+\begin{result}[Variance of a linear combination]
+For a random vector with covariance matrix \(\Sigma\),
+take a weighted sum \(S=a_1X_1+\cdots+a_dX_d=\mathbf a^\top\mathbf X\).
 Expanding its squared centered value gives
 \begin{equation}
   \Var(S)=\sum_{i=1}^d\sum_{j=1}^d
@@ -373,6 +399,7 @@ Expanding its squared centered value gives
          =\mathbf a^\top\Sigma\mathbf a\ge0.
   \label{eq:variance-quadratic-form}
 \end{equation}
+\end{result}
 A symmetric matrix satisfying this inequality for every real vector
 \(\mathbf a\) is called \emph{positive semidefinite}. Every covariance
 matrix must have this property. It is \emph{positive definite} if the
@@ -412,13 +439,16 @@ a fixed vector, and set
   \mathbf W=A\mathbf X+\mathbf b.
 \]
 Row \(i\) of \(A\) supplies the weights for the \(i\)-th new variable.
+\begin{result}[Mean under an affine transformation]
 Linearity of expectation gives
 \begin{equation}
   \Expect[\mathbf W]=A\boldsymbol\mu+\mathbf b.
   \label{eq:linear-mean-vector}
 \end{equation}
+\end{result}
 Subtracting this mean yields
 \(\mathbf W-\Expect[\mathbf W]=A(\mathbf X-\boldsymbol\mu)\). Hence
+\begin{result}[Covariance under an affine transformation]
 \begin{align}
   \Cov(\mathbf W)
     &=\Expect[A(\mathbf X-\boldsymbol\mu)
@@ -429,6 +459,7 @@ Subtracting this mean yields
 Here \(\Cov(\mathbf W)\) denotes the covariance matrix of a vector.
 These rules need finite second moments, not independence or Gaussian
 distributions.
+\end{result}
 
 \begin{example}[Average error and disagreement between sensors]
 Let \(X_1,X_2\) be centered sensor errors with variances one and
@@ -571,6 +602,7 @@ sensor fluctuations stretch the distribution along the diagonal.
 
 \subsection{The density in matrix notation}
 
+\begin{result}[Multivariate Gaussian density]
 For a positive-definite covariance matrix, the general Gaussian density
 is
 \begin{equation}
@@ -580,6 +612,7 @@ is
       \Sigma^{-1}(\mathbf x-\boldsymbol\mu)\right].
   \label{eq:multivariate-gaussian-density}
 \end{equation}
+\end{result}
 Here \(\Sigma^{-1}\) is the inverse matrix, and \(\det\Sigma\) is its
 determinant. These are the matrix versions of dividing by variance and
 correcting the density for a change of scale. For an invertible square
@@ -631,20 +664,26 @@ distribution is Gaussian with the corresponding entries of the mean
 vector and the corresponding rows and columns of the covariance matrix.
 In particular, \(X_i\sim\mathcal N(\mu_i,\Sigma_{ii})\).
 
-More generally, for fixed \(B\) and \(\mathbf b\),
+\begin{result}[Affine transformations preserve Gaussianity]
+For \(\mathbf X\sim\mathcal N(\boldsymbol\mu,\Sigma)\),
+fixed \(B\) and \(\mathbf b\),
 \begin{equation}
   B\mathbf X+\mathbf b
   \sim\mathcal N(B\boldsymbol\mu+\mathbf b, B\Sigma B^\top).
   \label{eq:gaussian-vector-transform}
 \end{equation}
+\end{result}
 The result is Gaussian because substituting
 \(\mathbf X=\boldsymbol\mu+A\mathbf Z\) gives another linear
 transformation of independent standard Gaussian noises. The moment
 rules in Section~\ref{sec:random-linear-transforms} now describe the
 \emph{whole distribution}, not just two summaries of it.
 
+\begin{result}[The jointly Gaussian independence criterion]
 For jointly Gaussian variables, zero covariance \emph{does} imply
-independence. In the nondegenerate case, a diagonal covariance matrix
+independence.
+\end{result}
+In the nondegenerate case, a diagonal covariance matrix
 makes the joint density a product of marginal densities. Therefore the
 average and difference in the sensor example are independent under
 the joint Gaussian assumption, as well as uncorrelated.
@@ -693,12 +732,15 @@ For the general bivariate Gaussian with positive marginal variances and
   Y=\mu_Y+\sigma_Y(\rho Z_1+\sqrt{1-\rho^2}Z_2).
 \]
 Observing \(X=x\) fixes \(Z_1=(x-\mu_X)/\sigma_X\). Therefore
+\begin{result}[Conditional bivariate Gaussian distribution]
+For a jointly Gaussian pair with \(\sigma_X,\sigma_Y>0\) and \(|\rho|<1\),
 \begin{equation}
   Y\mid X=x\sim\mathcal N\!\left(
     \mu_Y+\rho\frac{\sigma_Y}{\sigma_X}(x-\mu_X),
     \sigma_Y^2(1-\rho^2)\right).
   \label{eq:conditional-bivariate-gaussian}
 \end{equation}
+\end{result}
 Equivalently, the conditional mean's slope is
 \(\Cov(X,Y)/\Var(X)\). Positive correlation shifts the conditional
 mean in the direction of the observation; negative correlation shifts

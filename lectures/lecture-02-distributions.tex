@@ -223,6 +223,7 @@ For this particular score,
   =\int_0^\infty e^{-at}\lambda e^{-\lambda t}\,dt
   =\frac{\lambda}{\lambda+a}.
 \]
+\begin{result}[Expectation of a function]
 This calculation illustrates the general rule
 \begin{equation}
   \Expect[g(X)]=
@@ -235,6 +236,7 @@ This calculation illustrates the general rule
 \end{equation}
 We assume \(\Expect[|g(X)|]<\infty\). The rule lets us use the distribution
 of \(X\) directly, without first deriving the distribution of \(g(X)\).
+\end{result}
 
 Scoring the average wait is a different operation. For \(a=\lambda=1\),
 \[
@@ -350,11 +352,14 @@ five minutes. A constant five-minute wait instead has variance zero.
 Adding a fixed delay \(b\) moves every observation and its mean by the
 same amount. The deviations from the mean stay unchanged.
 Multiplying times by \(a\) multiplies every deviation by \(a\), so their
-squares are multiplied by \(a^2\). Therefore
+squares are multiplied by \(a^2\).
+\begin{result}[Changing the origin and scale]
+For constants \(a,b\) and a variable with finite second moment,
 \[
   \Expect[aX+b]=a\Expect[X]+b,\qquad
   \Var(aX+b)=a^2\Var(X).
 \]
+\end{result}
 For example, converting minutes to seconds multiplies the mean and
 standard deviation by \(60\), and the variance by \(60^2\).
 Variance is not linear.
@@ -372,15 +377,20 @@ whether the two delays fluctuate together. If both are above their means,
 or both are below, their product \(UV\) is positive. If one is above its
 mean while the other is below, the product is negative.
 
-The average of this product is called the \emph{covariance}:
+\begin{definition}[Covariance]
+For variables with finite second moments, the average product of their
+centered deviations is the \emph{covariance}:
 \[
   \Cov(X,Y)=\Expect[(X-\Expect[X])(Y-\Expect[Y])].
 \]
+\end{definition}
+\begin{result}[Variance of a sum]
 Taking expectations in the squared-sum identity gives
 \begin{equation}
   \Var(X+Y)=\Var(X)+\Var(Y)+2\Cov(X,Y).
   \label{eq:variance-sum}
 \end{equation}
+\end{result}
 For independent variables, expectations of products factor. Thus
 \(\Expect[UV]=\Expect[U]\Expect[V]=0\), and the covariance term vanishes.
 For independent variables with finite second moments, this extends to
@@ -704,13 +714,15 @@ to time.
 
 \subsection{One binary outcome}
 
-Code a click as one and no click as zero. If the click probability is
-\(p\), then
+Code a click as one and no click as zero.
+\begin{definition}[Bernoulli distribution]
+If the click probability is \(p\), then
 \[
   \Prob(B=1)=p,\qquad \Prob(B=0)=1-p,\qquad 0\le p\le1.
 \]
 This is a \emph{Bernoulli distribution}, written
 \(B\sim\operatorname{Bernoulli}(p)\).
+\end{definition}
 The same construction applies to the indicator of any event.
 
 For a binary variable, squaring changes neither possible value:
@@ -729,15 +741,19 @@ then the total number of clicks is
 \[
   S_n=B_1+\cdots+B_n.
 \]
-It follows a \emph{Binomial distribution},
+\begin{definition}[Binomial distribution]
+The number of successes in \(n\) independent Bernoulli trials with
+the same probability \(p\) follows a \emph{Binomial distribution},
 \(S_n\sim\operatorname{Binomial}(n,p)\), with
 \[
   \Prob(S_n=k)=\binom nk p^k(1-p)^{n-k},\qquad k=0,\ldots,n.
 \]
+The displayed expression is read directly for \(0<p<1\);
+at \(p=0\) or \(p=1\) the count is fixed.
+\end{definition}
 The counting argument is the one used for the short arrival intervals:
 choose the \(k\) successful trials, multiply their success and failure
-probabilities, and add over all choices. The displayed expression is
-read directly for \(0<p<1\); at \(p=0\) or \(p=1\) the count is fixed.
+probabilities, and add over all choices.
 
 We do not need to sum this PMF to obtain its moments. Since the count is
 a sum of independent Bernoulli variables,
@@ -795,6 +811,7 @@ For example, the sequence
 \]
 gives \(G=3\).
 
+\begin{definition}[Geometric distribution]
 Assume independent trials with the same success probability \(0<p\le1\).
 For \(0<p<1\), the event \(G=k\) requires \(k-1\) failures followed by
 one success:
@@ -804,6 +821,7 @@ one success:
 This is the \emph{Geometric distribution},
 \(G\sim\operatorname{Geometric}(p)\).
 If \(p=1\), the first trial always succeeds and \(G=1\).
+\end{definition}
 
 \subsection{Waiting longer means accumulating failures}
 
@@ -904,13 +922,15 @@ be developed further in the chapter on limit theorems.
 
 Let \(\mu\) describe the center of the errors and \(\sigma>0\) their
 scale. The center can be nonzero if the sensor is systematically biased.
-The density is
+\begin{definition}[Gaussian distribution]
+For \(\mu\in\Real\) and \(\sigma>0\), the density is
 \[
   f_X(x)=\frac1{\sigma\sqrt{2\pi}}
     \exp\!\left[-\frac12\left(\frac{x-\mu}{\sigma}\right)^2\right],
   \qquad x\in\Real.
 \]
 We write \(X\sim\mathcal N(\mu,\sigma^2)\).
+\end{definition}
 
 The expression \((x-\mu)/\sigma\) measures how far \(x\) lies from the
 center relative to the width of the curve. Squaring it treats positive
@@ -1085,6 +1105,7 @@ gives half of each sensor's interval probability. The density is therefore
 This is a \emph{mixture distribution}. Its two peaks reflect the two
 sources of readings.
 
+\begin{definition}[Finite mixture]
 The same construction works with \(K\) sources chosen with probabilities
 \(\pi_1,\ldots,\pi_K\):
 \begin{equation}
@@ -1094,6 +1115,7 @@ The same construction works with \(K\) sources chosen with probabilities
 \end{equation}
 The \(f_k\) are called the mixture's \emph{components}.
 For discrete observations, use component PMFs in the same formula.
+\end{definition}
 If the source label is not recorded, it is an unobserved, or
 \emph{latent}, variable.
 
@@ -1120,15 +1142,16 @@ in general, let component \(k\) have mean \(\mu_k\) and variance
   \mu=\Expect[X]=\sum_k\pi_k\mu_k,\qquad
   \Expect[X^2]=\sum_k\pi_k(\sigma_k^2+\mu_k^2).
 \]
-Subtracting \(\mu^2\) and regrouping the terms gives
+\begin{result}[Within-source and between-source variance]
+For a finite mixture with finite second moments, subtracting \(\mu^2\)
+and regrouping the terms gives
 \begin{equation}
-  \boxed{
   \Var(X)
   =\underbrace{\sum_k\pi_k\sigma_k^2}_{\text{variation within sources}}
    +\underbrace{\sum_k\pi_k(\mu_k-\mu)^2}_{\text{variation between sources}}.
-  }
   \label{eq:mixture-variance}
 \end{equation}
+\end{result}
 For the sensors, these contributions are \(1\) and \(4\), respectively.
 
 The inner averages can be written as conditional expectations.
@@ -1137,13 +1160,14 @@ selected; it varies because the selected source varies.
 Similarly, \(\Var(X\mid Z)\) is the variance inside the selected source.
 The outer expectation averages over the choice of source. With this
 notation, the two identities become
+\begin{theorem}[Total expectation and total variance]
+For the finite mixture above, with finite second moments,
 \begin{align}
   \Expect[X]&=\Expect[\Expect[X\mid Z]],\label{eq:total-expectation}\\
   \Var(X)&=\Expect[\Var(X\mid Z)]
        +\Var(\Expect[X\mid Z]).\label{eq:total-variance}
 \end{align}
-These are the \emph{laws of total expectation and total variance}.
-We have derived them for a finite mixture with finite second moments.
+\end{theorem}
 
 \subsection{The same mean and variance can hide different shapes}
 

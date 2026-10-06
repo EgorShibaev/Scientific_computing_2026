@@ -24,28 +24,35 @@ for an individual wait.
 
 \subsection{A population, a sample, and a sampling distribution}
 
+\begin{definition}[Population, sample, and i.i.d. observations]
 The \emph{population distribution} describes the observations we want
 to learn about. A \emph{sample} is the collection
 \(X_1,\ldots,X_n\) that we observe. We call these observations
 \emph{independent and identically distributed}, abbreviated i.i.d.,
 when they are mutually independent and all follow the same distribution.
+\end{definition}
 Both requirements matter: measurements from different operating
 conditions need not share a distribution, and repeated measurements
 of one object need not be independent.
 
 Before collection, \(X_1,\ldots,X_n\) are random variables; after
-collection, \(x_1,\ldots,x_n\) are the recorded numbers. The
+collection, \(x_1,\ldots,x_n\) are the recorded numbers.
+\begin{definition}[Sample mean and sampling distribution]
+The
 \emph{sample mean} is
 \begin{equation}
   \bar X_n=\frac1n\sum_{i=1}^n X_i.
   \label{eq:sample-mean}
 \end{equation}
 Its distribution over repetitions of the entire sampling experiment
-is a \emph{sampling distribution}. It is not the distribution of
-values within one dataset. To visualize the distinction, imagine
+is its \emph{sampling distribution}. It is not the distribution of
+values within one dataset.
+\end{definition}
+To visualize the distinction, imagine
 collecting many independent datasets of size one hundred, calculating
 one average for each, and plotting those averages.
 
+\begin{result}[Mean and variance of the sample mean]
 For i.i.d. observations with finite mean \(\mu\) and variance
 \(\sigma^2\), the sum and scaling rules from
 Sections~\ref{sec:expectation} and~\ref{sec:variance} immediately give
@@ -54,17 +61,20 @@ Sections~\ref{sec:expectation} and~\ref{sec:variance} immediately give
   \Var(\bar X_n)=\frac{\sigma^2}{n}.
   \label{eq:sample-mean-moments}
 \end{equation}
+\end{result}
 This is the general form of the click-proportion calculation in
 Section~\ref{sec:bernoulli-binomial}. We now use it to study accuracy.
 
 \subsection{Standard deviation versus standard error}
 
+\begin{definition}[Standard error]
 The standard deviation of a statistic across repeated samples is
 called its \emph{standard error}. For an i.i.d. sample mean,
 \begin{equation}
   \operatorname{SE}(\bar X_n)=\frac{\sigma}{\sqrt n}.
   \label{eq:standard-error}
 \end{equation}
+\end{definition}
 For the inbox, a single wait has standard deviation five minutes,
 while the average of one hundred waits has standard error
 \(5/\sqrt{100}=0.5\) minutes. Individual waits remain just as variable
@@ -93,12 +103,15 @@ shows how the resulting density narrows while retaining mean five.
   \label{fig:ch4-sampling}
 \end{figure}
 
-In a real dataset, the population variance is usually unknown. A common
+In a real dataset, the population variance is usually unknown.
+\begin{definition}[Sample variance]
+A common
 measure of the observed spread is the \emph{sample variance},
 \[
   S_n^2=\frac1{n-1}\sum_{i=1}^n(X_i-\bar X_n)^2,
   \qquad n\ge2.
 \]
+\end{definition}
 The denominator \(n-1\) corrects for centering the data at their own
 sample mean; the statistical-estimation chapter will derive that
 correction. Writing \(S_n=\sqrt{S_n^2}\), the corresponding estimate
@@ -151,7 +164,8 @@ For \(X\) with mean \(\mu\) and finite variance \(\sigma^2\), take
 The event \(W\ge\varepsilon^2\) is exactly
 \(|X-\mu|\ge\varepsilon\). Thus
 \begin{theorem}[Chebyshev's inequality]
-For \(\varepsilon>0\),
+For \(X\) with mean \(\mu\), finite variance \(\sigma^2\), and
+\(\varepsilon>0\),
 \begin{equation}
   \Prob(|X-\mu|\ge\varepsilon)
   \le\frac{\sigma^2}{\varepsilon^2}.
@@ -205,8 +219,12 @@ By \eqref{eq:chebyshev-mean}, the probability is bounded above by
 \(\sigma^2/(n\varepsilon^2)\), which tends to zero.
 \end{proof}
 
-This statement is called \emph{convergence in probability}, written
-\(\bar X_n\xrightarrow{\Prob}\mu\). Choose a fixed tolerance first,
+\begin{definition}[Convergence in probability to a constant]
+The condition \(\Prob(|Z_n-c|>\varepsilon)\to0\) for every
+\(\varepsilon>0\) is called \emph{convergence in probability} to \(c\),
+written \(Z_n\xrightarrow{\Prob}c\). Here \(Z_n=\bar X_n\) and \(c=\mu\).
+\end{definition}
+Choose a fixed tolerance first,
 such as one minute or one tenth of a minute. Among repeatedly collected
 datasets, the fraction whose average lies outside that tolerance becomes
 arbitrarily small as the dataset size increases.
@@ -479,13 +497,16 @@ used, not just whether the data look roughly symmetric.
 
 Suppose the quantity we need is \(I=\Expect[g(X)]\). When evaluating
 the corresponding integral is difficult but generating observations
-is feasible, draw \(X_1,\ldots,X_n\) independently from the target
+is feasible, we can estimate it by averaging simulated values.
+\begin{definition}[Monte Carlo estimation]
+Draw \(X_1,\ldots,X_n\) independently from the target
 distribution and compute
 \begin{equation}
   \widehat I_n=\frac1n\sum_{i=1}^n g(X_i).
   \label{eq:monte-carlo}
 \end{equation}
-This is \emph{Monte Carlo estimation}. The earlier theorems now apply
+\end{definition}
+The earlier theorems now apply
 to \(Y_i=g(X_i)\). If \(\Expect[|g(X)|]<\infty\), the LLN gives
 convergence to \(I\). If also
 \(0<\tau^2=\Var(g(X))<\infty\), then

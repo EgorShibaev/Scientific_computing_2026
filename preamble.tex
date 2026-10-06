@@ -11,6 +11,9 @@
 \usepackage{float}
 \usepackage{pgfplots}
 \usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+\usepackage{etoolbox}
+\usepackage{needspace}
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{groupplots}
 \usepackage{hyperref}
@@ -48,14 +51,33 @@
   \renewcommand{\headrulewidth}{0.4pt}
 }
 
+% One statement style throughout the conspect. Examples and proofs remain
+% unboxed. Keep each short statement intact so its assumptions and formula
+% can be read together; reserve room after section headings as well.
+\pretocmd{\section}{\Needspace{8\baselineskip}}{}{}
+\pretocmd{\subsection}{\Needspace{6\baselineskip}}{}{}
+\tcbset{course statement/.style={
+  enhanced,breakable=false,
+  colback=CourseBlue!3!white,colframe=CourseBlue!65!white,
+  colbacktitle=CourseBlue!12!white,coltitle=CourseDark,
+  fonttitle=\sffamily\bfseries,fontupper=\normalfont,
+  boxrule=0.5pt,arc=0pt,left=7pt,right=7pt,top=5pt,bottom=5pt,
+  before skip=9pt,after skip=9pt,
+  pad at break*=2mm,lines before break=6}}
+\newtcolorbox{coursestatement}[1]{course statement,title={#1},
+  title after break={#1 (continued)}}
+\newcounter{definition}[chapter]
+\renewcommand{\thedefinition}{\thechapter.\arabic{definition}}
+\newcommand{\startstatement}[2]{%
+  \refstepcounter{definition}%
+  \begin{coursestatement}{#1~\thedefinition\ifstrempty{#2}{}{:\ #2}}}
+\newenvironment{definition}[1][]{\startstatement{Definition}{#1}}{\end{coursestatement}}
+\newenvironment{theorem}[1][]{\startstatement{Theorem}{#1}}{\end{coursestatement}}
+\newenvironment{proposition}[1][]{\startstatement{Proposition}{#1}}{\end{coursestatement}}
+\newenvironment{result}[1][]{\startstatement{Result}{#1}}{\end{coursestatement}}
 \theoremstyle{definition}
-\newtheorem{definition}{Definition}[chapter]
 \newtheorem{example}[definition]{Example}
 \newtheorem{exercise}{Exercise}[chapter]
-
-\theoremstyle{plain}
-\newtheorem{theorem}[definition]{Theorem}
-\newtheorem{proposition}[definition]{Proposition}
 
 \theoremstyle{remark}
 \newtheorem*{remark}{Remark}
