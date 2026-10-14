@@ -594,8 +594,8 @@ be sampled. With finite loss variance,
 \]
 The squared-error interpretation from
 Section~\ref{sec:conditional-moments} supplies one choice of loss;
-classification error indicators supply another. The new point is
-that a reported average itself fluctuates across test sets.
+classification error indicators supply another. In either case, the
+reported average fluctuates across test sets.
 
 For a fixed classifier with population accuracy \(0.8\), four hundred
 independent test examples give standard error
@@ -624,9 +624,4 @@ the covariance terms from \eqref{eq:correlated-mean-variance} or the
 general quadratic-form rule. The number of rows in a batch is not
 enough to determine its information content.
 
-The three tools answer different questions. Chebyshev bounds an error
-probability at a finite sample size. The LLN establishes convergence
-under growing sample size. The CLT describes rescaled fluctuations
-and supports approximations. A reliable use of averages keeps those
-claims, and their assumptions, separate.
 \endgroup

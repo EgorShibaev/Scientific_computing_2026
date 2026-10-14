@@ -283,11 +283,6 @@ has variance zero: a constant has no fluctuations to standardize.
 
 \subsection{Zero covariance can hide complete dependence}
 
-The distinction between zero covariance and independence noted in
-Section~\ref{sec:variance} has a particularly sharp example: one
-variable can determine the other completely while their correlation
-is zero.
-
 Let \(X\) be uniform on \([-1,1]\), and let \(Y=X^2\). Then
 \[
   \Expect[X]=0,\qquad \Expect[Y]=\Expect[X^2]=\frac13,
@@ -482,7 +477,7 @@ variances would instead be \(0.5\) and \(2\).
 
 The zero covariance between \(M\) and \(D\) follows from the equal
 original variances. It does not by itself establish independence. The
-Gaussian model below supplies an important case where it does.
+Gaussian model below makes them independent.
 
 \section{The multivariate Gaussian}
 \label{sec:multivariate-gaussian}
@@ -846,10 +841,3 @@ which is linear in the observed features, plus a constant. Comparing
 two classes therefore gives a linear boundary. If the covariance
 matrices differ, quadratic terms generally remain, as they did in the
 two-mode example.
-
-These conclusions come from specifying a joint probability model and
-conditioning on an observation. How to learn the means, covariance
-matrices, and class probabilities from data belongs to statistical
-estimation. Here the important point is that a feature's usefulness
-can depend on its relationship with other features, not just its own
-distribution.

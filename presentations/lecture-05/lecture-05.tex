@@ -268,8 +268,6 @@ Uniform model, with observations $0.2,0.4,0.5,0.7,0.9$:
 \vfill
 Moment matching uses $\Expect[X]=\theta/2$.\\
 Likelihood also uses the support restriction.
-\takeaway{Parameter constraints and global behavior matter.
-A stationary point alone does not establish a maximum.}
 \end{frame}
 
 \renewcommand{\conspectsection}{5.4}
@@ -418,16 +416,21 @@ Fix the features and assume conditionally independent responses:
 \]
 \end{resultbox}
 The parameter-dependent term is a positive multiple of squared error.
+An optimization algorithm searches for parameters that minimize this sum.
 \end{frame}
 
 % 24
 \begin{frame}{Fitting a shared noise variance}
-When the common variance $v$ is unknown, retain its logarithm:
+Define the residual sum of squares:
+\[
+  \operatorname{RSS}(\theta)=\sum_i(y_i-f_\theta(x_i))^2.
+\]
+For an unknown shared variance $v>0$,
 \[
   -\ell(\theta,v)=\frac n2\log v
     +\frac{\operatorname{RSS}(\theta)}{2v}+\text{constant}.
 \]
-For fixed $\theta$ with positive residual sum of squares,
+For fixed $\theta$ with $\operatorname{RSS}(\theta)>0$,
 \[
   \widehat v(\theta)=\frac{\operatorname{RSS}(\theta)}{n}.
 \]
@@ -471,19 +474,9 @@ For a positive response:
 Confident wrong predictions incur a large loss.
 \end{frame}
 
-% 28
-\begin{frame}{The model, the objective, and its optimization}
-The observation model determines the likelihood and training objective.
-\vfill
-An optimization algorithm searches for parameters with a small objective.
-A stationary point need not be a global optimum.
-\vfill
-Training likelihood describes the fitted sample. Predictive evaluation
-requires independent data and the assumptions discussed in Chapter 4.
-\end{frame}
 
 \renewcommand{\conspectsection}{5.7}
-% 29
+% 28
 \begin{frame}{A prior distribution over the parameter}
 Specify prior density $\pi(\theta)$ before using the current observations.
 The model supplies $L(\theta;x)$ conditional on each candidate parameter.
@@ -496,7 +489,7 @@ The denominator normalizes the posterior and is constant in $\theta$.
 For a discrete parameter, replace the integral by a sum.}
 \end{frame}
 
-% 30
+% 29
 \begin{frame}{Maximum a posteriori estimation}
 \begin{definitionbox}{MAP estimate}
 Maximize the posterior density, or posterior mass for a discrete parameter:
@@ -510,7 +503,7 @@ Equivalently, minimize negative log-likelihood plus negative log-prior.
 It does not report the whole posterior or its uncertainty.}
 \end{frame}
 
-% 31
+% 30
 \begin{frame}{A prior for a Bernoulli probability}
 The Beta family places a density on $0<p<1$:
 \[
@@ -523,7 +516,7 @@ The chosen $a,b$ describe the prior.\\
 Beta$(2,2)$ has density $6p(1-p)$ and favors values near $1/2$.
 \end{frame}
 
-% 32
+% 31
 \begin{frame}{Updating a Beta prior}
 For $k$ successes in $n$ independent Bernoulli trials,
 \[
@@ -538,14 +531,14 @@ This formula requires $a+k>1$ and $b+n-k>1$.
 \end{resultbox}
 \end{frame}
 
-% 33
+% 32
 \begin{frame}{Seven successes in ten trials}
 \centering\EstBetaPlot
 \plotcaption{Beta$(2,2)$ prior, Beta$(9,5)$ posterior.
 MLE $=0.7$ and MAP $=2/3$; the dotted line marks the posterior mode.}
 \end{frame}
 
-% 34
+% 33
 \begin{frame}{Posterior mode and posterior mean}
 For the Beta$(9,5)$ posterior,
 \[
@@ -558,7 +551,7 @@ squared error, by the conditional-mean result from Chapter 3.
 transforming a density introduces a Jacobian factor.}
 \end{frame}
 
-% 35
+% 34
 \begin{frame}{A Gaussian prior for an unknown mean}
 Observation model: $X_i\sim\mathcal N(\mu,\sigma^2)$, known $\sigma^2>0$.
 Prior: $\mu\sim\mathcal N(m_0,\tau^2)$, with $\tau^2>0$.
@@ -575,7 +568,7 @@ Prior: $\mu\sim\mathcal N(m_0,\tau^2)$, with $\tau^2>0$.
 \end{resultbox}
 \end{frame}
 
-% 36
+% 35
 \begin{frame}{How much weight the prior receives}
 Precision means inverse variance. The sample mean has variance
 $\sigma^2/n$, so its precision is $n/\sigma^2$.
@@ -592,14 +585,14 @@ The posterior is $\mathcal N(0.8,0.5)$.
 With the prior fixed, more observations increase the relative data weight.}
 \end{frame}
 
-% 37
+% 36
 \begin{frame}{The Gaussian posterior}
 \centering\EstGaussianPriorPlot
 \plotcaption{The likelihood curve has been rescaled to integrate to one for comparison.
 That rescaling does not make it a prior or posterior.}
 \end{frame}
 
-% 38
+% 37
 \begin{frame}{A Gaussian prior gives a quadratic penalty}
 Gaussian responses with known variance $\sigma^2$ and prior
 $w\sim\mathcal N(0,\tau^2I)$ give
@@ -617,7 +610,7 @@ $w\sim\mathcal N(0,\tau^2I)$ give
 The linear-algebra solution comes later in the course.}
 \end{frame}
 
-% 39
+% 38
 \begin{frame}{Loss normalization changes the penalty coefficient}
 The same prior gives equivalent objectives
 \[
@@ -632,7 +625,7 @@ changes the relative penalty strength.
 \takeaway{An unpenalized intercept requires a different prior for that coefficient.}
 \end{frame}
 
-% 40
+% 39
 \begin{frame}{Three point-estimation rules}
 \small\renewcommand{\arraystretch}{1.6}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}ll@{}}

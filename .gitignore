@@ -7,8 +7,13 @@ tmp/
 *.toc
 *.synctex.gz
 __pycache__/
+.venv-homework/
 
 # Previous non-LaTeX workspace artifacts are intentionally excluded.
 build_lecture1.py
 build_lecture1/
 deliverables/
+**/.ipynb_checkpoints/
+
+# Private review notes, not student course material.
+output/audit/

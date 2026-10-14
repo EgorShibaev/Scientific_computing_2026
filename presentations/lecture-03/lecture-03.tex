@@ -378,8 +378,6 @@ After observing it,
 \]
 Both groups have the same conditional variance:
 \focusmath{\Expect[(Y-m(X))^2]=0.18(0.82)=0.1476.}
-\takeaway{These are predictions from a specified probability model.
-Learning the rule from data is a separate estimation problem.}
 \end{frame}
 
 \renewcommand{\conspectsection}{3.5}
@@ -501,8 +499,7 @@ Only the second contains the additional disturbance $Z_2$.
   \Var(X_2)=0.8^2+0.6^2=1,\qquad
   \Cov(X_1,X_2)=0.8.
 \]
-\takeaway{Both marginals are standard Gaussian.
-Their joint distribution records the shared noise.}
+\takeaway{Both marginals are standard Gaussian.}
 \end{frame}
 
 \begin{frame}{The multivariate Gaussian construction}
@@ -716,7 +713,6 @@ Two equally likely modes, both with mean zero:
 Each feature alone is $\mathcal N(0,1)$ in either class.
 \end{column}
 \end{columns}
-\takeaway{The distinguishing information is entirely in the relationship between the features.}
 \end{frame}
 
 \begin{frame}{Agreement between features identifies the mode}
@@ -745,8 +741,6 @@ where $\phi$ is the standard Gaussian density.
 \vfill
 Both approximate models now assign the same density to every pair.
 \focusmath{\widetilde\Prob(C=+\mid\mathbf X=\mathbf x)=\frac12.}
-\takeaway{Conditional independence within the class discards all of the
-useful class information in this example.}
 \end{frame}
 
 \begin{frame}{The Gaussian classification score}
@@ -780,8 +774,6 @@ This is linear in the observed features, plus a constant.
 \vfill
 With different covariance matrices, quadratic terms generally remain.
 The two-mode example uses the interaction $x_1x_2$.
-\takeaway{Learning the means, covariances, and class probabilities from data
-belongs to statistical estimation.}
 \end{frame}
 
 \begin{frame}{What the joint model lets us compute}
@@ -799,7 +791,6 @@ Compare class densities & Which class best explains the whole observation?\\
 \vfill
 Dependence can matter even when each individual feature looks identical
 across models.
-\takeaway{Correlation summarizes linear dependence. A joint distribution can contain much more.}
 \end{frame}
 
 \end{document}

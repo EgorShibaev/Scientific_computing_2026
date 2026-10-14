@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=18mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,booktabs,xcolor}
+\definecolor{Ink}{HTML}{16324F}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\newcommand{\question}[2]{\vspace{8pt}{\color{Ink}\bfseries #1. #2}\par}
+\newcommand{\choice}[2]{\par\textbf{#1.}\ #2\par}
+\begin{document}
+{\sffamily\color{Ink}\LARGE Quick quiz: Lectures 3 and 4}\par
+{\sffamily Scientific Computing 2026 \hfill 5 minutes \quad 5 points}
+\vspace{4pt}\hrule\vspace{7pt}
+Name: \rule{9cm}{0.4pt}\hfill Date: \rule{2.5cm}{0.4pt}
+
+Choose \textbf{one answer per question}. Each question is worth one point.
+No calculator is needed.
+
+\question{1}{Conditional probability}
+The joint distribution of $X$ and $Y$ is given below. Find $P(Y=1\mid X=1)$.
+\begin{center}
+\begin{tabular}{c@{\qquad}cc}
+\toprule
+ & $Y=0$ & $Y=1$\\\midrule
+$X=0$ & $0.3$ & $0.2$\\
+$X=1$ & $0.1$ & $0.4$\\\bottomrule
+\end{tabular}
+\end{center}
+\textbf{A.}\ $0.4$\hfill\textbf{B.}\ $0.5$\hfill\textbf{C.}\ $0.8$\hfill\textbf{D.}\ $0.6$
+
+\question{2}{Correlation and independence}
+Suppose $\operatorname{Cov}(X,Y)=0$. Does independence follow (i) in general,
+and (ii) when $X,Y$ are jointly Gaussian?
+\choice{A}{Yes in both cases.}
+\choice{B}{No in general; yes for jointly Gaussian variables.}
+\choice{C}{No in either case.}
+\choice{D}{Yes in general; no for jointly Gaussian variables.}
+
+\question{3}{How much does averaging help?}
+Independent, identically distributed observations have standard deviation $6$.
+What is the standard deviation of their mean for $n=100$, and what
+\emph{total} sample size would halve it?
+\choice{A}{$0.6$; $n=200$.}
+\choice{B}{$0.06$; $n=400$.}
+\choice{C}{$6$; $n=200$.}
+\choice{D}{$0.6$; $n=400$.}
+
+\question{4}{Chebyshev's inequality}
+A random variable $Z$ has mean $10$ and variance $4$.
+What does Chebyshev's inequality tell us about $P(|Z-10|\geq4)$?
+\choice{A}{It is at most $1/4$.}
+\choice{B}{It is exactly $1/4$.}
+\choice{C}{It is at most $1/2$.}
+\choice{D}{It is at least $1/4$.}
+
+\question{5}{What becomes approximately Gaussian?}
+Let $X_1,\ldots,X_n$ be i.i.d. exponential variables with mean $\mu$ and
+standard deviation $\sigma$. Which statement describes the central limit theorem?
+\choice{A}{Each individual $X_i$ becomes approximately Gaussian as $n$ increases.}
+\choice{B}{$\bar X_n$ converges in probability to $\mu$.}
+\choice{C}{$\sqrt{n}(\bar X_n-\mu)/\sigma$ converges in distribution to $\mathcal N(0,1)$.}
+\end{document}

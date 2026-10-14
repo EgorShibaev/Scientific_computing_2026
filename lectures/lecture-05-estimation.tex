@@ -80,8 +80,7 @@ the powers when their expectations identify the parameter.
 For Bernoulli data the mean is \(p\), so matching means gives
 \(\widehat p_{\mathrm{MM}}=\bar X_n\). For Poisson data the mean is
 \(\lambda\), so \(\widehat\lambda_{\mathrm{MM}}=\bar X_n\).
-These are applications of the distribution moments from
-Chapter~\ref{chap:distributions}, not new assumptions about those moments.
+The population moments are given in Chapter~\ref{chap:distributions}.
 
 \subsection{Two moments for a Gamma model}
 
@@ -257,8 +256,7 @@ If all observations coincide, there is no finite maximizer with \(v>0\).
 \end{result}
 
 The method of moments gives these same formulas by matching
-\(\Expect[X]=\mu\) and \(\Expect[X^2]=\mu^2+v\). The two methods agree
-again, for a different reason than a general equivalence. The mean and
+\(\Expect[X]=\mu\) and \(\Expect[X^2]=\mu^2+v\). The mean and
 variance formulas still make sense for non-Gaussian data, but their Gaussian
 maximum-likelihood interpretation then depends on using a Gaussian model.
 
@@ -605,9 +603,4 @@ An unpenalized intercept would require a different prior choice for that
 coefficient. More generally, MAP imposes the penalty \(-\log\pi(w)\);
 a quadratic penalty specifically corresponds to a Gaussian prior.
 
-Method of moments matches selected population summaries to sample summaries.
-MLE maximizes the observation likelihood. MAP adds an explicit prior on the
-parameter. Their estimates can coincide, but their definitions and assumptions
-remain different. None of these point-estimation rules by itself supplies
-a confidence interval or a guarantee of predictive accuracy.
 \endgroup

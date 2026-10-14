@@ -1,0 +1,726 @@
+\chapter{Sampling Distributions, Confidence Intervals, and Bootstrap}
+\chaptermark{Confidence Intervals and Bootstrap}
+\label{chap:confidence-intervals}
+
+\begingroup
+\clubpenalty=10000
+\widowpenalty=10000
+\input{figures/ch6-plots}
+
+\section{What uncertainty remains after fitting}
+\label{sec:interval-uncertainty}
+
+The five waiting times from Chapter~\ref{chap:estimation},
+\[
+  1,\ 2,\ 3,\ 4,\ 5\ \text{minutes},
+\]
+gave an exponential rate estimate of \(\widehat\lambda=1/3\) requests
+per minute. This is an estimate from just five observations. A second
+collection of five waits would usually give a different rate. How much
+variation should we expect, and how can we report it alongside the estimate?
+
+Section~\ref{sec:samples} already introduced sampling distributions and
+standard errors. We now apply that reasoning to the estimators from
+Chapter~\ref{chap:estimation}. To study a rule
+\(\widehat\theta=T(X_1,\ldots,X_n)\), imagine keeping the population
+parameter \(\theta\) fixed, drawing a new dataset, and applying the
+\emph{same rule} each time. A histogram of the resulting estimates describes
+how the estimation procedure varies across datasets.
+
+Three distributions answer different questions. The observation law
+describes a new wait or measurement. A sampling distribution describes
+the estimate obtained from a new dataset. A posterior, as in
+Section~\ref{sec:map-estimation}, describes uncertainty about a parameter
+conditional on the recorded data and a specified prior. The calculations
+below use sampling distributions to build intervals with a stated
+frequency of covering the true parameter.
+
+For a population mean, the earlier formulas give
+\[
+  \operatorname{SE}(\bar X_n)=\frac{\sigma}{\sqrt n},
+  \qquad
+  \widehat{\operatorname{SE}}(\bar X_n)=\frac{S_n}{\sqrt n}.
+\]
+The second expression estimates the first when \(\sigma\) is unknown.
+To turn an error scale into an interval, we also need to know, exactly
+or approximately, how often errors exceed a multiple of that scale.
+
+\section{Confidence intervals and repeated sampling}
+\label{sec:confidence-coverage}
+
+Suppose a sensor measures an unknown constant level \(\mu\). Each
+dataset produces a mean and an interval around it. Across repeated
+experiments, both endpoints move. A useful interval rule should contain
+\(\mu\) in a specified proportion of those experiments.
+
+\begin{definition}[Confidence interval and coverage]
+Let \(0<\alpha<1\). A confidence interval procedure reports
+\(C(X)=[L(X),U(X)]\), where both endpoints are functions of the sample.
+Its coverage at parameter \(\theta\) is
+\[
+  \Prob_\theta\{L(X)\le\theta\le U(X)\}.
+\]
+It has confidence level at least \(1-\alpha\) if this probability is
+at least \(1-\alpha\) for every parameter allowed by the model.
+An exact central construction may have equality. An approximate
+\(95\%\) interval targets coverage \(0.95\) using an approximation.
+\end{definition}
+
+The probability concerns the random sample and the interval it produces.
+After we observe a particular dataset, its numerical endpoints are fixed.
+The frequentist model also treats \(\theta\) as fixed, so its coverage
+statement does not supply a posterior probability for this one interval.
+For example, saying that a procedure covers the true sensor level in
+\(95\%\) of repeated experiments explains the guarantee that we used
+when constructing the reported interval.
+
+\begin{figure}[H]
+  \centering\InfCoveragePlot
+  \caption{Repeated \(95\%\) Gaussian mean intervals. Each horizontal
+  segment comes from a different dataset, with \(n=25\), true mean
+  \(\mu=10\), and known observation standard deviation \(\sigma=2\).
+  The dashed line marks the same true mean in every experiment. Orange
+  intervals miss it. A finite collection need not contain exactly
+  \(95\%\) successful intervals.}
+  \label{fig:interval-coverage}
+\end{figure}
+
+\subsection{A Gaussian mean with known variance}
+
+For independent Gaussian observations with mean \(\mu\) and known
+variance \(\sigma^2>0\), the exact Gaussian sampling law from
+Section~\ref{sec:clt} gives
+\[
+  Z=\frac{\bar X_n-\mu}{\sigma/\sqrt n}\sim\mathcal N(0,1).
+\]
+The numerator is the estimation error. Dividing by its standard error
+puts it on a scale whose distribution is the same for every value of
+the unknown \(\mu\).
+
+\begin{definition}[Quantile and pivot]
+For a random variable with CDF \(F\), its \(p\)-quantile is
+\(q_p=\inf\{x:F(x)\ge p\}\), for \(0<p<1\).
+Write \(z_p\) for the standard Gaussian quantile.
+A \emph{pivot} is a function of the observations and the unknown
+parameter whose sampling distribution does not depend on unknown
+parameters. The variable \(Z\) above is a pivot.
+\end{definition}
+
+The standard Gaussian places \(1-\alpha\) of its probability between
+\(-z_{1-\alpha/2}\) and \(z_{1-\alpha/2}\). Therefore
+\[
+  \Prob_\mu\!\left\{
+  -z_{1-\alpha/2}\le\frac{\bar X_n-\mu}{\sigma/\sqrt n}
+  \le z_{1-\alpha/2}\right\}=1-\alpha.
+\]
+Rearranging the inequalities leaves the unknown \(\mu\) between
+two quantities that we can compute from the data.
+
+\begin{result}[Gaussian mean interval with known variance]
+For an i.i.d. Gaussian sample with known \(\sigma^2>0\), the interval
+\[
+  \left[\bar X_n-z_{1-\alpha/2}\frac{\sigma}{\sqrt n},\quad
+        \bar X_n+z_{1-\alpha/2}\frac{\sigma}{\sqrt n}\right]
+\]
+has exact coverage \(1-\alpha\). For \(95\%\) confidence,
+\(z_{0.975}\approx1.96\).
+\end{result}
+
+For example, if \(n=25\), \(\bar x=10.4\), and a known
+\(\sigma=2\), the standard error is \(0.4\). The interval is
+\[
+  10.4\pm1.96(0.4)=[9.616,\,11.184].
+\]
+Its endpoints and \(\mu\) share the measurement units.
+The number \(1.96\) is dimensionless.
+
+\subsection{Interval width and the sampling design}
+
+The margin of error in this construction is
+\(m=z_{1-\alpha/2}\sigma/\sqrt n\). More observation noise increases
+the margin. More independent observations reduce it. Raising the
+confidence level increases the quantile and widens the interval.
+For example, the Gaussian multipliers are approximately \(1.645\)
+at \(90\%\), \(1.960\) at \(95\%\), and \(2.576\) at \(99\%\).
+
+For known \(\sigma\), achieving a chosen margin \(m>0\) requires
+\[
+  n\ge\left(\frac{z_{1-\alpha/2}\sigma}{m}\right)^2,
+\]
+rounded upward to an integer. Thus halving the margin requires four
+times as many independent observations. This calculation inherits the
+sampling assumptions. Correlated measurements do not necessarily
+provide that improvement, as Section~\ref{sec:averaging-failures} showed.
+
+\subsection{What the interval refers to}
+
+The interval estimates a population parameter, here the sensor's mean.
+It need not contain \(95\%\) of individual readings. Even if we measure
+the mean very accurately, a new reading still has observation noise.
+Section~\ref{sec:mean-intervals} will make this distinction explicit.
+
+A Bayesian credible interval answers a different probability question:
+it contains a specified amount of the posterior probability after
+conditioning on the observations and a prior. The posterior calculation
+in Section~\ref{sec:map-estimation} supplies that distribution. A
+confidence interval derives its guarantee from repetition of the
+sampling procedure. The two approaches can sometimes produce the same
+numerical interval, but they justify it differently.
+
+Coverage also depends on choosing the procedure as specified. Reporting
+only unusually narrow intervals, repeatedly inspecting fresh data until
+an interval gives a desired conclusion, or selecting a model after
+seeing the same test results changes the experiment. The original
+fixed-sample coverage statement alone does not justify such a procedure.
+
+\section{Mean intervals with unknown variance}
+\label{sec:mean-intervals}
+
+In most applications \(\sigma\) is unknown. We estimate it by \(S_n\),
+using the sample variance from Section~\ref{sec:samples} with denominator
+\(n-1\). For small samples, this replacement adds appreciable uncertainty:
+some datasets happen to have a small observed spread and hence an
+overly optimistic estimated standard error. A wider reference
+distribution accounts for that fluctuation under a Gaussian model.
+
+\subsection{Why Student's distribution appears}
+
+We already met Student's \(t\)-distribution as a Gaussian with a random
+precision in Section~\ref{sec:student}. Here its random denominator
+comes from estimating the observation variance.
+
+\begin{definition}[Chi-square distribution]
+If \(Z_1,\ldots,Z_\nu\) are independent standard Gaussians, then
+\[
+  U=\sum_{j=1}^{\nu}Z_j^2\sim\chi^2_\nu.
+\]
+The integer \(\nu\) counts the independent squared Gaussian components
+and is called the number of degrees of freedom. In the rate convention
+of Section~\ref{sec:gamma}, this law is
+\(\operatorname{Gamma}(\nu/2,1/2)\).
+\end{definition}
+
+For an i.i.d. Gaussian sample, the fitted deviations
+\(X_i-\bar X_n\) sum to zero. Estimating one mean leaves \(n-1\)
+independent directions of Gaussian variation. More precisely, a Gaussian
+sampling result states that
+\[
+  U=\frac{(n-1)S_n^2}{\sigma^2}\sim\chi^2_{n-1},
+  \qquad
+  Z=\frac{\sqrt n(\bar X_n-\mu)}{\sigma}\sim\mathcal N(0,1),
+\]
+and \(U\) and \(Z\) are independent. The independence uses the Gaussian
+assumption. It follows by separating the mean direction from the
+orthogonal residual directions in a Gaussian vector, using the
+zero-covariance independence property from
+Section~\ref{sec:multivariate-gaussian}.
+
+Consequently, for \(\nu=n-1\),
+\[
+  \frac{Z}{\sqrt{U/\nu}}
+  =\frac{\sqrt n(\bar X_n-\mu)}{S_n}.
+\]
+Conditional on \(U\), the left-hand side is Gaussian with precision
+\(U/\nu\). This precision has law
+\(\operatorname{Gamma}(\nu/2,\nu/2)\), exactly the mixture construction
+that previously produced \(t_\nu\).
+
+\begin{theorem}[Student pivot for a Gaussian mean]
+For \(n\ge2\) i.i.d. observations from
+\(\mathcal N(\mu,\sigma^2)\), with \(\sigma^2>0\),
+\[
+  \frac{\bar X_n-\mu}{S_n/\sqrt n}\sim t_{n-1}.
+\]
+If \(t_{\nu,p}\) is the \(p\)-quantile of \(t_\nu\), then
+\[
+  \left[\bar X_n-t_{n-1,1-\alpha/2}\frac{S_n}{\sqrt n},\quad
+        \bar X_n+t_{n-1,1-\alpha/2}\frac{S_n}{\sqrt n}\right]
+\]
+has exact coverage \(1-\alpha\).
+\end{theorem}
+
+The derivation repeats the Gaussian pivot inversion, with a Student
+quantile in place of a Gaussian quantile. At low degrees of freedom,
+Student's heavier tails require a larger multiplier. As the degrees
+of freedom grow, the multiplier approaches the Gaussian one.
+
+\begin{figure}[H]
+  \centering\InfStudentPlot
+  \caption{A standard Gaussian and Student's \(t_9\) sampling reference
+  densities. The Student reference has heavier tails. Its \(97.5\%\)
+  quantile is approximately \(2.262\), compared with \(1.960\) for the
+  Gaussian. Both intervals allocate \(2.5\%\) to each tail of their
+  own reference distribution.}
+  \label{fig:interval-student}
+\end{figure}
+
+For ten Gaussian measurements with observed mean \(\bar x=10.2\)
+and sample standard deviation \(s=1.5\),
+\[
+  \widehat{\operatorname{SE}}=\frac{1.5}{\sqrt{10}}\approx0.4743,
+  \qquad t_{9,0.975}\approx2.262.
+\]
+The \(95\%\) interval is
+\[
+  10.2\pm2.262(0.4743)\approx[9.127,\,11.273].
+\]
+Using \(1.96\) with this estimated standard error would give the
+narrower interval \([9.270,11.130]\). Under the Gaussian model at
+this sample size, that narrower procedure falls short of \(95\%\)
+coverage.
+
+\subsection{A large-sample interval for non-Gaussian observations}
+
+Gaussian sampling gives an exact Student law. For general i.i.d.
+observations with finite mean and finite, positive variance, use the
+CLT from Section~\ref{sec:clt}. The LLN applied to \(X_i\) and
+\(X_i^2\) also makes \(S_n\) approach \(\sigma\). Replacing
+\(\sigma\) by this consistent estimate preserves the limiting law:
+\[
+  \frac{\sqrt n(\bar X_n-\mu)}{S_n}
+  \xrightarrow{d}\mathcal N(0,1).
+\]
+This gives an approximate interval
+\(\bar x\pm z_{1-\alpha/2}s/\sqrt n\). Using a Student multiplier
+is also common and has the same large-sample limit, but does not make
+the interval exact for non-Gaussian data.
+
+The accuracy depends on the observation law and sample size. Strong
+skewness and rare extreme values can make convergence slow. There is
+no universal sample size at which every population has a reliable
+Gaussian approximation. Infinite variance and dependence require
+separate analysis rather than automatic use of this formula.
+
+\subsection{A mean interval and a prediction interval}
+
+Under the same i.i.d. Gaussian model, consider a future independent
+reading \(X_{\mathrm{new}}\). Its difference from the current sample
+mean has variance
+\[
+  \Var(X_{\mathrm{new}}-\bar X_n)
+  =\sigma^2+\frac{\sigma^2}{n}.
+\]
+The observation noise remains even when we know the mean accurately.
+The corresponding exact \(1-\alpha\) prediction interval is
+\[
+  \bar x\pm t_{n-1,1-\alpha/2}\,s\sqrt{1+\frac1n}.
+\]
+Its coverage concerns the joint experiment of the training sample
+and a new reading. The mean interval uses \(s/\sqrt n\) instead.
+As \(n\) grows, the mean interval shrinks, while the prediction
+interval retains the scale of individual observation noise.
+
+\subsection{Another exact pivot: an exponential rate}
+
+Return to the five waits at the beginning. The Gamma sum result gives,
+for the random total \(W=\sum_iT_i\),
+\[
+  W\sim\operatorname{Gamma}(n,\lambda),\qquad
+  2\lambda W\sim\operatorname{Gamma}(n,1/2)=\chi^2_{2n}.
+\]
+Let \(c_{\nu,p}\) denote a \(\chi^2_\nu\) quantile. The event
+\(c_{2n,\alpha/2}\le2\lambda W\le c_{2n,1-\alpha/2}\)
+has probability \(1-\alpha\). Since \(W>0\) almost surely, dividing
+and inserting the observed total \(w\) gives the exact rate interval
+\[
+  \left[\frac{c_{2n,\alpha/2}}{2w},\quad
+        \frac{c_{2n,1-\alpha/2}}{2w}\right].
+\]
+For \(n=5\) and observed total wait \(w=15\) minutes,
+\(c_{10,0.025}\approx3.247\) and
+\(c_{10,0.975}\approx20.483\). The \(95\%\) interval is therefore
+\[
+  [0.1082,\,0.6828]\ \text{requests per minute}.
+\]
+Five observations leave considerable uncertainty around the point
+estimate \(1/3\). The chi-square quantiles give unequal margins below
+and above this estimate: approximately \(0.2251\) and \(0.3495\).
+The exact coverage guarantee relies on independent exponential waits.
+
+\section{Proportion intervals and test accuracy}
+\label{sec:proportion-intervals}
+
+For a fixed classifier evaluated on independently sampled examples,
+let \(X_i=1\) when it predicts correctly and \(X_i=0\) otherwise.
+The population accuracy is \(p\), and the observed accuracy is
+\(\widehat p=k/n\), where \(k\) is the number correct.
+The Bernoulli calculation gives standard error
+\(\sqrt{p(1-p)/n}\). Substituting \(\widehat p\) gives the
+familiar Gaussian approximation.
+
+\begin{result}[Approximate Wald interval for a proportion]
+For i.i.d. Bernoulli observations, the normal approximation gives
+\[
+  \widehat p\pm z_{1-\alpha/2}
+     \sqrt{\frac{\widehat p(1-\widehat p)}n}.
+\]
+This approximation can be poor when successes or failures are rare.
+It is not an exact interval, and its endpoints can fall outside \([0,1]\).
+\end{result}
+
+For \(k=84\) correct predictions out of \(n=100\),
+\[
+  \widehat p=0.84,\qquad
+  \widehat{\operatorname{SE}}\approx0.0367,
+  \qquad C_{\mathrm{Wald}}\approx[0.768,\,0.912].
+\]
+This quantifies uncertainty from sampling the test examples for the
+already fitted classifier. It does not measure how much accuracy
+changes when we retrain the model on a new training set.
+
+\subsection{Why zero observed failures do not imply certainty}
+
+If all \(20\) predictions are correct, then \(\widehat p=1\), and
+the plug-in standard error is zero. The Wald formula returns \([1,1]\).
+Twenty correct predictions provide evidence of high accuracy, but
+cannot establish perfect population accuracy. Similarly, zero observed
+successes do not establish \(p=0\). Clipping endpoints to \([0,1]\)
+does not repair the underlying coverage problem.
+
+A useful improvement keeps the candidate population probability
+inside its own variance when inverting the approximate Gaussian event:
+\[
+  \frac{|\widehat p-p|}{\sqrt{p(1-p)/n}}\le z,
+  \qquad z=z_{1-\alpha/2}.
+\]
+Squaring and rearranging gives
+\[
+  (n+z^2)p^2-(2n\widehat p+z^2)p+n\widehat p^2\le0.
+\]
+The two roots supply an interval.
+
+\begin{result}[Wilson interval for a proportion]
+Set \(z=z_{1-\alpha/2}\). The center and half-width are
+\[
+  a=\frac{\widehat p+z^2/(2n)}{1+z^2/n},\qquad
+  h=\frac{z}{1+z^2/n}
+       \sqrt{\frac{\widehat p(1-\widehat p)}n+\frac{z^2}{4n^2}}.
+\]
+The interval is \([a-h,a+h]\). It stays inside \([0,1]\) and usually
+has much better coverage than the Wald interval near the boundaries.
+Its \(1-\alpha\) confidence level is still approximate.
+\end{result}
+
+For \(84/100\), the \(95\%\) Wilson interval is approximately
+\([0.756,0.899]\). For \(0/20\), it is \([0,0.161]\), and for
+\(20/20\), it is \([0.839,1]\). In each boundary case the unobserved
+outcome remains possible. Exact binomial intervals can provide a
+guaranteed coverage level, generally with conservative coverage because
+the count is discrete.
+
+\begin{figure}[H]
+  \centering\InfProportionCoveragePlot
+  \caption{Actual coverage of nominal \(95\%\) Wald and Wilson
+  procedures for \(n=20\). At each candidate \(p\), coverage is the
+  exact binomial sum over counts whose interval contains \(p\).
+  The jagged curves reflect the discrete count. Wilson improves the
+  boundary behavior, but its coverage is not identically \(0.95\).}
+  \label{fig:proportion-coverage}
+\end{figure}
+
+\section{Bootstrap and the empirical distribution}
+\label{sec:bootstrap}
+
+For a mean under a Gaussian model, we could derive a sampling law.
+For a median, a quantile, or an F1 score, the sampling distribution
+can be harder to calculate. We would like to repeat the experiment
+many times, but usually have only one observed dataset. The bootstrap
+uses this dataset to construct an approximation to the population,
+then repeats sampling from that approximation.
+
+\subsection{Resampling observations with replacement}
+
+\begin{definition}[Empirical distribution and bootstrap sample]
+Given observations \(x_1,\ldots,x_n\), the empirical distribution
+\(\widehat F_n\) puts probability \(1/n\) on each recorded observation.
+Repeated values contribute their combined probability.
+A nonparametric bootstrap sample draws
+\(X_1^*,\ldots,X_n^*\) independently from \(\widehat F_n\), conditional
+on the observed dataset. Equivalently, draw indices
+\[
+  I_1,\ldots,I_n\ \text{independently and uniformly from }
+  \{1,\ldots,n\},\qquad X_j^*=x_{I_j}.
+\]
+Sampling is with replacement, so an observation can appear several
+times or be absent from a resample.
+\end{definition}
+
+For the waits \((1,2,3,4,5)\), the index sample \((1,1,2,4,5)\)
+produces \((1,1,2,4,5)\), whose mean is \(2.6\). Another draw might
+produce \((2,3,3,3,4)\), whose mean is \(3\). Both resamples have
+the original sample size of five. Sampling all observations without
+replacement would merely permute them and leave the mean unchanged.
+
+For any statistic \(T\), recompute \(\widehat\theta^*=T(X^*)\)
+on each resample. If the original estimate required fitting a model,
+recomputing it requires fitting that model again. The resamples give
+variation in the \emph{estimation rule}, rather than new independent
+information about the population.
+
+\subsection{Which distribution the bootstrap approximates}
+
+An asterisk indicates randomness in resampling, conditional on the
+recorded data. For a population parameter \(\theta\) estimated by
+\(\widehat\theta\), the useful comparison is
+\[
+  \text{bootstrap errors }\widehat\theta^*-\widehat\theta
+  \quad\text{versus sampling errors }\widehat\theta-\theta.
+\]
+The empirical population plays the role of the unknown population.
+For a mean, its center is \(\bar x\), so bootstrap errors about
+\(\bar x\) take the place of sampling errors about \(\mu\).
+Similar reasoning applies to medians and other summaries when the
+empirical population captures the features relevant to the statistic.
+That approximation requires conditions and can fail, as
+Section~\ref{sec:bootstrap-limits} explains.
+
+For a mean we can check the calculation directly. Conditional on the data,
+\[
+  \Expect^*[X_j^*]=\bar x,\qquad
+  \Var^*(X_j^*)=\frac1n\sum_i(x_i-\bar x)^2.
+\]
+Independence within a bootstrap sample therefore gives
+\begin{equation}
+  \Expect^*[\bar X_n^*]=\bar x,\qquad
+  \Var^*(\bar X_n^*)=\frac1{n^2}\sum_i(x_i-\bar x)^2
+  =\frac{n-1}{n}\frac{s^2}{n}.
+  \label{eq:bootstrap-mean-variance}
+\end{equation}
+For \((1,2,3,4,5)\), \(\bar x=3\) and
+\(\sum_i(x_i-\bar x)^2=10\). Thus the bootstrap mean has variance
+\(0.4\) and standard error \(\sqrt{0.4}\approx0.632\).
+The usual estimate \(s/\sqrt5=\sqrt{0.5}\approx0.707\) differs
+by the factor \(\sqrt{(n-1)/n}\). The difference is appreciable at
+\(n=5\) and tends to zero as \(n\) grows. A bootstrap approximation
+does not guarantee an exact finite-sample sampling distribution.
+
+\begin{figure}[H]
+  \centering\InfBootstrapPlot
+  \caption{Bootstrap means from one simulated dataset of \(40\)
+  exponential waits. Its observed mean is \(4.495\) minutes. Each of
+  \(20{,}000\) resamples contains \(40\) observations drawn with
+  replacement from this same dataset. The dotted line marks the
+  observed mean, and the dashed lines mark the \(2.5\%\) and
+  \(97.5\%\) bootstrap quantiles. This is a conditional bootstrap
+  distribution, rather than the true population sampling distribution.}
+  \label{fig:bootstrap-errors}
+\end{figure}
+
+\subsection{Bootstrap standard error}
+
+Choose a number of resamples \(B\). For each
+\(b=1,\ldots,B\), draw \(n\) indices with replacement and recompute
+\(\widehat\theta^{*(b)}\). Common choices such as \(B=10{,}000\)
+give many replicates for estimating spread and central quantiles.
+Record the random seed when reproducing a numerical illustration.
+
+\begin{definition}[Bootstrap standard error]
+Let \(\overline\theta^*=B^{-1}\sum_{b=1}^B\widehat\theta^{*(b)}\),
+with \(B\ge2\). The bootstrap standard error estimate is
+\[
+  \widehat{\operatorname{SE}}_{\mathrm{boot}}
+  =\sqrt{\frac1{B-1}\sum_{b=1}^B
+    (\widehat\theta^{*(b)}-\overline\theta^*)^2}.
+\]
+It estimates the conditional standard deviation of the bootstrap
+statistic, which in turn approximates the statistic's sampling
+standard deviation when bootstrap assumptions hold.
+\end{definition}
+
+The divisor is \(B-1\) because we estimate spread across \(B\)
+replicates about their replicate mean. The statistic inside each
+replicate still uses a dataset of size \(n\). These are different
+sample sizes with different roles. Increasing \(B\) reduces simulation
+noise in the estimated bootstrap distribution. Increasing \(n\)
+provides more information about the population.
+
+\subsection{Percentile intervals and centered-error intervals}
+
+\begin{definition}[Percentile bootstrap interval]
+Let \(q_p^*\) denote the empirical \(p\)-quantile of the
+\(B\) bootstrap estimates. The percentile interval is
+\[
+  [q_{\alpha/2}^*,\ q_{1-\alpha/2}^*].
+\]
+For a nominal \(95\%\) interval, retain the central \(95\%\) of
+the bootstrap estimates. Its coverage is approximate.
+\end{definition}
+
+This interval can be asymmetric, following the shape of the resampled
+statistic. It is easy to compute, but the fact that \(95\%\) of
+bootstrap estimates lie between its endpoints does not by itself prove
+\(95\%\) coverage of the population parameter. Bias and a poor
+bootstrap approximation can distort coverage.
+
+There is another construction that follows the centered-error
+comparison explicitly. If \(a^*,b^*\) are the lower and upper
+quantiles of \(\widehat\theta^*-\widehat\theta\), approximate the
+sampling event by
+\[
+  a^*\le\widehat\theta-\theta\le b^*.
+\]
+Inverting gives \([\widehat\theta-b^*,\widehat\theta-a^*]\), or
+\[
+  [2\widehat\theta-q_{1-\alpha/2}^*,\quad
+   2\widehat\theta-q_{\alpha/2}^*].
+\]
+This is the \emph{basic bootstrap interval}. It differs from the
+percentile interval unless the relevant quantiles are symmetric
+about \(\widehat\theta\). Neither construction is automatically
+accurate for every statistic. A symmetric Gaussian approximation
+using \(\widehat\theta\pm z\widehat{\operatorname{SE}}_{\mathrm{boot}}\)
+is another option when its shape and bias assumptions are appropriate.
+
+\Needspace{7\baselineskip}
+For the simulated dataset in Figure~\ref{fig:bootstrap-errors},
+\(\bar x\approx4.495\) minutes and \(s\approx3.747\) minutes.
+The \(20{,}000\) bootstrap means give a standard error estimate
+of \(0.586\) minutes and a percentile interval
+\([3.399,5.682]\) minutes. We generated the original data from an
+exponential population with mean five, so we can check that this
+particular interval covers it. Checking one successful interval does
+not establish the procedure's coverage. That would require repeating
+the whole experiment with many fresh datasets and constructing a new
+bootstrap interval for each one.
+
+\section{Comparing two models on the same examples}
+\label{sec:paired-bootstrap}
+
+Suppose two fixed classifiers predict the same \(200\) independent
+test examples. Their outcomes are
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+ & B correct & B wrong\\
+\midrule
+A correct & 150 & 30\\
+A wrong   & 10  & 10\\
+\bottomrule
+\end{tabular}
+\end{center}
+Model A has accuracy \(180/200=0.90\), and B has accuracy
+\(160/200=0.80\). The observed difference is \(0.10\).
+Most examples are easy or difficult for both models, so treating the
+two accuracy estimates as independent discards useful information.
+
+Let \(A_i,B_i\) be the two correctness indicators on example \(i\),
+and write \(D_i=A_i-B_i\). Then \(D_i=1\) on the \(30\)
+examples only A gets right, \(D_i=-1\) on the \(10\) examples only
+B gets right, and \(D_i=0\) on the other \(160\). The estimated
+population accuracy difference is simply \(\bar D=0.10\).
+The sample mean calculation applies to these \emph{paired differences}:
+\[
+  \widehat{\operatorname{SE}}(\bar D)
+  =\sqrt{\frac1{n(n-1)}\sum_i(D_i-\bar D)^2}
+  =\sqrt{\frac{0.20-0.10^2}{199}}\approx0.0309.
+\]
+The covariance formula in Chapter~\ref{chap:joint-distributions}
+explains the same result:
+\(\Var(A_i-B_i)=\Var(A_i)+\Var(B_i)-2\Cov(A_i,B_i)\).
+
+\begin{result}[Paired bootstrap for a metric difference]
+Keep each test example's label and both model predictions in one row.
+For each replicate, sample \(n\) rows with replacement, using the
+same indices for both models. Recompute both metrics and their
+difference on the resampled rows. Apply the standard-error or
+interval calculation to the resulting differences.
+\end{result}
+
+Resampling the two models independently would remove their within-example
+dependence and estimate a different experiment. Pairing preserves the
+fact that both models encounter the same resampled easy and difficult
+examples.
+
+With \(20{,}000\) paired resamples of this table, the bootstrap
+standard error is approximately \(0.0310\) and the percentile
+\(95\%\) interval is \([0.04,0.16]\). These values describe an
+estimated accuracy improvement of \(4\) to \(16\) percentage points.
+
+\begin{figure}[H]
+  \centering\InfPairedPlot
+  \caption{Paired bootstrap accuracy differences for the displayed
+  \(200\)-example table. Each replicate draws the same test rows for
+  both classifiers. The percentile endpoints describe uncertainty
+  from sampling test examples for these fixed fitted models.}
+  \label{fig:paired-bootstrap}
+\end{figure}
+
+For precision, recall, and F1, retain the label and predictions in each
+row, then recompute the confusion counts within each resample. For
+example, precision is \(\mathrm{TP}/(\mathrm{TP}+\mathrm{FP})\),
+recall is \(\mathrm{TP}/(\mathrm{TP}+\mathrm{FN})\), and
+\[
+  \mathrm{F1}=\frac{2\mathrm{TP}}{2\mathrm{TP}+\mathrm{FP}+\mathrm{FN}}.
+\]
+These are ratios of counts, so averaging hypothetical per-example
+F1 scores would not reproduce the metric. With rare positive examples,
+some resamples may have a zero denominator. Its handling must be
+specified and the resulting interval may be unstable.
+
+An interval for an accuracy difference that lies above zero is evidence
+of an improvement for the stated test population and sampling procedure.
+It does not imply an improvement for every example. If the interval
+includes zero, the observed experiment may be too imprecise to resolve
+the difference. Selecting the two models by repeatedly comparing many
+candidates on this same test set changes the uncertainty question.
+
+\section{What resampling can and cannot recover}
+\label{sec:bootstrap-limits}
+
+\subsection{Small samples and missing outcomes}
+
+The empirical distribution contains only observed values. A very small
+dataset may omit an important part of the population, especially a
+rare but influential outcome. No number of ordinary resamples can
+recover an event that has zero probability under the empirical
+distribution. For example, bootstrapping twenty observed failures
+as Bernoulli outcomes gives failure rate one in every resample.
+The resulting zero spread is the same warning we encountered with
+the Wald interval.
+
+Extreme-value statistics provide a sharper counterexample. For
+\(X_i\sim\operatorname{Uniform}(0,\theta)\), let
+\(M=\max_iX_i\), the endpoint MLE from
+Section~\ref{sec:likelihood-estimation}. Every ordinary bootstrap
+maximum satisfies \(M^*\le M\). But the true endpoint satisfies
+\(\theta>M\) with probability one. Thus the upper endpoint of a
+percentile interval made from \(M^*\) is at most \(M\), and the
+interval covers \(\theta\) with probability zero. A sampling model
+can still support inference about \(\theta\), but ordinary empirical
+resampling fails for this endpoint problem.
+
+\subsection{The independent unit determines what to resample}
+
+If several measurements come from one user, independently resampling
+measurements loses their shared user effect. When users are independent
+sampling units, a cluster bootstrap resamples users and keeps their
+measurements together. For time series, resampling suitable consecutive
+blocks can retain some temporal dependence. Block length and assumptions
+about the process matter. Ordinary i.i.d. row resampling does not
+automatically apply to these settings.
+
+The sample must also represent the target population. Repeating a
+biased sampling scheme or bootstrapping a nonrepresentative dataset
+does not remove its selection bias. The same problem arises when the
+deployment population differs from the test population. Heavy tails
+can also make bootstrap approximation unreliable, particularly for
+means with infinite variance.
+
+\subsection{Parameter uncertainty and training uncertainty}
+
+For an interval about a fitted parameter, resample the independent
+training units and fit the estimator again on each resample. For
+regression, preserve each feature vector and its response as a row.
+This approximates randomness in drawing those training rows under
+the stated sampling model. A design that holds feature values fixed
+requires a different resampling construction, such as resampling
+modeled errors, with its own assumptions.
+
+The paired test bootstrap in Section~\ref{sec:paired-bootstrap}
+holds the trained models fixed. It describes test-sample uncertainty.
+To include variation from training data, random initialization, or
+hyperparameter selection, the repeated experiment must also repeat
+the corresponding training or selection steps. Recomputing only
+test metrics cannot estimate those additional sources of variation.
+
+\endgroup

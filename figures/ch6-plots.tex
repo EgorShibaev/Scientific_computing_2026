@@ -1,0 +1,128 @@
+% Shared Chapter 6 scientific charts: analytic curves and reproducible
+% simulations. Regenerate the committed tables with generate_chapter6_figures.py.
+% The conspect and slides may override these dimensions and the data path.
+\providecommand{\InfDataPath}{figures/data}
+\providecommand{\InfPlotWidth}{11.8cm}
+\providecommand{\InfPlotHeight}{4.6cm}
+\definecolor{InfBlue}{HTML}{1F4E79}
+\definecolor{InfOrange}{HTML}{C46A13}
+\definecolor{InfTeal}{HTML}{007D80}
+\definecolor{InfMuted}{HTML}{526477}
+\pgfplotsset{inf axis/.style={
+  scale only axis,width=\InfPlotWidth,height=\InfPlotHeight,
+  axis lines=left,enlargelimits=false,
+  grid=major,grid style={black!9},
+  tick label style={font=\footnotesize},label style={font=\footnotesize},
+  legend style={draw=none,fill=none,font=\footnotesize,
+    at={(0.5,1.05)},anchor=south,legend columns=-1,column sep=0.8em},
+  every axis plot/.append style={no marks,line width=1.15pt},
+}}
+
+\newcommand{\InfCoveragePlot}{%
+\begin{tikzpicture}\begin{axis}[inf axis,
+  xmin=7.8,xmax=12.4,ymin=0,ymax=41,
+  xlabel={Candidate population mean $\mu$},ylabel={Repeated dataset},
+  xtick={8,9,10,11,12},ytick={1,10,20,30,40},
+  ymajorgrids=false]
+  \addplot[InfMuted,densely dashed,forget plot]
+    coordinates {(10,0) (10,41)};
+  \addplot[InfTeal,only marks,mark=*,mark size=0.65pt,
+    error bars/.cd,x dir=both,x explicit,
+    error bar style={line width=0.6pt},error mark options={rotate=90,mark size=1.0pt}]
+    table[x=mean,y=trial,x error=halfwidth] {\InfDataPath/ch6-coverage-hit.dat};
+  \addlegendentry{Contains $\mu=10$}
+  \addplot[InfOrange,only marks,mark=*,mark size=0.85pt,
+    error bars/.cd,x dir=both,x explicit,
+    error bar style={line width=1.0pt},error mark options={rotate=90,mark size=1.2pt}]
+    table[x=mean,y=trial,x error=halfwidth] {\InfDataPath/ch6-coverage-miss.dat};
+  \addlegendentry{Misses $\mu=10$}
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\InfStudentPlot}{%
+\begin{tikzpicture}\begin{axis}[inf axis,
+  xmin=-4,xmax=4,ymin=0,ymax=0.425,
+  xlabel={Standardized estimation error},ylabel={Density},
+  xtick={-4,-2,0,2,4},ytick={0,0.1,0.2,0.3,0.4}]
+  \addplot[draw=none,fill=InfOrange!18,forget plot]
+    table[x=x,y=lefttail] {\InfDataPath/ch6-student.dat} \closedcycle;
+  \addplot[draw=none,fill=InfOrange!18,forget plot]
+    table[x=x,y=righttail] {\InfDataPath/ch6-student.dat} \closedcycle;
+  \addplot[InfBlue] table[x=x,y=normal] {\InfDataPath/ch6-student.dat};
+  \addlegendentry{Standard Normal}
+  \addplot[InfOrange,dashed] table[x=x,y=t9] {\InfDataPath/ch6-student.dat};
+  \addlegendentry{Student $t_9$}
+  \addplot[InfBlue,densely dotted,forget plot]
+    coordinates {(-1.959963985,0) (-1.959963985,0.05844507)};
+  \addplot[InfBlue,densely dotted,forget plot]
+    coordinates {(1.959963985,0) (1.959963985,0.05844507)};
+  \addplot[InfOrange,densely dotted,forget plot]
+    coordinates {(-2.262157163,0) (-2.262157163,0.0407427)};
+  \addplot[InfOrange,densely dotted,forget plot]
+    coordinates {(2.262157163,0) (2.262157163,0.0407427)};
+  \node[anchor=north east,font=\footnotesize,text=InfMuted,align=right,
+    fill=white,inner sep=2pt] at (axis description cs:0.98,0.97)
+    {$z_{0.975}=1.960$\\$t_{9,0.975}=2.262$};
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\InfProportionCoveragePlot}{%
+\begin{tikzpicture}\begin{axis}[inf axis,
+  xmin=0,xmax=1,ymin=0,ymax=1.03,
+  xlabel={True Bernoulli probability $p$},ylabel={Exact coverage probability},
+  xtick={0,0.2,0.4,0.6,0.8,1},ytick={0,0.25,0.5,0.75,0.95}]
+  \addplot[InfMuted,densely dotted]
+    coordinates {(0,0.95) (1,0.95)};
+  \addlegendentry{Nominal $95\%$}
+  \addplot[InfOrange,line width=0.85pt]
+    table[x=p,y=wald] {\InfDataPath/ch6-proportion-coverage.dat};
+  \addlegendentry{Wald, $n=20$}
+  \addplot[InfTeal,line width=1.0pt]
+    table[x=p,y=wilson] {\InfDataPath/ch6-proportion-coverage.dat};
+  \addlegendentry{Wilson, $n=20$}
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\InfBootstrapPlot}{%
+\begin{tikzpicture}\begin{axis}[inf axis,
+  xmin=2.3,xmax=7,ymin=0,ymax=0.75,
+  xlabel={Bootstrap sample mean $\bar X^*$},ylabel={Bootstrap density},
+  xtick={2.5,3.4,4.5,5.68,7},
+  xticklabels={$2.5$,$3.40$,$4.5$,$5.68$,$7$}]
+  \addplot[InfBlue,fill=InfBlue!20,const plot,line width=0.65pt]
+    table[x=value,y=density] {\InfDataPath/ch6-bootstrap-mean.dat} \closedcycle;
+  \addlegendentry{$20\,000$ resamples of $n=40$}
+  \addplot[InfOrange,dashed,forget plot]
+    coordinates {(3.399081569,0) (3.399081569,0.7)};
+  \addplot[InfOrange,dashed,forget plot]
+    coordinates {(5.681750915,0) (5.681750915,0.7)};
+  \addplot[InfTeal,densely dotted,forget plot]
+    coordinates {(4.494628920,0) (4.494628920,0.7)};
+  \node[anchor=north east,font=\footnotesize,text=InfMuted,align=right,
+    fill=white,inner sep=2pt] at (axis description cs:0.98,0.98)
+    {Observed mean: $4.495$\\Percentile CI: $[3.40,5.68]$};
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\InfPairedPlot}{%
+\begin{tikzpicture}\begin{axis}[inf axis,
+  xmin=-0.02,xmax=0.23,ymin=0,ymax=0.072,
+  xlabel={Bootstrap accuracy difference $\widehat a_A^*-\widehat a_B^*$},
+  ylabel={Bootstrap probability},xtick={0,0.04,0.1,0.16,0.2},
+  xticklabels={$0$,$0.04$,$0.10$,$0.16$,$0.20$},
+  ytick={0,0.02,0.04,0.06},scaled y ticks=false,
+  yticklabel={\pgfmathprintnumber[fixed,precision=2]{\tick}}]
+  \addplot[InfBlue,ycomb,line width=1.7pt]
+    table[x=difference,y=mass] {\InfDataPath/ch6-paired-accuracy.dat};
+  \addlegendentry{Paired bootstrap, $n=200$, $B=20\,000$}
+  \addplot[InfMuted,densely dotted,forget plot]
+    coordinates {(0,0) (0,0.068)};
+  \addplot[InfOrange,dashed,forget plot]
+    coordinates {(0.04,0) (0.04,0.068)};
+  \addplot[InfOrange,dashed,forget plot]
+    coordinates {(0.16,0) (0.16,0.068)};
+  \node[anchor=north east,font=\footnotesize,text=InfMuted,align=right,
+    fill=white,inner sep=2pt] at (axis description cs:0.98,0.98)
+    {Observed gap: $0.10$\\Percentile CI: $[0.04,0.16]$};
+\end{axis}\end{tikzpicture}%
+}

@@ -1,0 +1,3 @@
+.ipynb_checkpoints/
+# Keep the answer key local unless its publication is explicitly requested.
+homework-01-solutions.ipynb

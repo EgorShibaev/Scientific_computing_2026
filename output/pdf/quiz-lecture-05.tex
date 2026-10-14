@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=18mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,xcolor}
+\definecolor{Ink}{HTML}{16324F}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\newcommand{\question}[2]{\vspace{8pt}{\color{Ink}\bfseries #1. #2}\par}
+\newcommand{\choice}[2]{\par\textbf{#1.}\ #2\par}
+\begin{document}
+{\sffamily\color{Ink}\LARGE Quick quiz: Lecture 5}\par
+{\sffamily Scientific Computing 2026 \hfill 5 minutes \quad 5 points}
+\vspace{4pt}\hrule\vspace{7pt}
+Name: \rule{9cm}{0.4pt}\hfill Date: \rule{2.5cm}{0.4pt}
+
+Choose \textbf{one answer per question}. Each question is worth one point.
+No calculator is needed.
+
+\question{1}{Method of moments}
+Independent waiting times follow an exponential model with unknown rate
+$\lambda$. Their observed mean is $4$ minutes. Using
+$\mathbb E_\lambda[T]=1/\lambda$, what is the method-of-moments estimate
+of $\lambda$, in requests per minute?
+
+\textbf{A.}\ $4$\hfill\textbf{B.}\ $1/16$\hfill
+\textbf{C.}\ $1/4$\hfill\textbf{D.}\ $2$
+
+\question{2}{Gaussian maximum likelihood}
+Four independent Gaussian measurements have observed mean $\bar x=5$ and
+$\sum_{i=1}^{4}(x_i-\bar x)^2=12$.
+Both the population mean and variance are unknown.
+What is the maximum likelihood estimate of the \textbf{variance}?
+
+\textbf{A.}\ $3$\hfill\textbf{B.}\ $4$\hfill
+\textbf{C.}\ $\sqrt{3}$\hfill\textbf{D.}\ $12$
+
+\question{3}{Bias and mean squared error}
+For the same scalar parameter, estimator A has bias $0$ and variance $0.09$.
+Estimator B has bias $0.1$ and variance $0.04$.
+Which estimator has smaller mean squared error (MSE), and why?
+
+\choice{A}{A, because its MSE is $0.09$, whereas B's is $0.14$.}
+\choice{B}{A, because an unbiased estimator always has smaller MSE.}
+\choice{C}{B, because its MSE is $0.04$.}
+\choice{D}{B, because its MSE is $0.05$.}
+
+\question{4}{A probability model gives a training loss}
+Assume conditionally independent responses
+$Y_i\mid x_i\sim\mathcal N(f_w(x_i),\sigma^2)$, with a known, shared
+$\sigma^2>0$. Maximizing the conditional likelihood over $w$ is equivalent
+to minimizing which expression?
+
+\choice{A}{$\displaystyle\sum_i |y_i-f_w(x_i)|$.}
+\choice{B}{$\displaystyle\sum_i (y_i-f_w(x_i))^2$.}
+\choice{C}{$\displaystyle\sum_i (y_i-f_w(x_i))$.}
+\choice{D}{$\displaystyle\sum_i f_w(x_i)^2$.}
+
+\question{5}{MAP and a Gaussian prior}
+For an unknown mean $\mu$, the likelihood favors $\mu=2$, while a Gaussian
+prior favors $\mu=0$. The negative log-posterior, up to a constant, is
+\[
+  J(\mu)=\frac12(\mu-2)^2+\frac12\mu^2.
+\]
+What is the maximum a posteriori (MAP) estimate?
+
+\textbf{A.}\ $1$\hfill\textbf{B.}\ $0$\hfill
+\textbf{C.}\ $2$\hfill\textbf{D.}\ $4$
+\end{document}

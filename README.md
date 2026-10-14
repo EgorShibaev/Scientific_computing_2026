@@ -18,6 +18,10 @@ complete course structure and currently contains:
 - Lecture 5: statistical models and estimators; method of moments; maximum
   likelihood; Gaussian estimation; bias, MSE, consistency, and the variance
   correction; likelihood-based training losses; MAP and regularization.
+- Lecture 6: confidence-interval coverage and pivot inversion; Gaussian and
+  Student mean intervals; an exact exponential-rate interval; proportion
+  intervals; bootstrap standard errors and percentile intervals; paired model
+  comparisons; and the assumptions and limits of resampling.
 
 Lecture 2 develops each distribution from a concrete experiment, with worked
 examples, derivations, five original vector figures, and a distribution
@@ -57,6 +61,30 @@ contains editable LaTeX source and the section mapping. Build with
 conspect aligned, including the distinction between normalized posterior
 densities and relative likelihood curves.
 
+[Lecture 6 slides (PDF)](presentations/lecture-06/lecture-06.pdf) follow Chapter 6
+in the same LaTeX Beamer format. The [presentation folder](presentations/lecture-06/)
+contains the editable source and section mapping. Build with
+`make lecture-06-slides`. Five shared vector charts show repeated confidence
+intervals, Gaussian and Student references, proportion-interval coverage,
+bootstrap means, and paired accuracy differences.
+
+## Homework
+
+[Homework 1](homework/homework-01/) contains eight coding problems with
+theoretical derivations: four on Lectures 1 and 2, followed by four multivariate
+problems from the seminar team. Only basic Python is assumed: runnable
+mini-lessons introduce NumPy, plotting, and distribution functions as needed.
+The student notebook includes guided function scaffolds, supplied experiment
+templates, and per-task checks. Its folder contains the dependencies and
+instructions for running it locally.
+
+## Seminars and quizzes
+
+The [seminar problem sheets](seminars/) accompany the probability block.
+Seminar 1 has editable LaTeX source; rebuild it with `make seminar-01`.
+The [short quizzes](output/pdf/) contain five questions each for a five-minute
+check of Lectures 3--4 or Lecture 5.
+
 ## Build
 
 The repository uses [Tectonic](https://tectonic-typesetting.github.io/), which
@@ -88,6 +116,14 @@ the fixed-seed uniform-estimator experiment with:
 python3 scripts/generate_chapter5_figures.py
 ```
 
+Chapter 6's numerical tables include fixed-seed resampling experiments and
+exact binomial coverage calculations. Reproduce them using only the Python
+standard library:
+
+```bash
+python3 scripts/generate_chapter6_figures.py
+```
+
 ## Source layout
 
 - `main.tex` assembles the cumulative course document.
@@ -95,10 +131,6 @@ python3 scripts/generate_chapter5_figures.py
 - `frontmatter/course-structure.tex` records the full course plan.
 - `lectures/` contains one source file per lecture.
 - `figures/` contains the LaTeX/PGFPlots source for the figures, rebuilt with the document.
-- `figures/data/` contains reproducible numerical tables for Chapters 4 and 5.
+- `figures/data/` contains reproducible numerical tables for Chapters 4--6.
 - `scripts/` contains the generator for those tables.
 - `dist/` contains the current compiled PDF.
-
-The programme describes thirteen substantive lecture units but repeats the
-label `Slot 7`. The manuscript normalizes the sequence to Lectures 1--13 while
-preserving every listed unit.

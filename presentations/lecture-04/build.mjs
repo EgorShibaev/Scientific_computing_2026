@@ -154,7 +154,7 @@ function table(s, values, widths, y=230, rowHeight=78, size=28) {
   eq(s,'Sₙ² = [∑ᵢ₌₁ⁿ (Xᵢ − X̄ₙ)²] / (n − 1)',247,{size:48});
   body(s,'The denominator accounts for centering at the sample mean.\nWe derive the correction in the estimation chapter.',356,{size:30,h:90});
   eq(s,'Estimated SE(X̄ₙ) = Sₙ / √n       (n ≥ 2)',489,{size:44,color:C.blue});
-  body(s,'The interpretation still depends on the sampling assumptions.',605,{size:26,color:C.muted});
+  body(s,'Here the observations are i.i.d. with finite population variance.',605,{size:26,color:C.muted});
 }
 {
   const s=slide('The probability of a large error','4.2');

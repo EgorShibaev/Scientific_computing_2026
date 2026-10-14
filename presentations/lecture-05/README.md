@@ -2,7 +2,7 @@
 
 [Open the PDF slide deck](lecture-05.pdf).
 
-The 40-slide presentation follows Chapter 5 of the cumulative conspect in the
+The 39-slide presentation follows Chapter 5 of the cumulative conspect in the
 same 16:9 LaTeX Beamer format as Lectures 3 and 4. Definitions and key results
 appear in colored boxes, with derivations and examples outside them.
 
@@ -13,9 +13,9 @@ appear in colored boxes, with derivations and examples outside them.
 | 9–14 | 5.3 Likelihood, exponential MLE, and parameter-dependent support |
 | 15–16 | 5.4 Gaussian mean and variance estimation |
 | 17–22 | 5.5 Bias, MSE, variance correction, and consistency |
-| 23–28 | 5.6 Gaussian and Bernoulli likelihoods as training losses |
-| 29–39 | 5.7 MAP, Beta and Gaussian priors, and quadratic regularization |
-| 40 | Comparison of the three point-estimation rules |
+| 23–27 | 5.6 Gaussian and Bernoulli likelihoods as training losses |
+| 28–38 | 5.7 MAP, Beta and Gaussian priors, and quadratic regularization |
+| 39 | Comparison of the three point-estimation rules |
 
 Five shared vector charts show relative likelihoods, repeated-sample uniform
 endpoint estimates, the Gaussian variance-loss terms, a Beta update, and a

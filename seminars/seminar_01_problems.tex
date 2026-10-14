@@ -1,0 +1,148 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=30mm,headheight=14pt]{geometry}
+\usepackage{amsmath,amssymb,microtype}
+\usepackage{enumitem,fancyhdr,hyperref}
+\hypersetup{pdftitle={Scientific Computing 2026: Seminar 1}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist[enumerate]{label=(\alph*),leftmargin=1.8em,itemsep=4pt,topsep=5pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Seminar 1. Probability Models, Conditioning, and Random Variables}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\problem}[2]{\par\addvspace{6pt}\textbf{Problem #1} (#2). }
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\centering
+\vspace*{12mm}
+{\Huge Scientific Computing\par}
+\vspace{5mm}
+{\large Mathematical Foundations for Machine Learning\par}
+\vspace{24mm}
+{\LARGE Seminar 1: Problem Set\par}
+\vspace{4mm}
+{\large Probability Models, Conditioning, and Random Variables\par}
+\vspace{12mm}
+{\large Block I, following Lecture 1\par}
+\vfill
+{\large 2026\par}
+\end{titlepage}
+\setcounter{page}{1}
+\hypersetup{pageanchor=true}
+
+\problem{1}{The Monty Hall protocol}
+Three doors. Behind one of them is an internship in a decent laboratory;
+behind the other two, goats. The prize door is uniform over the three doors,
+independently of your initial choice. You point at a door. The host, who
+knows what is behind each door, opens an unchosen door hiding a goat and
+offers you the chance to switch. If both unchosen doors hide goats, he
+chooses between them with equal probabilities. Write \(c\) for the prize
+door, \(g\) for your initial guess, and \(h\) for the door the host opened.
+\begin{enumerate}
+\item Construct a probabilistic model of the experiment.
+\item Assume you guessed door 1. Compute \(\Prob(c=1\mid h=3)\) and
+\(\Prob(c=2\mid h=3)\) directly from the definition of conditional
+probability. Should you switch?
+\item Identify the exact place in your computation where the assumption
+that the host knows the answer is used.
+\end{enumerate}
+\textbf{Remark.} This is the question put to a student in the film
+\emph{21} (2008); answering it correctly earns him a seat on a card-counting
+team. Evidence that a conditional probability exercise occasionally changes a life.
+
+\problem{2}{Monty Fall}
+The same three doors, but this time the host does not know what is behind
+them. He trips, and in falling pushes open one of the two doors you did
+not choose, each with probability \(1/2\), independently of the prize.
+It happens to reveal a goat. He offers you the chance to switch.
+\begin{enumerate}
+\item Compute the probability that the prize is behind your original door,
+given that a goat was revealed. Should you switch?
+\item You see exactly what you saw in Problem 1: your door closed, one
+other door open, a goat behind it. Explain why the answer is nevertheless different.
+\item Which single quantity in the model of Problem 1 has changed?
+\end{enumerate}
+
+\problem{3}{A detector with 95\% sensitivity}
+Consider a university that runs submitted essays through an AI-text
+detector. Assume the detector has the following class-conditional probabilities:
+\[
+\Prob(\text{flag}\mid\text{AI})=0.95,\qquad
+\Prob(\text{flag}\mid\text{human})=0.05.
+\]
+Assume one essay in twenty is AI-generated, so \(\Prob(\text{AI})=0.05\).
+Your essay has been flagged.
+\begin{enumerate}
+\item Compute \(\Prob(\text{AI}\mid\text{flag})\).
+\item How large would the base rate \(\Prob(\text{AI})\) have to be for
+a single flag to give a posterior probability above \(0.9\)?
+\end{enumerate}
+
+\problem{4}{Two detectors, and the odds form of Bayes' rule}
+The university adds a second detector with the same two characteristics,
+and both detectors flag your essay. Write \(H\) for the hypothesis
+``AI-generated'', \(H^c\) for its complement, and \(E_1,\ldots,E_n\) for
+the events that detectors \(1,\ldots,n\) raise a flag. Assume that the
+flags are mutually conditionally independent given each class.
+\begin{enumerate}
+\item Compute \(\Prob(H\mid E_1\cap E_2)\) directly from Bayes' theorem.
+\item Define the posterior odds and prior odds
+\[
+\mathcal O(H\mid E)=\frac{\Prob(H\mid E)}{\Prob(H^c\mid E)},
+\qquad \mathcal O(H)=\frac{\Prob(H)}{\Prob(H^c)},
+\]
+and the likelihood ratio of a single flag,
+\(\mathrm{LR}=\Prob(E_i\mid H)/\Prob(E_i\mid H^c)\).
+Write Bayes' theorem for \(H\) and \(H^c\), take the ratio, and cancel
+the common normalizing denominator. Using conditional independence in
+both classes, deduce that for \(n\) detectors with identical characteristics
+\[
+\mathcal O(H\mid E_1\cap\cdots\cap E_n)
+=\mathrm{LR}^{n}\,\mathcal O(H).
+\]
+Convert back with \(P=\mathcal O/(1+\mathcal O)\), check that \(n=2\)
+reproduces part (a), and find the smallest \(n\) for which the posterior
+probability exceeds \(0.99\).
+\end{enumerate}
+\textbf{Remark (Dependent flags).} Without conditional independence,
+replace \(\mathrm{LR}^{n}\) by the actual joint likelihood ratio
+\[
+\frac{\Prob(E_1\cap\cdots\cap E_n\mid H)}
+     {\Prob(E_1\cap\cdots\cap E_n\mid H^c)}.
+\]
+Dependence alone does not tell us whether this ratio is above or below
+the product of the individual ratios: the joint probabilities in both
+classes determine it. If the second detector always copies the first,
+then \(E_2=E_1\), and two flags give exactly the same posterior as one.
+Multiplying the two likelihood ratios would count the same evidence twice.
+
+\problem{5}{The best of several runs}
+A random search launches two independent training runs. Their qualities
+\(R_1,R_2\) are uniform on \(\{1,2,\ldots,6\}\) on a fixed scale.
+You keep the better of the two: \(X=\max(R_1,R_2)\).
+\begin{enumerate}
+\item Find the CDF \(F_X(k)\) for \(k=1,\ldots,6\) before attempting
+the PMF, and explain why the CDF is easier to calculate here.
+\item Recover the PMF using \(p_X(k)=F_X(k)-F_X(k^-)\).
+\item Compute \(\Prob(X\ge5)\).
+\item Generalize to \(n\) independent runs. How large must \(n\) be for
+\(\Prob(X=6)>0.9\)?
+\end{enumerate}
+
+\problem{6}{Densities and inverse-CDF sampling}
+\begin{enumerate}
+\item Let \(f_Y(y)=10\) for \(y\in[0,0.1]\), and zero otherwise.
+Verify that \(f_Y\) is a density and compute \(\Prob(Y=0.05)\).
+\item Let \(f_X(x)=2x\) on \([0,1]\), and zero elsewhere. Find \(F_X\)
+and its inverse \(F_X^{-1}\) on \([0,1]\).
+\item Let \(U\sim\operatorname{Uniform}(0,1)\). Show that
+\(X=F_X^{-1}(U)\) has CDF \(F_X\). Begin with \(\Prob(X\le x)\).
+\item Write down the same construction for the exponential distribution
+with \(F(x)=1-e^{-\lambda x}\), \(x\ge0\).
+\end{enumerate}
+\end{document}
