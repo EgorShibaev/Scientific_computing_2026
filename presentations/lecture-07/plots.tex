@@ -1,0 +1,53 @@
+% Slide-specific additions. Shared conspect figures remain unchanged.
+\usepgfplotslibrary{groupplots}
+
+\newcommand{\LectureMeanSensitivityPlot}{%
+\begin{tikzpicture}
+\begin{groupplot}[
+  group style={group size=2 by 1,horizontal sep=1.2cm},
+  info axis,width=5.25cm,height=2.8cm,
+  xmin=-4,xmax=4,xlabel={Measurement $x$},
+  xtick={-4,-2,0,2,4},scaled ticks=false,
+  title style={font=\normalsize,yshift=2pt},
+  legend style={font=\footnotesize,at={(0.5,1.22)},
+    anchor=south,legend columns=2,column sep=0.2em},
+  domain=-4:4,samples=241]
+  \nextgroupplot[title={Noise $\sigma=2$},ymin=0,ymax=0.23,
+    ylabel={Density},ytick={0,0.1,0.2}]
+  \addplot[InfoBlue] {exp(-x^2/8)/(2*sqrt(2*pi))};
+  \addlegendentry{$\mu=0$}
+  \addplot[InfoOrange,dashed] {exp(-(x-0.5)^2/8)/(2*sqrt(2*pi))};
+  \addlegendentry{$\mu=0.5$}
+  \nextgroupplot[title={Noise $\sigma=0.5$},ymin=0,ymax=0.9,
+    ytick={0,0.4,0.8}]
+  \addplot[InfoBlue] {exp(-x^2/0.5)/(0.5*sqrt(2*pi))};
+  \addlegendentry{$\mu=0$}
+  \addplot[InfoOrange,dashed] {exp(-(x-0.5)^2/0.5)/(0.5*sqrt(2*pi))};
+  \addlegendentry{$\mu=0.5$}
+\end{groupplot}
+\end{tikzpicture}%
+}
+
+\newcommand{\LectureLikelihoodInformationPlot}{%
+\begin{tikzpicture}\begin{axis}[info axis,
+  width=12cm,height=3.1cm,xmin=-2,xmax=2,ymin=0,ymax=1.04,
+  xlabel={Candidate mean minus fitted mean $\mu-\bar x$},
+  ylabel={Relative likelihood $L(\mu)/L(\bar x)$},
+  xtick={-2,-1,0,1,2},ytick={0,0.25,0.60653066,1},
+  yticklabels={$0$,$0.25$,$e^{-1/2}$,$1$}]
+  \addplot[InfoOrange] table[x=offset,y=n5] {\InfoDataPath/ch7-likelihood.dat};
+  \addlegendentry{$n=5,\ I_n=1.25$}
+  \addplot[InfoBlue,dashed] table[x=offset,y=n20] {\InfoDataPath/ch7-likelihood.dat};
+  \addlegendentry{$n=20,\ I_n=5$}
+  \addplot[InfoTeal] table[x=offset,y=n80] {\InfoDataPath/ch7-likelihood.dat};
+  \addlegendentry{$n=80,\ I_n=20$}
+  \addplot[InfoMuted,densely dotted,forget plot]
+    coordinates {(-2,0.60653066) (2,0.60653066)};
+  \addplot[InfoOrange,only marks,mark=*,mark size=2pt,forget plot]
+    coordinates {(0.89442719,0.60653066)};
+  \addplot[InfoBlue,only marks,mark=*,mark size=2pt,forget plot]
+    coordinates {(0.44721360,0.60653066)};
+  \addplot[InfoTeal,only marks,mark=*,mark size=2pt,forget plot]
+    coordinates {(0.22360680,0.60653066)};
+\end{axis}\end{tikzpicture}%
+}

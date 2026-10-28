@@ -1,0 +1,859 @@
+\chapter{Entropy, KL Divergence, and Fisher Information}
+\chaptermark{Entropy and Fisher Information}
+\label{chap:information}
+
+\begingroup
+\clubpenalty=10000
+\widowpenalty=10000
+\input{figures/ch7-plots}
+
+% Mathematical background checked against Goodfellow et al., Deep Learning,
+% Chapter 3, and Stanford STATS 200 (2016), Lectures 14--15.
+% Examples, numerical tables, and figures are generated in this repository.
+
+\section{Surprise and entropy}
+\label{sec:entropy}
+
+Suppose a population has two labels, with probabilities
+\(\Prob(Y=1)=0.8\) and \(\Prob(Y=0)=0.2\).
+Before seeing the next label, we expect \(1\). Seeing \(0\) is less
+likely and tells us more than another \(1\). We want a numerical measure
+of that difference.
+
+Multiplying probabilities should add information. For example, two
+independent outcomes of probability \(1/2\) have joint probability
+\(1/4\). The function \(-\log p\) has exactly this property:
+\[
+  -\log(p_1p_2)=-\log p_1-\log p_2.
+\]
+It is zero for an outcome certain to occur and grows as the outcome
+becomes less likely.
+
+\begin{definition}[Surprisal]
+If an observed outcome has probability \(p>0\), its surprisal is
+\(-\log p\). Throughout this chapter \(\log\) is the natural logarithm,
+so information is measured in \emph{nats}.
+\end{definition}
+
+For our binary example, the surprisals are
+\[
+  -\log0.8\approx0.2231,\qquad -\log0.2\approx1.6094.
+\]
+The rarer label has greater surprisal. To describe the uncertainty
+before the label is observed, average these values using the actual
+label probabilities.
+
+\begin{definition}[Entropy of a finite distribution]
+Let \(P\) assign probabilities \(p_1,\ldots,p_K\) to \(K\) labels.
+Its entropy is the expected surprisal:
+\begin{equation}
+  H(P)=\Expect_{Y\sim P}[-\log p_Y]
+      =-\sum_{k=1}^{K}p_k\log p_k.
+  \label{eq:entropy}
+\end{equation}
+A term with \(p_k=0\) is defined to be zero, using
+\(\lim_{p\downarrow0}p\log p=0\).
+\end{definition}
+
+Thus \(H(P)=-0.8\log0.8-0.2\log0.2\approx0.5004\) nats.
+This is an average over repeated draws, not the surprisal of every draw.
+If one label has probability one, the entropy is zero: there is no
+uncertainty about the next label.
+
+Write \(P_p\) for the Bernoulli distribution with success probability \(p\).
+Then
+\[
+  H(P_p)=-p\log p-(1-p)\log(1-p).
+\]
+For \(0<p<1\), differentiating gives
+\[
+  \frac{d}{dp}H(P_p)=\log\frac{1-p}{p},\qquad
+  \frac{d^2}{dp^2}H(P_p)=-\frac1{p(1-p)}<0.
+\]
+The first derivative vanishes at \(p=1/2\), so the largest entropy is
+\(\log2\). A balanced binary outcome is harder to predict than an outcome
+that is almost always the same.
+
+\begin{figure}[H]
+  \centering\InfoEntropyPlot
+  \caption{Bernoulli entropy. The maximum occurs at \(p=1/2\).
+  The second marked point is \(p=0.8\), where \(H(P_p)\approx0.5004\).
+  Both deterministic endpoints have entropy zero.}
+  \label{fig:binary-entropy}
+\end{figure}
+
+Changing the logarithm base changes only the unit. Dividing entropy in
+nats by \(\log2\) gives entropy in bits. We keep nats so that the formulas
+use the same logarithm as the likelihood calculations in Chapter~\ref{chap:estimation}.
+
+\section{Cross-entropy and KL divergence}
+\label{sec:cross-entropy-kl}
+
+Suppose the actual label distribution is \(P=(p_1,\ldots,p_K)\), but a
+predictor reports \(Q=(q_1,\ldots,q_K)\) for the same labels.
+When label \(k\) occurs, its log loss is \(-\log q_k\).
+We average using \(P\), because \(P\) describes which labels actually occur.
+
+\begin{definition}[Cross-entropy]
+The cross-entropy of \(P\) relative to predictions \(Q\) is
+\begin{equation}
+  \operatorname{CE}(P,Q)=-\sum_{k=1}^Kp_k\log q_k.
+  \label{eq:cross-entropy}
+\end{equation}
+Terms with \(p_k=0\) contribute zero. If \(p_k>0\) but \(q_k=0\),
+the cross-entropy is infinite: a possible outcome was declared impossible.
+\end{definition}
+
+For the population with success probability \(0.8\), a predictor assigning
+success probability \(q\) has expected loss
+\[
+  \operatorname{CE}(P_{0.8},P_q)
+  =-0.8\log q-0.2\log(1-q).
+\]
+\Needspace{8\baselineskip}
+The following values compare predictions for the same population:
+\begin{center}
+  \begin{tabular}{@{}rrr@{}}
+    \toprule
+    Predicted \(q\) & Cross-entropy & Excess over \(H(P_{0.8})\)\\
+    \midrule
+    \(0.50\) & \(0.6931\) & \(0.1927\)\\
+    \(0.60\) & \(0.5919\) & \(0.0915\)\\
+    \(0.80\) & \(0.5004\) & \(0\)\\
+    \(0.99\) & \(0.9291\) & \(0.4287\)\\
+    \bottomrule
+  \end{tabular}
+\end{center}
+Predicting \(0.99\) gives a small loss on the frequent successes but a
+large loss on the failures. On average it is worse than predicting \(0.5\).
+The best value is \(q=0.8\); even there, the expected loss is not zero
+because individual labels remain random.
+
+\begin{definition}[Kullback--Leibler divergence]
+For distributions on the same finite set,
+\begin{equation}
+  D_{\mathrm{KL}}(P\Vert Q)
+  =\sum_{k:p_k>0}p_k\log\frac{p_k}{q_k}.
+  \label{eq:kl}
+\end{equation}
+The value is infinite if \(q_k=0\) for any \(k\) with \(p_k>0\).
+Subtracting the entropy formula from the cross-entropy formula gives
+\begin{equation}
+  \operatorname{CE}(P,Q)=H(P)+D_{\mathrm{KL}}(P\Vert Q).
+  \label{eq:ce-entropy-kl}
+\end{equation}
+\end{definition}
+
+The direction matters: the expectation in \(D_{\mathrm{KL}}(P\Vert Q)\)
+is over outcomes drawn from \(P\). Here KL measures the extra expected
+log loss caused by using \(Q\) in place of the actual distribution.
+
+\begin{result}[Nonnegativity]
+\(D_{\mathrm{KL}}(P\Vert Q)\ge0\), with equality exactly when \(P=Q\).
+Consequently, \(\operatorname{CE}(P,Q)\ge H(P)\).
+\end{result}
+
+\begin{proof}
+If the divergence is infinite, the inequality holds. For \(u>0\), the
+function \(u-1-\log u\) has derivative \(1-1/u\), so its minimum is zero
+at \(u=1\). Thus \(-\log u\ge1-u\). Apply this to
+\(u=q_k/p_k\) for every \(p_k>0\):
+\[
+  D_{\mathrm{KL}}(P\Vert Q)
+  \ge\sum_{k:p_k>0}(p_k-q_k)
+  =1-\sum_{k:p_k>0}q_k\ge0.
+\]
+The scalar inequality is an equality only at \(u=1\).
+Equality therefore requires \(q_k=p_k\) on the support of \(P\);
+normalization then leaves no mass for any other label.
+\end{proof}
+
+KL is not a distance. For example,
+\[
+  D_{\mathrm{KL}}(P_{0.8}\Vert P_{0.5})\approx0.1927,\qquad
+  D_{\mathrm{KL}}(P_{0.5}\Vert P_{0.8})\approx0.2231.
+\]
+It is not symmetric and does not generally satisfy the triangle inequality.
+When writing a KL penalty, we must specify its direction.
+
+\begin{figure}[H]
+  \centering\InfoCrossEntropyPlot
+  \caption{The population probability stays \(0.8\), while the prediction
+  \(q\) changes. The vertical gap between cross-entropy and the constant
+  entropy is KL. Both cross-entropy and KL are minimized at \(q=0.8\).}
+  \label{fig:cross-entropy-kl}
+\end{figure}
+
+The same result identifies the maximum categorical entropy. If \(U\)
+is uniform on \(K\) labels, then
+\[
+  D_{\mathrm{KL}}(P\Vert U)=\log K-H(P)\ge0.
+\]
+Hence \(0\le H(P)\le\log K\), with the upper bound attained only by the
+uniform distribution.
+
+\section{Connections to learning}
+\label{sec:information-learning}
+
+\subsection{Likelihood and empirical cross-entropy}
+
+Chapter~\ref{chap:estimation} derived log loss from likelihood.
+We can now give that loss an interpretation. Suppose \(y_1,\ldots,y_n\)
+are independent observations taking values in \(K\) labels, and a model
+assigns probability \(q_\theta(k)\) to label \(k\). Let \(n_k\) be the
+number of occurrences of label \(k\), and set \(\widehat p_k=n_k/n\).
+Then
+\begin{equation}
+  -\frac1n\log L(\theta)
+  =-\frac1n\sum_{i=1}^n\log q_\theta(y_i)
+  =-\sum_{k=1}^K\widehat p_k\log q_\theta(k)
+  =\operatorname{CE}(\widehat P,Q_\theta).
+  \label{eq:mle-empirical-ce}
+\end{equation}
+The empirical distribution \(\widehat P\) is the one introduced in
+Section~\ref{sec:bootstrap}. Its entropy is fixed once the data are fixed.
+Therefore maximum likelihood minimizes
+\(D_{\mathrm{KL}}(\widehat P\Vert Q_\theta)\) in this finite-label setting.
+This does not claim that the fitted model equals the population distribution:
+the empirical frequencies are noisy, and the model may impose restrictions.
+
+For a classifier, predictions depend on input \(x\). Write \(q_\theta(k\mid x)\)
+for its predicted probability of label \(k\).
+For an observed pair \((x_i,y_i)\), define the \emph{one-hot} target by
+\(t_{ik}=1\) if \(k=y_i\), and \(t_{ik}=0\) otherwise. Its cross-entropy is
+\[
+  -\sum_{k=1}^K t_{ik}\log q_\theta(k\mid x_i)
+  =-\log q_\theta(y_i\mid x_i).
+\]
+Averaging over examples gives the multiclass negative log-likelihood.
+For two labels, this is the binary log loss already derived in
+Section~\ref{sec:likelihood-loss}.
+
+The population expected loss also separates into entropy and KL for each
+input, using the true conditional label distribution \(P(\,\cdot\mid x)\).
+An individual one-hot target does not mean that this true conditional
+distribution is deterministic.
+
+\subsection{Sequences and soft targets}
+
+A language model assigns a conditional distribution to the next token.
+For a sequence \(w_1,\ldots,w_m\), the chain rule from
+Chapter~\ref{chap:probability-models} gives
+\[
+  Q_\theta(w_1,\ldots,w_m)
+  =\prod_{t=1}^m q_\theta(w_t\mid w_1,\ldots,w_{t-1}).
+\]
+At \(t=1\), the condition is empty. The average negative log-likelihood is
+\[
+  -\frac1m\sum_{t=1}^m
+    \log q_\theta(w_t\mid w_1,\ldots,w_{t-1}).
+\]
+For three observed tokens given conditional probabilities
+\(0.5,0.25,0.1\), the sequence probability is \(0.0125\), and the
+average loss is \(-\log(0.0125)/3\approx1.4607\) nats per token.
+The product follows from conditioning; the tokens need not be independent.
+
+Targets can also be probability vectors. In \emph{distillation}, a
+teacher model supplies probabilities \(P\), and a student supplies \(Q\)
+for the same input. Minimizing \(\operatorname{CE}(P,Q)\) matches all
+teacher probabilities, not just the most likely label. For example,
+\[
+  P=(0.7,0.2,0.1),\qquad Q=(0.6,0.25,0.15)
+\]
+give \(H(P)\approx0.8018\), \(\operatorname{CE}(P,Q)\approx0.8245\),
+and \(D_{\mathrm{KL}}(P\Vert Q)\approx0.0227\).
+The teacher entropy is constant with respect to the student parameters,
+so minimizing this cross-entropy is equivalent to minimizing this KL.
+
+\subsection{KL penalties and approximate posteriors}
+
+A KL penalty can discourage a model from moving far from a reference
+distribution. For example, consider
+\[
+  \mathcal L_{\mathrm{train}}(\theta)
+  +\beta D_{\mathrm{KL}}(Q_\theta\Vert Q_{\mathrm{ref}}),
+  \qquad \beta\ge0.
+\]
+Here \(\mathcal L_{\mathrm{train}}\) is the training loss,
+\(Q_\theta\) is the model's output distribution on a specified input,
+and \(Q_{\mathrm{ref}}\) is a fixed reference on the same labels.
+The coefficient \(\beta\) sets the penalty strength. For many inputs,
+one can average the penalty over inputs. The direction written here
+penalizes probabilities used by \(Q_\theta\) that are small under the
+reference. This is an output-distribution penalty; the MAP penalty in
+Section~\ref{sec:map-estimation} instead came from a prior on parameters.
+
+KL also gives a way to approximate a posterior. Consider a finite unknown
+state \(Z\), observed data \(x\), and a joint model \(p(x,z)\).
+Suppose the posterior \(P(z\mid x)=p(x,z)/p(x)\) is difficult to compute.
+Choose a simpler candidate \(Q\) with probabilities \(q(z)\), supported
+where \(p(x,z)>0\). Bayes' formula gives
+\begin{align}
+  D_{\mathrm{KL}}(Q\Vert P(\,\cdot\mid x))
+  &=\sum_z q(z)\bigl[\log q(z)-\log p(x,z)\bigr]+\log p(x).
+  \label{eq:variational-kl}
+\end{align}
+The evidence \(p(x)\) does not depend on the choice of \(Q\).
+We can therefore search for the best approximation in the chosen family by
+minimizing the sum in~\eqref{eq:variational-kl}, without knowing \(p(x)\).
+This is the basic idea of \emph{variational inference}. It does not
+guarantee that the chosen family contains the true posterior.
+
+\subsection{Confidence is not correctness}
+
+The entropy of a model's predicted distribution measures how concentrated
+its own predictions are. For a prediction \(q=0.99\),
+\[
+  H(P_{0.99})\approx0.0560,
+  \qquad -\log(1-0.99)\approx4.6052.
+\]
+The entropy is small, but if the observed label is zero, the log loss is
+large. Predictive entropy alone does not establish accuracy or calibration.
+This differs from the population cross-entropy, which averages prediction
+losses using the distribution of the actual outcomes.
+
+\subsection{A caution for continuous models}
+
+For densities \(f\) and \(g\), the corresponding KL formula is
+\[
+  D_{\mathrm{KL}}(f\Vert g)
+  =\int f(x)\log\frac{f(x)}{g(x)}\,dx,
+\]
+with the same support requirement and nonnegativity.
+When the integrals are finite, the identity with cross-entropy remains
+valid if entropy is replaced by \(-\int f\log f\), called
+\emph{differential entropy}. This quantity can be negative and changes
+under a change of measurement units. A density is not a point probability.
+
+In particular, the empirical distribution of finitely many real-valued
+observations places positive mass at individual sample points; a
+continuous model places zero probability at each such point.
+The KL from that atomic empirical distribution to the continuous model
+is infinite. Identity~\eqref{eq:mle-empirical-ce} therefore applies to
+finite labels. For continuous MLE, use the density likelihood from
+Chapter~\ref{chap:estimation}.
+
+\section{Score and Fisher information}
+\label{sec:fisher-information}
+
+Entropy describes uncertainty about an outcome. We now ask how precisely
+the data determine an unknown parameter. Start with the likelihood peak
+from Chapter~\ref{chap:estimation}: a broad peak leaves many nearby
+parameter values with similar likelihood, while a narrow peak favors
+a smaller range of values.
+
+\subsection{Observed information at a fitted maximum}
+\label{sec:observed-information}
+
+Let \(\theta\) be a scalar parameter, and let \(f_\theta\) be the
+observation PMF or density. For recorded independent observations
+\(x_1,\ldots,x_n\), write
+\[
+  \ell_n(\theta)=\log L(\theta)
+     =\sum_{i=1}^n\log f_\theta(x_i),\qquad
+  S_n(\theta)=\ell_n'(\theta).
+\]
+The derivative \(S_n\) is the \emph{sample score}.
+At a differentiable interior MLE \(\widehat\theta\),
+\(S_n(\widehat\theta)=0\). A flat peak and a sharp peak both have zero
+slope at their maximum. The second derivative distinguishes them.
+
+\begin{definition}[Observed information]
+For a twice differentiable log-likelihood, the observed information is
+\begin{equation}
+  J_n(\theta)=-\ell_n''(\theta).
+  \label{eq:observed-information}
+\end{equation}
+It measures the downward curvature for the particular recorded dataset.
+At an interior maximum \(J_n(\widehat\theta)\ge0\); away from a maximum,
+observed information need not be nonnegative.
+\end{definition}
+
+Let \(\delta\) be a small displacement from the fitted parameter.
+Since the linear term vanishes at the MLE, a quadratic approximation gives
+\begin{result}[Likelihood drop near an interior MLE]
+If the log-likelihood is well approximated by a quadratic near
+\(\widehat\theta\), with \(J_n(\widehat\theta)>0\), then
+\begin{align}
+  \ell_n(\widehat\theta+\delta)-\ell_n(\widehat\theta)
+     &\approx-\tfrac12 J_n(\widehat\theta)\delta^2,
+       \label{eq:observed-log-drop}\\
+  \frac{L(\widehat\theta+\delta)}{L(\widehat\theta)}
+     &\approx\exp[-\tfrac12 J_n(\widehat\theta)\delta^2].
+       \label{eq:observed-relative-likelihood}
+\end{align}
+\end{result}
+
+For the same displacement \(\delta=0.1\), curvature \(100\) gives a
+relative likelihood of approximately \(e^{-0.5}=0.607\), while
+curvature \(4\) gives \(e^{-0.02}=0.980\). The first likelihood loses
+much more of its height over the same parameter change.
+At distance \(1/\sqrt{J_n(\widehat\theta)}\), the approximation drops
+to \(e^{-1/2}\approx0.607\) of its maximum.
+This is a local description of the fitted peak. Boundary MLEs need
+separate treatment because their score need not vanish.
+
+\subsection{Fisher information averages over possible samples}
+
+Before collecting data, we do not know which likelihood peak we will
+obtain. Keep a parameter value \(\theta\) fixed, repeatedly draw samples
+from that model, and evaluate each sample's observed information at
+the same \(\theta\). The average curvature is Fisher information.
+
+\begin{definition}[Fisher information]
+For a regular model satisfying the conditions below, the Fisher
+information about \(\theta\) in a sample of size \(n\) is
+\begin{equation}
+  I_n(\theta)=\Expect_\theta[J_n(\theta)],
+  \label{eq:fisher-expected}
+\end{equation}
+when this expectation exists. The expectation draws new samples under
+\(\theta\); the parameter at which the curvature is evaluated stays fixed.
+\end{definition}
+
+Thus \(J_n\) describes the observed dataset, whereas \(I_n\) describes
+the curvature expected under the model and sampling design.
+For one observation this definition reads
+\begin{equation}
+  I_1(\theta)
+     =-\Expect_\theta[\partial_\theta^2\log f_\theta(X)].
+  \label{eq:fisher-curvature}
+\end{equation}
+The expectation in~\eqref{eq:fisher-expected} is not taken at a new
+fitted maximum for each dataset. Refitting each time would be a
+different calculation. We can evaluate the resulting model function
+\(I_n(\theta)\) at \(\widehat\theta\) after obtaining an estimate.
+
+\subsection{The equivalent squared-score formula}
+
+To connect expected curvature to scores, assume an interior parameter
+value, a common support not depending on \(\theta\), positive
+\(f_\theta\) on that support, and differentiability allowing the
+derivatives below to pass through the integral or sum. Assume also a
+finite score second moment. These conditions exclude the moving
+support of the uniform-endpoint model in Chapter~\ref{chap:estimation}.
+
+\begin{definition}[Score of one observation]
+The one-observation score is
+\begin{equation}
+  s_\theta(x)=\frac{\partial}{\partial\theta}\log f_\theta(x).
+  \label{eq:score}
+\end{equation}
+A positive score means that a small increase in \(\theta\) increases
+the log-likelihood of this observation.
+\end{definition}
+
+Normalization gives
+\begin{equation}
+  \Expect_\theta[s_\theta(X)]
+  =\int\frac{\partial_\theta f_\theta(x)}{f_\theta(x)}
+           f_\theta(x)\,dx
+  =\frac{\partial}{\partial\theta}\int f_\theta(x)\,dx=0.
+  \label{eq:score-mean}
+\end{equation}
+For a discrete model, use sums. Differentiating \(\log f_\theta\)
+once more gives
+\[
+  \partial_\theta^2\log f_\theta
+   =\frac{\partial_\theta^2 f_\theta}{f_\theta}
+    -s_\theta^2.
+\]
+Multiply by \(f_\theta\) and integrate. The first term integrates to
+the second derivative of \(1\), which is zero.
+
+\begin{result}[Expected squared score and expected curvature]
+Under the stated regularity conditions,
+\begin{equation}
+  I_1(\theta)=\Expect_\theta[s_\theta(X)^2]
+            =\Var_\theta(s_\theta(X)).
+  \label{eq:fisher}
+\end{equation}
+The variance equality uses the zero expected score in
+\eqref{eq:score-mean}.
+\end{result}
+
+Squaring prevents positive and negative scores from cancelling.
+For a small parameter change \(\delta\),
+\(\log f_{\theta+\delta}(x)-\log f_\theta(x)
+\approx\delta s_\theta(x)\). The squared-score expression measures
+this sensitivity across possible observations.
+The recorded sample score being zero at the MLE does not make Fisher
+information zero: the expectation uses fresh samples at a fixed
+parameter, whose scores vary.
+
+For a Gaussian observation with known \(\sigma^2\),
+\[
+  s_\mu(x)=\frac{x-\mu}{\sigma^2},\qquad
+  I_1(\mu)=\frac{\Expect_\mu[(X-\mu)^2]}{\sigma^4}
+          =\frac1{\sigma^2}.
+\]
+A reading above \(\mu\) pushes toward a larger mean, and a reading below
+it pushes toward a smaller mean. More observation noise gives less
+information about the same mean.
+
+\begin{result}[Independent observations add information]
+For \(n\) i.i.d. observations,
+\begin{equation}
+  S_n(\theta)=\sum_{i=1}^n s_\theta(X_i),\qquad
+  I_n(\theta)=\Expect_\theta[S_n(\theta)^2]=nI_1(\theta).
+  \label{eq:fisher-additivity}
+\end{equation}
+\end{result}
+
+The scores are independent and have mean zero, so their sum has variance
+equal to the sum of their variances. Equivalently, the sample
+log-likelihood is a sum, so its expected negative curvature adds.
+With dependent observations, the score covariance terms need not vanish.
+
+\subsection{When observed and expected information coincide}
+
+For independent Gaussian measurements with known variance, completing
+the square as in Section~\ref{sec:gaussian-estimation} gives
+\[
+  \widehat\mu=\bar x,\qquad
+  \ell_n(\mu)=C-\frac{n}{2\sigma^2}(\mu-\bar x)^2,
+\]
+where \(C\) does not depend on the candidate mean \(\mu\).
+The curvature is the same for every possible dataset:
+\begin{equation}
+  J_n(\mu)=-\ell_n''(\mu)=\frac{n}{\sigma^2}
+         =I_n(\mu).
+  \label{eq:gaussian-observed-expected}
+\end{equation}
+Consequently, the quadratic likelihood-drop formula is exact:
+\[
+  \frac{L(\bar x+\delta)}{L(\bar x)}
+     =\exp\!\left[-\frac12 I_n(\mu)\delta^2\right].
+\]
+The equality of \(J_n\) and \(I_n\) here uses the known-variance
+Gaussian mean model; it is not a general identity for every model.
+
+\begin{figure}[H]
+  \centering\InfoLikelihoodPlot
+  \caption{Gaussian relative likelihoods with known \(\sigma=2\),
+  centered at each sample's fitted mean. Here \(J_n=I_n=n/4\):
+  the three curvatures are \(1.25,\ 5,\ 20\).
+  The distance to relative height \(e^{-1/2}\) is \(1/\sqrt{I_n}\),
+  so larger information means a narrower peak. These curves compare
+  candidate means; their areas are not posterior probabilities.}
+  \label{fig:information-likelihood}
+\end{figure}
+
+\subsection{Bernoulli information}
+
+Now treat the population success probability \(p\) as unknown,
+with \(0<p<1\). For \(Y\sim\operatorname{Bernoulli}(p)\),
+\[
+  \log f_p(y)=y\log p+(1-y)\log(1-p),
+  \qquad
+  s_p(y)=\frac y p-\frac{1-y}{1-p}
+        =\frac{y-p}{p(1-p)}.
+\]
+At \(p=0.8\), a success gives score \(1.25\), while a failure gives
+score \(-5\). Their weighted average is
+\(0.8(1.25)+0.2(-5)=0\).
+Using the Bernoulli variance already established in Chapter~2,
+\begin{equation}
+  I_1(p)=\frac{\Expect_p[(Y-p)^2]}{p^2(1-p)^2}
+        =\frac1{p(1-p)},\qquad
+  I_n(p)=\frac n{p(1-p)}.
+  \label{eq:bernoulli-fisher}
+\end{equation}
+
+Observed information can differ from this expectation. Let
+\(K=\sum_{i=1}^nY_i\) be the success count. Differentiating the sample
+log-likelihood twice gives
+\begin{equation}
+  J_n(p)=\frac{K}{p^2}+\frac{n-K}{(1-p)^2}.
+  \label{eq:bernoulli-observed}
+\end{equation}
+Unlike \(I_n(p)\), this quantity depends on which dataset was observed.
+For example, evaluate two samples of size \(10\) at the same fixed
+candidate probability \(p=0.8\):
+\begin{center}
+\begin{tabular}{@{}rrr@{}}
+\toprule
+Observed successes & \(J_{10}(0.8)\) & \(I_{10}(0.8)\)\\
+\midrule
+\(7\) & \(85.9375\) & \(62.5\)\\
+\(9\) & \(39.0625\) & \(62.5\)\\
+\bottomrule
+\end{tabular}
+\end{center}
+The likelihood curvatures differ even though the model parameter used
+for evaluation is the same. Averaging over all possible samples,
+using \(\Expect_p K=np\), recovers Fisher information:
+\[
+  \Expect_p[J_n(p)]
+  =\frac{np}{p^2}+\frac{n(1-p)}{(1-p)^2}
+  =\frac{n}{p(1-p)}=I_n(p).
+\]
+
+\begin{figure}[H]
+  \centering\InfoFisherPlot
+  \caption{Information about the Bernoulli probability \(p\), per
+  observation. It is smallest at \(p=1/2\). This is not the entropy
+  curve: entropy measures uncertainty about the next label; Fisher
+  information measures sensitivity to a change in the parameter.}
+  \label{fig:bernoulli-fisher}
+\end{figure}
+
+There is no contradiction between maximum entropy and minimum Fisher
+information at \(p=1/2\). A balanced label is most unpredictable, and the
+sample proportion also has its largest absolute variance \(p(1-p)/n\)
+there. Near zero, a small absolute error in \(p\) can still be a large
+relative error. Moreover, Fisher information changes with the choice
+of parameter and its units; it is not an intrinsic score for how useful
+an observation is for every possible question.
+
+\section{The Cramér--Rao lower bound}
+\label{sec:cramer-rao}
+
+Chapter~\ref{chap:estimation} compared the bias and variance of particular
+estimators. Fisher information gives a lower bound for the variance of
+\emph{every unbiased estimator} satisfying the regularity conditions.
+
+\begin{theorem}[Scalar Cramér--Rao bound]
+Let \(T=T(X_1,\ldots,X_n)\) estimate \(\theta\) from a regular i.i.d.
+model as above, with \(0<I_n(\theta)<\infty\).
+Suppose \(T\) has finite variance, \(\Expect_\theta T=\theta\)
+throughout an open interval of parameter values, and differentiating
+its expectation under the sum or integral is valid. Then
+\begin{equation}
+  \Var_\theta(T)\ge\frac1{I_n(\theta)}
+                 =\frac1{nI_1(\theta)}.
+  \label{eq:cramer-rao}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Let \(g_\theta(x_1,\ldots,x_n)\) be the joint sample PMF or density.
+Its log-derivative is the sample score \(S_n(\theta)\).
+Differentiate the unbiasedness identity:
+\[
+  1=\frac{\partial}{\partial\theta}\Expect_\theta T
+   =\int T(x)\,\partial_\theta g_\theta(x)\,dx
+   =\Expect_\theta[T S_n(\theta)].
+\]
+The score has mean zero, so this last expectation equals
+\(\Cov_\theta(T,S_n(\theta))\). The covariance bound from
+Section~\ref{sec:covariance-correlation} gives
+\[
+  1=\Cov_\theta(T,S_n(\theta))^2
+    \le\Var_\theta(T)\Var_\theta(S_n(\theta))
+    =\Var_\theta(T)I_n(\theta).
+\]
+Dividing proves the claim.
+\end{proof}
+
+\begin{definition}[Efficient unbiased estimator]
+An unbiased estimator is efficient at a parameter value if its variance
+equals the Cramér--Rao bound there. Such equality need not be attainable
+in every model or at every sample size.
+\end{definition}
+
+\subsection{Two estimators that attain the bound}
+
+For \(X_i\sim\mathcal N(\mu,\sigma^2)\) independently, with known
+\(\sigma^2\), the bound and the sample-mean variance are
+\[
+  \frac1{I_n(\mu)}=\frac{\sigma^2}{n}
+                 =\Var_\mu(\bar X_n).
+\]
+The sample mean is unbiased and efficient. By contrast, the estimator
+\(T=X_1\) is also unbiased but has variance \(\sigma^2\): it discards
+the other \(n-1\) measurements.
+
+\begin{figure}[H]
+  \centering\InfoVariancePlot
+  \caption{Known Gaussian variance \(\sigma^2=4\). The line \(4/n\)
+  is both the Cramér--Rao bound and the exact variance of the sample
+  mean. Points estimate that variance from \(30{,}000\) independent
+  datasets at each \(n\), using seed \(20261020\). Using only \(X_1\)
+  has variance \(4\), regardless of how many other observations exist.
+  Both axes use logarithmic scales.}
+  \label{fig:information-variance}
+\end{figure}
+
+For i.i.d. Bernoulli labels, the sample proportion
+\(\widehat p=\bar Y_n\) is unbiased, and
+\[
+  \Var_p(\widehat p)=\frac{p(1-p)}n=\frac1{I_n(p)}.
+\]
+It too attains the bound for \(0<p<1\), at every sample size.
+This exact variance equality does not make a Gaussian confidence
+approximation exact; Section~\ref{sec:proportion-intervals} showed why
+small counts and boundaries remain problematic.
+
+\subsection{Why unbiasedness cannot be dropped}
+
+In the Gaussian mean example, consider \(T=\bar X_n/2\).
+It has smaller variance,
+\[
+  \Var_\mu(T)=\frac{\sigma^2}{4n}
+             <\frac{\sigma^2}{n},
+  \qquad
+  \Expect_\mu T-\mu=-\frac\mu2.
+\]
+This does not violate the bound, because the estimator is biased.
+Its mean squared error is
+\[
+  \Expect_\mu[(T-\mu)^2]=\frac{\sigma^2}{4n}+\frac{\mu^2}{4}.
+\]
+Whether this is better than the sample mean depends on \(\mu\).
+This is the same shrinkage behavior encountered in the Gaussian MAP
+example in Section~\ref{sec:map-estimation}. Even at \(\mu=0\), the
+estimator is not unbiased throughout an open interval, as the theorem
+requires.
+
+\section{MLE uncertainty from information}
+\label{sec:mle-information}
+
+The Cramér--Rao bound is a statement about unbiased estimators.
+An MLE need not be unbiased at a finite sample size. Nevertheless,
+regular MLEs often approach the information bound as the sample grows.
+The reason connects the score to the CLT from Chapter~\ref{chap:limit-theorems}.
+
+Let \(\theta\) be the true parameter and \(\widehat\theta\) an interior
+MLE, so \(\ell_n'(\widehat\theta)=0\).
+Near \(\theta\), a linear approximation to the score gives
+\[
+  0\approx\ell_n'(\theta)
+       +\ell_n''(\theta)(\widehat\theta-\theta).
+\]
+The score \(\ell_n'(\theta)=S_n(\theta)\) has mean zero and variance
+\(nI_1(\theta)\). If the observed curvature is close to its expectation,
+\(-\ell_n''(\theta)\approx nI_1(\theta)\), rearranging gives
+\begin{equation}
+  \widehat\theta-\theta
+  \approx\frac{S_n(\theta)}{nI_1(\theta)}.
+  \label{eq:mle-score-approximation}
+\end{equation}
+The CLT makes the numerator approximately Gaussian. Dividing by
+\(nI_1(\theta)\) gives an error scale \(1/\sqrt{nI_1(\theta)}\).
+
+\begin{result}[Asymptotic normality under explicit local conditions]
+Assume the regular score has finite positive information, the MLE is
+consistent and interior with probability tending to one, and
+\[
+  -\frac1n\ell_n''(\widetilde\theta_n)
+       \xrightarrow{\mathbb P}I_1(\theta)
+\]
+for any sequence of points \(\widetilde\theta_n\) between \(\theta\) and
+\(\widehat\theta\). Here the convergence notation is the one from
+Chapter~\ref{chap:limit-theorems}. Then
+\begin{equation}
+  \sqrt{nI_1(\theta)}(\widehat\theta-\theta)
+     \xrightarrow{d}\mathcal N(0,1).
+  \label{eq:mle-normal-information}
+\end{equation}
+\end{result}
+
+The mean value theorem gives the preceding score expansion with equality
+when its second derivative is evaluated at such an intermediate point.
+The sample-score CLT and the stated curvature convergence then give
+\eqref{eq:mle-normal-information}. Consistency alone is not enough;
+the local curvature condition is also needed.
+
+The result justifies a Gaussian reference distribution with approximate
+standard error
+\[
+  \widehat{\operatorname{SE}}(\widehat\theta)
+  =\frac1{\sqrt{nI_1(\widehat\theta)}}.
+\]
+It does not, by itself, prove convergence of the actual variances:
+that further claim needs control of the tails of the estimation errors.
+When the approximation and substitution are valid, the interval formula
+from Chapter~\ref{chap:confidence-intervals} becomes
+\begin{equation}
+  \widehat\theta\ \pm\
+  z_{1-\alpha/2}\frac1{\sqrt{nI_1(\widehat\theta)}}.
+  \label{eq:fisher-interval}
+\end{equation}
+The observed-information alternative uses
+\(1/\sqrt{J_n(\widehat\theta)}\) when the fitted curvature is positive
+and consistently estimates the same information.
+
+For \(80\) successes in \(100\) independent Bernoulli observations,
+\[
+  \widehat p=0.8,\qquad
+  nI_1(\widehat p)=\frac{100}{0.8(0.2)}=625,\qquad
+  \widehat{\operatorname{SE}}=\frac1{\sqrt{625}}=0.04.
+\]
+The approximate \(95\%\) interval is
+\[
+  0.8\pm1.96(0.04)=[0.7216,\ 0.8784].
+\]
+This is the Wald interval already discussed in
+Section~\ref{sec:proportion-intervals}. Fisher information explains its
+standard error; it does not fix the boundary and small-sample
+approximation problems.
+
+\section{A local connection between KL and Fisher information}
+\label{sec:local-kl-information}
+
+KL compared two distributions; Fisher information described changing a
+parameter. They meet when we compare nearby members of a regular family.
+Fix \(\theta\), let \(\delta\) be a small parameter change, and define
+\[
+  F(\delta)=D_{\mathrm{KL}}(P_\theta\Vert P_{\theta+\delta})
+  =\Expect_\theta[\log f_\theta(X)-\log f_{\theta+\delta}(X)].
+\]
+The expectation stays under \(P_\theta\) as \(\delta\) changes.
+Under the differentiation assumptions used above,
+\[
+  F(0)=0,\qquad
+  F'(0)=-\Expect_\theta[s_\theta(X)]=0,\qquad
+  F''(0)=-\Expect_\theta[\partial_\theta^2\log f_\theta(X)]
+        =I_1(\theta).
+\]
+A quadratic approximation with this value, slope, and curvature gives
+\begin{result}[KL for a small parameter change]
+For a sufficiently smooth regular family and small \(\delta\),
+\begin{equation}
+  D_{\mathrm{KL}}(P_\theta\Vert P_{\theta+\delta})
+       \approx\frac12 I_1(\theta)\delta^2.
+  \label{eq:kl-fisher-local}
+\end{equation}
+This is a local approximation, not a formula for arbitrary parameter
+changes.
+\end{result}
+
+For Gaussians with the same known variance, the formula is exact:
+\[
+  \log\frac{f_\mu(x)}{f_{\mu+\delta}(x)}
+    =\frac{-2\delta(x-\mu)+\delta^2}{2\sigma^2},
+  \qquad
+  D_{\mathrm{KL}}\!\left(
+    \mathcal N(\mu,\sigma^2)\Vert\mathcal N(\mu+\delta,\sigma^2)\right)
+    =\frac{\delta^2}{2\sigma^2}.
+\]
+The term linear in \(X-\mu\) disappears on taking the expectation.
+Since \(I_1(\mu)=1/\sigma^2\), this equals
+\(\tfrac12 I_1(\mu)\delta^2\) for every \(\delta\).
+
+For Bernoulli probabilities near \(p=0.8\), the approximation is
+\[
+  D_{\mathrm{KL}}(P_{0.8}\Vert P_q)
+  \approx\frac{(q-0.8)^2}{2(0.8)(0.2)}
+  =3.125(q-0.8)^2.
+\]
+\begin{figure}[H]
+  \centering\InfoLocalKLPlot
+  \caption{Exact Bernoulli KL and its quadratic approximation around
+  \(p=0.8\). They agree near \(q=0.8\), but the quadratic expression
+  misses the asymmetric growth farther away.}
+  \label{fig:local-kl-information}
+\end{figure}
+
+For independent samples, KL adds just as Fisher information does:
+the log ratio of joint probabilities is the sum of the observation
+log ratios, and taking the expectation gives \(n\) times the
+one-observation KL. Thus nearby parameter changes have sample
+divergence approximately \(nI_1(\theta)\delta^2/2\).
+Setting \(|\delta|=1/\sqrt{nI_1(\theta)}\), the standard-error scale
+from the previous section, makes that approximation equal to \(1/2\).
+The same information quantity therefore controls both the separation
+of nearby observation laws and the scale of regular estimation error.
+
+\endgroup

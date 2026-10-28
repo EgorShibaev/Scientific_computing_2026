@@ -1,0 +1,103 @@
+% Shared scientific charts for the notes and Lecture 7 slides.
+\providecommand{\InfoDataPath}{figures/data}
+\providecommand{\InfoPlotWidth}{11.8cm}
+\providecommand{\InfoPlotHeight}{4.4cm}
+\definecolor{InfoBlue}{HTML}{1F4E79}
+\definecolor{InfoOrange}{HTML}{C46A13}
+\definecolor{InfoTeal}{HTML}{007D80}
+\definecolor{InfoMuted}{HTML}{526477}
+\pgfplotsset{info axis/.style={
+  scale only axis,width=\InfoPlotWidth,height=\InfoPlotHeight,
+  axis lines=left,enlargelimits=false,
+  grid=major,grid style={black!9},
+  tick label style={font=\footnotesize},label style={font=\footnotesize},
+  /pgf/number format/.cd,fixed,precision=2,/pgfplots/.cd,
+  legend style={draw=none,fill=none,font=\footnotesize,
+    at={(0.5,1.04)},anchor=south,legend columns=-1,column sep=0.7em},
+  every axis plot/.append style={no marks,line width=1.15pt},
+}}
+
+\newcommand{\InfoEntropyPlot}{%
+\begin{tikzpicture}\begin{axis}[info axis,
+  xmin=0,xmax=1,ymin=0,ymax=0.74,
+  xlabel={Success probability $p$},ylabel={Entropy $H(P_p)$, nats},
+  xtick={0,0.2,0.5,0.8,1},ytick={0,0.2,0.4,0.693147},
+  yticklabels={$0$,$0.2$,$0.4$,$\log 2$}]
+  \addplot[InfoBlue] table[x=p,y=entropy] {\InfoDataPath/ch7-entropy.dat};
+  \addplot[InfoOrange,only marks,mark=*,mark size=2pt]
+    coordinates {(0.5,0.69314718056) (0.8,0.500402423538)};
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\InfoCrossEntropyPlot}{%
+\begin{tikzpicture}\begin{axis}[info axis,
+  xmin=0.02,xmax=0.98,ymin=0,ymax=3.3,
+  xlabel={Predicted success probability $q$},ylabel={Expected loss, nats},
+  xtick={0.02,0.2,0.5,0.8,0.98},ytick={0,0.5,1,2,3},
+  scaled ticks=false]
+  \addplot[InfoBlue] table[x=q,y=ce] {\InfoDataPath/ch7-cross-entropy.dat};
+  \addlegendentry{$\operatorname{CE}(P,Q)$}
+  \addplot[InfoOrange,densely dotted] table[x=q,y=entropy] {\InfoDataPath/ch7-cross-entropy.dat};
+  \addlegendentry{$H(P)$}
+  \addplot[InfoTeal,dashed] table[x=q,y=kl] {\InfoDataPath/ch7-cross-entropy.dat};
+  \addlegendentry{$D_{\mathrm{KL}}(P\Vert Q)$}
+  \addplot[InfoMuted,densely dotted,forget plot]
+    coordinates {(0.8,0) (0.8,3.3)};
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\InfoLikelihoodPlot}{%
+\begin{tikzpicture}\begin{axis}[info axis,
+  xmin=-2,xmax=2,ymin=0,ymax=1.04,
+  xlabel={Candidate mean minus fitted mean $\mu-\bar x$},
+  ylabel={Relative likelihood $L(\mu)/L(\bar x)$},
+  xtick={-2,-1,0,1,2},ytick={0,0.25,0.5,0.75,1}]
+  \addplot[InfoOrange] table[x=offset,y=n5] {\InfoDataPath/ch7-likelihood.dat};
+  \addlegendentry{$n=5$}
+  \addplot[InfoBlue,dashed] table[x=offset,y=n20] {\InfoDataPath/ch7-likelihood.dat};
+  \addlegendentry{$n=20$}
+  \addplot[InfoTeal] table[x=offset,y=n80] {\InfoDataPath/ch7-likelihood.dat};
+  \addlegendentry{$n=80$}
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\InfoFisherPlot}{%
+\begin{tikzpicture}\begin{axis}[info axis,
+  xmin=0.02,xmax=0.98,ymin=0,ymax=55,
+  xlabel={Bernoulli parameter $p$},ylabel={Fisher information $I_1(p)$},
+  xtick={0.02,0.2,0.5,0.8,0.98},ytick={4,10,20,40,50},
+  scaled ticks=false]
+  \addplot[InfoBlue] table[x=p,y=information] {\InfoDataPath/ch7-fisher.dat};
+  \addplot[InfoOrange,only marks,mark=*,mark size=2pt]
+    coordinates {(0.2,6.25) (0.5,4) (0.8,6.25)};
+\end{axis}\end{tikzpicture}%
+}
+
+\newcommand{\InfoVariancePlot}{%
+\begin{tikzpicture}\begin{loglogaxis}[info axis,
+  xmin=1,xmax=200,ymin=0.015,ymax=6,
+  xlabel={Independent observations $n$},ylabel={Estimator variance},
+  xtick={1,5,20,100,200},xticklabels={$1$,$5$,$20$,$100$,$200$},
+  ytick={0.02,0.1,1,4},yticklabels={$0.02$,$0.1$,$1$,$4$}]
+  \addplot[InfoTeal] table[x=n,y=bound] {\InfoDataPath/ch7-variance.dat};
+  \addlegendentry{Bound $4/n$}
+  \addplot[InfoBlue,only marks,mark=*,mark size=1.8pt]
+    table[x=n,y=meanvariance] {\InfoDataPath/ch7-variance.dat};
+  \addlegendentry{Simulated $\bar X$}
+  \addplot[InfoOrange,dashed] table[x=n,y=firsttheory] {\InfoDataPath/ch7-variance.dat};
+  \addlegendentry{Using only $X_1$}
+\end{loglogaxis}\end{tikzpicture}%
+}
+
+\newcommand{\InfoLocalKLPlot}{%
+\begin{tikzpicture}\begin{axis}[info axis,
+  xmin=0.65,xmax=0.95,ymin=0,ymax=0.15,
+  xlabel={Nearby Bernoulli parameter $q$},ylabel={KL divergence, nats},
+  xtick={0.65,0.7,0.8,0.9,0.95},ytick={0,0.05,0.1,0.15},
+  scaled ticks=false]
+  \addplot[InfoBlue] table[x=q,y=kl] {\InfoDataPath/ch7-local-kl.dat};
+  \addlegendentry{Exact $D_{\mathrm{KL}}(P_{0.8}\Vert P_q)$}
+  \addplot[InfoOrange,dashed] table[x=q,y=quadratic] {\InfoDataPath/ch7-local-kl.dat};
+  \addlegendentry{$\tfrac12 I_1(0.8)(q-0.8)^2$}
+\end{axis}\end{tikzpicture}%
+}

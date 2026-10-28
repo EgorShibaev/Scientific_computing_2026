@@ -22,6 +22,10 @@ complete course structure and currently contains:
   Student mean intervals; an exact exponential-rate interval; proportion
   intervals; bootstrap standard errors and percentile intervals; paired model
   comparisons; and the assumptions and limits of resampling.
+- Lecture 7: surprisal, entropy, cross-entropy, and KL divergence; connections
+  to classification, language-model losses, distillation, and approximate
+  posteriors; observed and Fisher information; the Cramér–Rao bound; MLE
+  uncertainty; and the local quadratic relation between KL and information.
 
 Lecture 2 develops each distribution from a concrete experiment, with worked
 examples, derivations, five original vector figures, and a distribution
@@ -67,6 +71,13 @@ contains the editable source and section mapping. Build with
 `make lecture-06-slides`. Five shared vector charts show repeated confidence
 intervals, Gaussian and Student references, proportion-interval coverage,
 bootstrap means, and paired accuracy differences.
+
+[Lecture 7 slides (PDF)](presentations/lecture-07/lecture-07.pdf) follow Chapter 7
+in the same LaTeX Beamer format, with boxed definitions and results and no
+footer text. The [presentation folder](presentations/lecture-07/) contains
+the editable source and section mapping. Build with `make lecture-07-slides`.
+Six shared vector charts connect entropy, prediction loss, likelihood
+curvature, and estimator variance through Bernoulli and Gaussian examples.
 
 ## Homework
 
@@ -124,6 +135,14 @@ standard library:
 python3 scripts/generate_chapter6_figures.py
 ```
 
+Chapter 7's tables contain analytic information-theory curves and a
+fixed-seed Gaussian estimator experiment. Reproduce them using only the
+Python standard library:
+
+```bash
+python3 scripts/generate_chapter7_figures.py
+```
+
 ## Source layout
 
 - `main.tex` assembles the cumulative course document.
@@ -131,6 +150,6 @@ python3 scripts/generate_chapter6_figures.py
 - `frontmatter/course-structure.tex` records the full course plan.
 - `lectures/` contains one source file per lecture.
 - `figures/` contains the LaTeX/PGFPlots source for the figures, rebuilt with the document.
-- `figures/data/` contains reproducible numerical tables for Chapters 4--6.
+- `figures/data/` contains reproducible numerical tables for Chapters 4--7.
 - `scripts/` contains the generator for those tables.
 - `dist/` contains the current compiled PDF.
