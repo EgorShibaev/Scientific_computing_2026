@@ -1,0 +1,419 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+% Build from the repository root: make lecture-08-slides
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,booktabs,array}
+\usepackage{graphicx}
+\usefonttheme{professionalfonts}
+\definecolor{Ink}{HTML}{16324F}
+\definecolor{Blue}{HTML}{1F4E79}
+\definecolor{Orange}{HTML}{C46A13}
+\definecolor{Teal}{HTML}{007D80}
+\setbeamercolor{normal text}{fg=Ink,bg=white}
+\setbeamercolor{frametitle}{fg=Ink}
+\setbeamercolor{structure}{fg=Blue}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamersize{text margin left=8mm,text margin right=8mm}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{footline}{}
+\addtobeamertemplate{footline}{}{\vspace*{3mm}}
+\setbeamertemplate{frametitle}{\vspace{3mm}\insertframetitle\par\vspace{1mm}}
+\newcommand{\slidespacing}{%
+  \setlength{\parskip}{0.2em}%
+  \setlength{\abovedisplayskip}{0.3em}%
+  \setlength{\belowdisplayskip}{0.3em}%
+  \setlength{\abovedisplayshortskip}{0.1em}%
+  \setlength{\belowdisplayshortskip}{0.2em}}
+\newcommand{\Prob}{\mathbb P}
+\newcommand{\Expect}{\mathbb E}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\newcommand{\KL}{D_{\mathrm{KL}}}
+\newcommand{\CE}{\operatorname{CE}}
+\newcommand{\plotcaption}[1]{\par\smallskip{\small #1\par}}
+\setbeamertemplate{blocks}[default]
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+\setbeamerfont{block body}{size=\normalsize}
+\newenvironment{coursebox}[2]{%
+  \begingroup
+  \setbeamercolor{block title}{fg=#1,bg=#1!13!white}
+  \setbeamercolor{block body}{fg=Ink,bg=#1!4!white}
+  \begin{block}{#2}
+  \setlength{\parskip}{0.1em}
+  \setlength{\abovedisplayskip}{0.3em}
+  \setlength{\belowdisplayskip}{0.3em}
+  \setlength{\abovedisplayshortskip}{0.1em}
+  \setlength{\belowdisplayshortskip}{0.1em}
+}{\end{block}\endgroup}
+\newenvironment{definitionbox}[1]
+  {\begin{coursebox}{Blue}{Definition: #1}}{\end{coursebox}}
+\newenvironment{resultbox}[1]
+  {\begin{coursebox}{Teal}{Result: #1}}{\end{coursebox}}
+\newcommand{\optfigure}[1]{\par\begin{center}
+  \includegraphics[width=.96\linewidth,height=4.45cm,keepaspectratio]{../../figures/ch8/#1.pdf}
+  \end{center}}
+\newcommand{\question}[1]{\par\medskip{\color{Blue}\bfseries #1\par}}
+\AtBeginEnvironment{frame}{\slidespacing}
+\title{Optimization for Machine Learning}
+\hypersetup{pdftitle={Lecture 8: Optimization for Machine Learning},
+  pdfsubject={Scientific Computing 2026},pdfauthor={}}
+\begin{document}
+
+{\setbeamercolor{background canvas}{bg=Ink}
+\begin{frame}[plain]
+\color{white}
+{\large Scientific Computing 2026\par}
+\vfill
+{\LARGE\bfseries Optimization for Machine Learning\par}
+\medskip
+{\large Gradient descent, stochastic gradients, and Adam\par}
+\vfill
+{\large Lecture 8\par}\vspace{4mm}
+\end{frame}}
+
+\section{Fitting the homework model}
+\begin{frame}{How expensive is the homework grid?}
+In Homework 2 we tried 601 values of one parameter and kept the one
+with the smallest loss.
+\medskip
+
+\begin{center}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}lr@{}}\toprule
+Adjustable parameters & Loss evaluations\\\midrule
+One & \(601\)\\
+Two & \(601^2=361{,}201\)\\
+Ten & \(601^{10}\approx6.15\times10^{27}\)\\\bottomrule
+\end{tabular}\end{center}
+\question{At the current parameter value, how can we tell which way to move?}
+\end{frame}
+
+\begin{frame}{One parameter controls both predictions}
+The student predicts \(q_a(x)=\sigma(ax)\), where
+\(\sigma(z)=1/(1+e^{-z})\). Start at \(a=\log 4\).
+\begin{center}\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}crr@{}}\toprule
+Input \(x\) & Teacher probability \(p_x\) & Student probability \(q_a(x)\)\\\midrule
+1 & \(0.80\) & \(4/5=0.80\)\\
+2 & \(0.60\) & \(16/17\approx0.94\)\\\bottomrule
+\end{tabular}\end{center}
+\question{Would you increase or decrease \(a\)? Which prediction gets worse?}
+\end{frame}
+
+\begin{frame}{How much does a change in probability cost?}
+For one input, write \(p\) for the teacher probability and \(q\) for the
+student probability. Its loss is
+\[
+ \ell=-p\log q-(1-p)\log(1-q).
+\]
+\[
+ \frac{\partial\ell}{\partial q}
+   =-\frac p q+\frac{1-p}{1-q}
+   =\frac{q-p}{q(1-q)} .
+\]
+When the student already matches the teacher, the slope is zero.
+At \(x=2\) our student overshoots \(p\), so lowering \(q\) helps.
+\end{frame}
+
+\begin{frame}{The derivative with respect to the parameter}
+The sigmoid has slope \(\sigma'(z)=\sigma(z)(1-\sigma(z))\).
+Since \(q=\sigma(ax)\), we have \(dq/da=xq(1-q)\).
+\begin{resultbox}{One example's gradient}
+\[
+ \ell'_x(a)=
+ \underbrace{\frac{q-p_x}{q(1-q)}}_{\partial\ell/\partial q}
+ \underbrace{xq(1-q)}_{dq/da}
+ = x(q-p_x).
+\]
+\end{resultbox}
+With equal input frequencies, \(L(a)=(\ell_1(a)+\ell_2(a))/2\).
+The slope of the mean loss is the mean of the two slopes.
+\end{frame}
+
+\begin{frame}{Take one step by hand}
+At \(a_0=\log4\), the two contributions are \(0\) and
+\(2(16/17-0.60)\approx0.6824\). Thus \(L'(a_0)\approx0.3412\).
+\begin{definitionbox}{Gradient descent}
+Choose a learning rate \(\eta>0\). One update is
+\[
+ a_{k+1}=a_k-\eta L'(a_k).
+\]
+\end{definitionbox}
+With \(\eta=1\): \(\quad a_1=1.3863-0.3412=1.0451.\)
+
+The first-order change for a small step \(h\) is \(hL'(a)\). Choosing
+\(h=-\eta L'(a)\) makes this quantity negative whenever \(L'(a)\ne0\).
+\end{frame}
+
+\begin{frame}{Each dot is one update}
+\optfigure{student-descent}
+The first step lowers the loss from \(0.8350\) to \(0.7315\) nats.
+Further updates approach \(a_*\approx0.41962\). The homework grid
+returned \(0.42086\).
+\end{frame}
+
+\section{Learning rate and curvature}
+\begin{frame}{Can gradient descent fail on a parabola?}
+Take \(F(w)=w^2/2\) and start at \(w_0=4\). Since the slope is \(w\),
+\[
+ w_{k+1}=w_k-\eta w_k.
+\]
+\question{Predict the next two parameter values for each learning rate.}
+\[
+  \eta=0.5 \qquad \eta=1.5 \qquad \eta=2.5
+\]
+Which runs cross zero? Which get closer to the minimum?
+\end{frame}
+
+\begin{frame}{The multiplier determines the next iterate}
+For this parabola, every update multiplies \(w\) by \(1-\eta\).
+\begin{center}\renewcommand{\arraystretch}{1.38}
+\begin{tabular}{@{}rcll@{}}\toprule
+\(\eta\) & Multiplier & First three values & Behaviour\\\midrule
+0.5 & \(0.5\)  & \(4,\ 2,\ 1\)    & Converges\\
+1   & \(0\)    & \(4,\ 0,\ 0\)    & One step\\
+1.5 & \(-0.5\) & \(4,\ -2,\ 1\)   & Alternates and converges\\
+2   & \(-1\)   & \(4,\ -4,\ 4\)   & Repeats\\
+2.5 & \(-1.5\) & \(4,\ -6,\ 9\)   & Diverges\\\bottomrule
+\end{tabular}\end{center}
+\end{frame}
+
+\begin{frame}{Opposite signs can give identical losses}
+\optfigure{parabola}
+With learning rates \(0.5\) and \(1.5\), both parameter magnitudes halve
+on every step. Squaring removes the sign, so both losses fall by a factor
+of four.
+\end{frame}
+
+\begin{frame}{The curvature sets the stable learning rates}
+Let \(F(w)=cw^2/2\), with curvature \(F''(w)=c>0\).
+\[
+ w_{k+1}=(1-\eta c)w_k,\qquad w_k=(1-\eta c)^k w_0.
+\]
+\begin{resultbox}{Convergence on a scalar quadratic}
+From any nonzero \(w_0\), the distance to zero shrinks exactly when
+\[
+ |1-\eta c|<1\quad\Longleftrightarrow\quad 0<\eta<2/c.
+\]
+\end{resultbox}
+In Lecture 7, curvature measured how rapidly log-likelihood fell near a
+peak. Here it tells us how quickly the slope changes during a step.
+\end{frame}
+
+\section{Two directions, one learning rate}
+\begin{frame}{What if one direction is twenty times steeper?}
+Let \(F(u,v)=(u^2+20v^2)/2\). Its gradient is the vector of partial
+derivatives, \(\nabla F=(u,20v)\). Subtract \(\eta\nabla F\):
+\[
+ \begin{aligned}
+    u_{k+1}&=(1-\eta)u_k,\\
+    v_{k+1}&=(1-20\eta)v_k.
+ \end{aligned}
+\]
+\question{Sketch two steps from \((4,1)\) using \(\eta=0.09\).}
+The multipliers are \(0.91\) and \(-0.8\). Predict what happens to each
+coordinate if the learning rate rises to \(0.11\).
+\end{frame}
+
+\begin{frame}{A change of 0.02 makes the path diverge}
+\optfigure{valley-steps}
+Left: \(v\) changes sign and retains \(80\%\) of its magnitude.
+Right: \(v\) changes sign and grows by \(20\%\) each step.
+Both panels show nine updates. Compare the vertical scales.
+\end{frame}
+
+\begin{frame}{Why the flat direction takes so long}
+The Hessian collects the second partial derivatives. For this loss,
+\[
+ H=\begin{pmatrix}1&0\\0&20\end{pmatrix}.
+\]
+\begin{definitionbox}{Condition number of a positive-definite quadratic}
+The condition number is the ratio of largest to smallest curvature
+along the principal directions. Here \(\kappa=20/1=20\).
+\end{definitionbox}
+Stability along \(v\) forces \(0<\eta<0.1\). Along \(u\), every such step
+retains more than \(90\%\) of the remaining distance. The flat direction
+inherits the steep direction's speed limit.
+\end{frame}
+
+\section{Stochastic gradients and mini-batches}
+\begin{frame}{At the best fit, the two examples still disagree}
+Back to the student model. At \(a_*\approx0.41962\):
+\begin{center}\renewcommand{\arraystretch}{1.45}
+\begin{tabular}{@{}crrr@{}}\toprule
+\(x\) & Teacher & Student & Gradient \(x(q-p_x)\)\\\midrule
+1 & 0.800 & 0.6034 & \(-0.1966\)\\
+2 & 0.600 & 0.6983 & \(+0.1966\)\\\bottomrule
+\end{tabular}\end{center}
+\question{One example is picked at random. Which way will \(a\) move?}
+What would happen if the optimizer used both examples?
+\end{frame}
+
+\begin{frame}{A random step away from the optimum}
+With \(\eta=0.35\), the next parameter is approximately
+\[
+ \begin{array}{lll}
+ x=1: & 0.4196-0.35(-0.1966)=0.4884 & \text{higher},\\[.4em]
+ x=2: & 0.4196-0.35(+0.1966)=0.3508 & \text{lower}.
+ \end{array}
+\]
+Each outcome has probability \(1/2\). The expected update is zero.
+\medskip
+
+Both moves increase the \emph{full} loss. Its slope is zero at \(a_*\)
+and its curvature is positive everywhere:
+\[
+ L''(a)=\tfrac12\sum_{x=1,2} x^2 q_a(x)\bigl(1-q_a(x)\bigr)>0.
+\]
+\end{frame}
+
+\begin{frame}{One example gives an unbiased gradient}
+Suppose \(L(w)=N^{-1}\sum_{i=1}^{N}\ell_i(w)\) is the mean loss on
+\(N\) examples.
+\begin{definitionbox}{Stochastic gradient descent (SGD)}
+At the current \(w\), sample a uniform index \(I\) and take
+\[
+ w_{\rm next}=w-\eta\,\nabla\ell_I(w).
+\]
+\end{definitionbox}
+At fixed \(w\), averaging over the index gives
+\(\Expect[\nabla\ell_I(w)]=N^{-1}\sum_i\nabla\ell_i(w)=\nabla L(w)\).
+One update needs one example gradient. A full update needs \(N\).
+\end{frame}
+
+\begin{frame}{How much quieter is a batch of 16?}
+At a fixed parameter, let \(g_I\) be one component of a randomly sampled
+example gradient. Average \(B\) independent draws with replacement:
+\[
+ g_B=\tfrac1B\sum_{j=1}^B g_{I_j}.
+\]
+\begin{resultbox}{Mini-batch variance}
+\[
+ \Expect[g_B]=\Expect[g_I],\qquad
+ \Var(g_B)=\frac{B\Var(g_I)}{B^2}=\frac{\Var(g_I)}{B}.
+\]
+\end{resultbox}
+At the homework optimum, the standard deviation falls from
+\(0.1966\) for one draw to \(0.1966/4\approx0.0492\) for sixteen.
+\end{frame}
+
+\begin{frame}{Start all three runs at the optimum}
+\optfigure{batch-paths}
+Same learning rate, \(\eta=0.35\). The full gradient averages both distinct
+inputs once. The blue run samples 16 inputs with replacement, so a batch
+can contain unequal numbers of the two examples.
+\end{frame}
+
+\begin{frame}{What does an update cost?}
+A training set contains one million examples.
+\begin{center}\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{@{}lr@{}}\toprule
+Update rule & Example gradients per update\\\midrule
+One randomly chosen example & 1\\
+A mini-batch of 100 & 100\\
+Full gradient & 1,000,000\\\bottomrule
+\end{tabular}\end{center}
+\question{What should the horizontal axis show when comparing training cost?}
+An update count measures progress per update. Examples processed or
+elapsed time also account for the cost of each update.
+\end{frame}
+
+\section{Momentum and Adam}
+\begin{frame}{Can past gradients help in the narrow valley?}
+Along one coordinate, four gradients point the same way. Along the other,
+they alternate. Keep half the old average and add half the new gradient.
+Start at \(m_0=0\).
+\begin{center}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}lrrrr@{}}\toprule
+Update & 1 & 2 & 3 & 4\\\midrule
+Persistent gradient & \(+1\)&\( +1\)&\( +1\)&\( +1\)\\
+Its running average & .50& .75& .875& .9375\\[2pt]
+Alternating gradient & \(+1\)&\( -1\)&\( +1\)&\( -1\)\\
+Its running average & .50& \(-.25\)& .375& \(-.3125\)\\\bottomrule
+\end{tabular}\end{center}
+The persistent component gets a larger share of the next step.
+\end{frame}
+
+\begin{frame}{Momentum uses the running average for the step}
+\begin{definitionbox}{Momentum}
+Start with \(m_0=0\). At update \(k\ge1\), compute the current gradient
+\(g_k\) at \(w_{k-1}\), then
+\[
+ m_k=\beta m_{k-1}+(1-\beta)g_k,\qquad
+ w_k=w_{k-1}-\eta m_k.
+\]
+\end{definitionbox}
+The coefficient \(0\leq\beta<1\) controls how much of the previous
+average survives. Setting \(\beta=0\) recovers the ordinary gradient step.
+\medskip
+
+When the slope reverses, \(m_k\) can still point in the previous direction.
+That is one way momentum can overshoot a minimum.
+\end{frame}
+
+\begin{frame}{Twelve steps on the same quadratic}
+\optfigure{momentum}
+Both paths start at \((4,1)\). Left: \(\eta=0.09\).
+Right: \(\eta=0.16,\ \beta=0.5\). The larger dot marks step 12.
+These paths illustrate the stated settings.
+\end{frame}
+
+\begin{frame}{Adam keeps a scale for each parameter}
+Consider two parameters with first gradients \(10\) and \(0.1\).
+An ordinary gradient step moves one parameter 100 times as far.
+\medskip
+
+For each parameter, Adam tracks two quantities separately:
+\[
+ \begin{aligned}
+ m_k&=\beta_1 m_{k-1}+(1-\beta_1)g_k
+      &&\text{average gradient},\\
+ s_k&=\beta_2 s_{k-1}+(1-\beta_2)g_k^2
+      &&\text{average squared gradient}.
+ \end{aligned}
+\]
+Both start at zero, with \(0\le\beta_1,\beta_2<1\).
+Even when signs alternate, the squared gradients accumulate.
+\end{frame}
+
+\begin{frame}{Adam's first step by hand}
+\begin{definitionbox}{Adam update for one coordinate}
+Correct the two averages for their zero initialization and take a step:
+\[
+ \widehat m_k=\frac{m_k}{1-\beta_1^k},\quad
+ \widehat s_k=\frac{s_k}{1-\beta_2^k},\quad
+ w_k=w_{k-1}-\eta\frac{\widehat m_k}{\sqrt{\widehat s_k}+\varepsilon}.
+\]
+\end{definitionbox}
+At \(k=1\), the corrected values are \(g_1\) and \(g_1^2\).
+The two gradients \(10\) and \(0.1\) give ratios
+\[
+  10/(10+\varepsilon)\quad\text{and}\quad 0.1/(0.1+\varepsilon).
+\]
+For small positive \(\varepsilon\), both updates have size close to \(\eta\).
+\end{frame}
+
+\begin{frame}{Which change would you try?}
+\textbf{1.} The student model starts at its best fit. A single-example
+update raises the full loss. What gradient would you inspect to check
+whether the implementation is correct?
+\bigskip
+
+\textbf{2.} A full-gradient run on \(F(u,v)=(u^2+20v^2)/2\)
+diverges with \(\eta=0.11\). Someone suggests increasing batch size.
+What would you change first, and why?
+\end{frame}
+
+\begin{frame}{Two patterns in a training run}
+\textbf{At the homework optimum}, inspect both example gradients.
+Expect approximately \(-0.1966\) and \(+0.1966\). Their average vanishes.
+A step based on either one moves away from the minimum.
+\bigskip
+
+\textbf{On the quadratic}, inspect the steep coordinate.
+With \(\eta=0.11\), its multiplier is \(-1.2\). The run already uses the
+full gradient. Reducing the learning rate to \(0.09\) brings the
+multiplier to \(-0.8\) and the oscillations decay.
+\end{frame}
+
+\end{document}
