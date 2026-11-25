@@ -2,7 +2,7 @@
 
 [Open the PDF slide deck](lecture-06.pdf).
 
-The 42-slide presentation follows Chapter 6 of the cumulative conspect in the
+The 37-slide presentation follows Chapter 6 of the cumulative conspect in the
 same 16:9 LaTeX Beamer format as Lectures 3–5. Definitions and key results
 appear in colored boxes. Mathematical derivations and worked examples remain
 outside those boxes.
@@ -11,18 +11,25 @@ outside those boxes.
 | --- | --- |
 | 2–4 | 6.1 What uncertainty remains after fitting |
 | 5–10 | 6.2 Confidence intervals and repeated sampling |
-| 11–18 | 6.3 Mean intervals with unknown variance |
-| 19–23 | 6.4 Proportion intervals and test accuracy |
-| 24–31 | 6.5 Bootstrap and the empirical distribution |
-| 32–36 | 6.6 Comparing two models on the same examples |
-| 37–42 | 6.7 What resampling can and cannot recover |
+| 11–17 | 6.3 Mean intervals with unknown variance |
+| 18–21 | 6.4 Proportion intervals and test accuracy |
+| 22–30 | 6.5 Bootstrap and the empirical distribution |
+| 31–35 | 6.6 Comparing two models on the same examples |
+| 36–37 | 6.5 Bootstrap: observations versus resamples |
 
-The exponential example returns to the five waiting times from Chapter 5 and
-closes with an exact rate interval. Mean intervals distinguish the exact
-Gaussian result from an asymptotic approximation and from prediction for a
-future observation. Proportion intervals compare Wald and Wilson coverage.
-Bootstrap examples cover empirical resampling, standard errors, percentile
-and basic intervals, and paired classifier comparisons.
+The chi-square definition is connected to Gamma sums before it is used for
+sample variance and the exponential-rate pivot. The sample-variance result
+includes an explicit two-observation example; the longer general proof is
+stated without deriving the Gaussian coordinate rotation. The deck retains
+the exponential-rate pivot and the exact versus asymptotic mean intervals.
+The separate numerical mean and rate examples and the prediction-interval
+comparison remain in the conspect rather than in the slides.
+
+Bootstrap notation starts with a resample mean, followed by its standard
+error and interval calculations. Percentile and basic intervals use the same
+40-observation example, with a separate comparison of their endpoints.
+The paired-classifier example derives both the mean difference and its
+standard error. The deck has no gray takeaway text or footer labels.
 
 Five shared vector charts show repeated-sample coverage, Gaussian and Student
 densities, exact binomial coverage calculations, bootstrap means, and paired
@@ -43,7 +50,10 @@ are in `figures/ch6-plots.tex`, and their committed numerical tables are in
 The figure-generation script reproduces the data and records the numerical
 details of the simulated examples.
 
-The chapter distinguishes uncertainty in evaluating fixed fitted models from
-variation caused by refitting models on new training samples. It also explains
-limits caused by dependence, rare outcomes, sample selection, and the ordinary
-bootstrap for a uniform endpoint.
+The two final slides distinguish the number of bootstrap repetitions from
+the number of independent observations. A fixed five-observation example
+shows that increasing B estimates a nonzero bootstrap spread more precisely.
+A second table shows the decrease in standard error with n when the
+population variance is held fixed. The more technical bootstrap limitations
+and the discussion of training uncertainty, other metrics, and sampling bias
+remain in the conspect.

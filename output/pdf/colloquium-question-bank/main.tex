@@ -1,0 +1,530 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=19mm,headheight=14pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,booktabs,tabularx,enumitem,xcolor,fancyhdr,microtype}
+\usepackage[hidelinks]{hyperref}
+\definecolor{Ink}{HTML}{16324F}
+\definecolor{Accent}{HTML}{216B78}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily Scientific Computing 2026}
+\fancyhead[R]{\small\sffamily Lectures 1--7}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{2em}
+\newcommand{\blocktitle}[2]{{\Large\sffamily\bfseries\color{Ink}Block #1: #2}\par\vspace{5pt}}
+\newenvironment{question}[2]{\par\addvspace{10pt}\begin{minipage}{\linewidth}{\sffamily\bfseries\color{Ink}#1.\ #2}\par\vspace{3pt}}{\end{minipage}\par}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\hypersetup{pdftitle={Colloquium preparation: Lectures 1--7},pdfauthor={Scientific Computing 2026}}
+\begin{document}
+{\LARGE\sffamily\bfseries\color{Ink}Colloquium preparation}\par
+{\sffamily Lectures 1--7 \hfill 20 minutes per student}
+\vspace{3pt}
+
+You will receive three questions chosen at random: one from each of the
+three blocks below. You will have 20 minutes in total to answer them orally,
+write down your calculations, and respond to follow-up questions.
+
+This is the question bank for preparation. You have until the colloquium
+to prepare the questions in all three blocks. Be ready to explain your
+reasoning and the meaning of the formulas you use. The calculation problems
+are intended to be solved by hand; no coding is required. Logarithms and
+exponentials may be left unevaluated.
+
+\blocktitle{A}{Definitions and interpretation}
+For your selected question, explain the concepts and write the relevant
+formulas. No proofs are required.
+
+{\small
+\begin{enumerate}[label=\textbf{A\arabic*.},leftmargin=10mm,itemsep=4pt,topsep=3pt,parsep=0pt]
+\item What is a random variable? What is its cumulative distribution function?
+\item What is conditional probability? What does it mean for two events to be independent?
+\item What are expectation and variance? How is the standard deviation $\sigma$ related to variance?
+\item What do Bernoulli and binomial distributions describe? Explain their parameters.
+\item What are joint and marginal distributions? How do you obtain a marginal distribution from a joint distribution?
+\item What are covariance and correlation? Does zero covariance imply independence?
+\item What is the difference between the standard deviation of an observation and the standard error of a sample mean?
+\item What does the law of large numbers say about the sample mean? What additional information does the central limit theorem provide?
+\item What is an estimator, and what is an estimate? Give an example distinguishing them.
+\item What are bias and mean squared error? How are they related to the variance of an estimator?
+\item What is a likelihood function? How does maximum likelihood estimation use it?
+\item How do MLE and MAP differ? What role does the prior play in MAP estimation?
+\item What is a confidence interval? What does its coverage probability mean?
+\item What is the empirical distribution? How is a nonparametric bootstrap sample drawn from it?
+\item What does entropy measure? What does KL divergence compare?
+\item What is observed information? How is Fisher information related to it?
+\end{enumerate}
+}
+\newpage
+\blocktitle{B}{Exercises adapted from Homework 1}
+These exercises separate parts of the eight homework tasks into short,
+self-contained problems, with a few variations on the same models.
+Throughout this handout, the second parameter of $\mathcal N(\mu,\sigma^2)$
+is the variance.
+
+\begin{question}{B1}{Inverse-CDF sampling}
+A random variable has CDF
+\[
+F(x)=\begin{cases}
+0,&x<0,\\
+x^2,&0\le x\le1,\\
+1,&x>1.
+\end{cases}
+\]
+Given $U\sim\operatorname{Uniform}(0,1)$, construct a random variable with
+this CDF. Find $P(X>1/2)$.
+\end{question}
+
+\begin{question}{B2}{A hidden state}
+A machine is faulty with probability $0.2$. Let $Z=1$ denote a faulty
+machine and $K=1$ denote a defective item. Suppose
+\[
+P(K=1\mid Z=0)=0.1,\qquad P(K=1\mid Z=1)=0.6.
+\]
+An item is defective. Find $P(Z=1\mid K=1)$.
+
+A measurement is then recorded:
+\[
+Y=K+\varepsilon,\qquad \varepsilon\sim\mathcal N(0,1),
+\]
+where $\varepsilon$ is independent of $Z$ and $K$. Once $K$ is known,
+does observing $Y$ provide additional information about $Z$? Explain.
+\end{question}
+
+\begin{question}{B3}{Waiting times and counts}
+Starting at time zero, successive waiting times between requests are
+independent exponential random variables with rate $2$ requests per minute.
+
+Let $N(1)$ be the number of requests in the first minute and $T_2$ the time
+of the second request. State the distributions of $N(1)$ and $T_2$.
+Use the relationship between them to calculate $P(T_2\le1)$.
+Leave exponentials unevaluated.
+\end{question}
+
+\begin{question}{B4}{Averaging sensor readings}
+Four readings have the form
+\[
+X_i=B+\varepsilon_i,\qquad i=1,\ldots,4.
+\]
+The shared offset $B$ equals $+1$ or $-1$, each with probability $1/2$.
+The noises $\varepsilon_i\sim\mathcal N(0,1)$ are independent of one another
+and of $B$. Find the variance of the average reading.
+
+Now replace the shared offset by independent offsets $B_i$, with the same
+distribution and independent of all noises. What is the variance of the
+average now?
+\end{question}
+
+\newpage
+\blocktitle{B}{Exercises adapted from Homework 1}
+\begin{question}{B5}{Correlated measurements}
+Three random variables have variance $1$, and every pair has correlation
+$1/2$. Calculate
+\[
+\Var\left(\frac{X_1+X_2+X_3}{3}\right)
+\qquad\text{and}\qquad
+\Var(X_1-X_2).
+\]
+\end{question}
+
+\begin{question}{B6}{Distance between Gaussian vectors}
+Let $X,Y$ be independent two-dimensional standard Gaussian vectors:
+\[
+X,Y\sim\mathcal N_2(0,I_2),
+\]
+where $I_2$ is the $2\times2$ identity matrix. Find the expectation and
+variance of
+\[
+D^2=(X_1-Y_1)^2+(X_2-Y_2)^2.
+\]
+You may use $\E[Z^2]=1$ and $\E[Z^4]=3$ for $Z\sim\mathcal N(0,1)$.
+\end{question}
+
+\begin{question}{B7}{A Gaussian random walk}
+Let $\xi_1,\ldots,\xi_5$ be independent $\mathcal N(0,1)$ variables, and define
+\[
+S_t=\sum_{i=1}^{t}\xi_i.
+\]
+Find $\Cov(S_2,S_5)$ and the distribution of $S_5-S_2$.
+
+Is $S_5-S_2$ independent of $S_2$? Explain.
+\end{question}
+
+\begin{question}{B8}{Random linear outputs}
+Let $w_1,w_2$ be independent $\mathcal N(0,1)$ variables. Two outputs use
+the same weights:
+\[
+A=w_1+w_2,\qquad B=w_1-w_2.
+\]
+Find their marginal distributions and covariance. Are $A$ and $B$
+independent? Justify your answer.
+\end{question}
+
+\newpage
+\blocktitle{B}{Exercises adapted from Homework 1}
+\begin{question}{B9}{From a CDF to moments}
+A random variable takes values in $[0,1]$ and has CDF $F(x)=x^2$ on this
+interval, with $F(x)=0$ below $0$ and $F(x)=1$ above $1$.
+
+Find its density, expectation, and variance.
+\end{question}
+
+\begin{question}{B10}{An empirical CDF at one point}
+Four independent observations come from a distribution on $[0,1]$ with
+CDF $F(x)=x^2$ for $0\le x\le1$. The observed values are
+\[
+\frac14,\qquad \frac12,\qquad \frac34,\qquad \frac78.
+\]
+Calculate the observed fraction at or below $1/2$, and compare it with
+$F(1/2)$.
+
+If we repeatedly collect samples of size four, what are the expectation
+and variance of this fraction? You may write it as
+\[
+\widehat F_4(1/2)=\frac14\sum_{i=1}^{4}\mathbf1\{X_i\le1/2\}.
+\]
+\end{question}
+
+\begin{question}{B11}{Inference from a noisy reading}
+Let $K\sim\operatorname{Bernoulli}(1/4)$ indicate whether an item is defective.
+A sensor reports
+\[
+Y\mid K=k\sim\mathcal N(k,1).
+\]
+After observing $Y=1$, find $P(K=1\mid Y=1)$ and $\E[K\mid Y=1]$.
+Use the Gaussian density in Bayes' formula and leave exponentials unevaluated.
+\end{question}
+
+\begin{question}{B12}{A mixture of defect rates}
+A machine has one of two states, each with probability $1/2$. The number
+$K$ of defective items in a batch of two satisfies
+\[
+K\mid Z=0\sim\operatorname{Binomial}(2,1/4),\qquad
+K\mid Z=1\sim\operatorname{Binomial}(2,3/4).
+\]
+Find $\E[K]$ and $\Var(K)$, accounting for the randomness of the machine state.
+\end{question}
+
+\newpage
+\blocktitle{B}{Exercises adapted from Homework 1}
+\begin{question}{B13}{Waiting after no request has arrived}
+The waiting time $T$, measured in minutes, is exponential with rate $2$.
+No request has arrived during the first minute.
+
+Find the probability of waiting at least another half-minute:
+\[
+P(T>1.5\mid T>1).
+\]
+What is the expected additional waiting time $\E[T-1\mid T>1]$?
+Explain which property of the exponential distribution you use.
+\end{question}
+
+\begin{question}{B14}{Two arrival times on the same path}
+Successive gaps $G_1,G_2,G_3$ are independent exponential variables with
+rate $2$ requests per minute. The first and third arrival times are
+\[
+T_1=G_1,\qquad T_3=G_1+G_2+G_3.
+\]
+Find $\E[T_3]$, $\Var(T_3)$, and $\Cov(T_1,T_3)$.
+State the units of the expectation and variance.
+\end{question}
+
+\begin{question}{B15}{The distribution of one sensor reading}
+A sensor error is $X=B+\varepsilon$, where $B$ equals $-2$ or $2$, each
+with probability $1/2$. The noise $\varepsilon\sim\mathcal N(0,1)$ is
+independent of $B$.
+
+Write the distribution of $X$ as a mixture, specifying its weights and
+component distributions. Calculate $\E[X]$ and $\Var(X)$.
+\end{question}
+
+\begin{question}{B16}{Subtracting readings from the same sensor}
+Two readings share an offset:
+\[
+X_1=B+\varepsilon_1,\qquad X_2=B+\varepsilon_2.
+\]
+Here $B$ equals $-1$ or $1$ with equal probability, and
+$\varepsilon_1,\varepsilon_2$ are independent $\mathcal N(0,1)$ variables,
+independent of $B$.
+
+Find $\Cov(X_1,X_2)$, their correlation, and $\Var(X_1-X_2)$.
+Explain what happens to the shared offset when the readings are subtracted.
+\end{question}
+
+\newpage
+\blocktitle{B}{Exercises adapted from Homework 1}
+\begin{question}{B17}{Can these correlations exist?}
+Three zero-mean variables have variance $1$, and every distinct pair is
+claimed to have correlation $-3/4$.
+
+Calculate the implied variance of $X_1+X_2+X_3$. Can such variables exist?
+
+Now suppose every pair has correlation $-1/2$. What does the variance of
+the sum tell you about $X_1+X_2+X_3$?
+\end{question}
+
+\begin{question}{B18}{One coordinate of a random direction}
+Let $X\sim\mathcal N_{100}(0,I_{100})$ and $U=X/\|X\|$, where $I_{100}$
+is the $100\times100$ identity matrix. You may use that $U$ has the same
+distribution after any coordinate permutation or sign change, and
+\[
+\sum_{i=1}^{100}U_i^2=1.
+\]
+Use these symmetries to find $\E[U_1]$ and $\E[U_1^2]$.
+Then obtain an upper bound for $P(|U_1|\ge0.2)$ using Chebyshev's inequality.
+\end{question}
+
+\begin{question}{B19}{Overlapping random-walk increments}
+Let $\xi_1,\ldots,\xi_4$ be independent $\mathcal N(0,1)$ variables and
+$S_t=\sum_{i=1}^{t}\xi_i$. Consider
+\[
+A=S_3-S_1,\qquad B=S_4-S_2.
+\]
+Find $\Cov(A,B)$ and their correlation. Are $A$ and $B$ independent?
+Identify the noise terms that determine your answer.
+\end{question}
+
+\begin{question}{B20}{Choosing the variance of random weights}
+A fixed input is $x=(1,-1,1,-1)^\top$. A neuron has independent weights
+$w_i\sim\mathcal N(0,\sigma^2)$ and output
+\[
+z=w^\top x.
+\]
+Find the distribution of $z$. Choose $\sigma^2$ so that $\Var(z)=1$.
+
+Two neurons use independent weight vectors drawn with this variance and
+the same fixed input $x$. What is the covariance of their outputs?
+\end{question}
+
+\newpage
+\blocktitle{C}{New calculation problems}
+\begin{question}{C1}{Reading a joint distribution}
+The joint probabilities of $X,Y\in\{0,1\}$ are:
+\[
+\begin{array}{c|cc}
+ &Y=0&Y=1\\ \hline
+X=0&0.4&0.1\\
+X=1&0.2&0.3
+\end{array}
+\]
+Find $P(Y=1)$ and $P(X=1\mid Y=1)$. Are $X$ and $Y$ independent?
+\end{question}
+
+\begin{question}{C2}{A concentration bound}
+Let $X_1,\ldots,X_{100}$ be independent and identically distributed, with
+\[
+\E[X_i]=2,\qquad \Var(X_i)=9.
+\]
+Use Chebyshev's inequality to obtain an upper bound for
+\[
+P\left(|\overline X-2|\ge0.6\right).
+\]
+\end{question}
+
+\begin{question}{C3}{Approximating a sample mean}
+A sample contains $64$ independent observations from the same distribution,
+which has mean $5$ and variance $16$. Use the central limit theorem to
+approximate
+\[
+P(\overline X>6).
+\]
+You may use $P(Z>2)=0.0228$ for a standard normal variable $Z$.
+Is your answer necessarily exact under the stated assumptions?
+\end{question}
+
+\begin{question}{C4}{Method of moments}
+A Gamma model has shape $\alpha$ and rate $\beta$, with
+\[
+\E[X]=\frac{\alpha}{\beta},\qquad
+\Var(X)=\frac{\alpha}{\beta^2}.
+\]
+The observed sample mean is $4$, and the empirical variance
+\[
+\frac1n\sum_{i=1}^n(x_i-\overline x)^2
+\]
+equals $8$. Find the method-of-moments estimates of $\alpha$ and $\beta$.
+\end{question}
+
+\newpage
+\blocktitle{C}{New calculation problems}
+\begin{question}{C5}{Estimating an exponential rate}
+Three independent observations from an exponential distribution with unknown
+rate $\lambda$ are
+\[
+x_1=1,\qquad x_2=2,\qquad x_3=3.
+\]
+Write the likelihood and find the maximum likelihood estimate of $\lambda$.
+\end{question}
+
+\begin{question}{C6}{Adding a prior}
+Six independent Bernoulli trials produce four successes. The unknown success
+probability is $p$.
+
+Find the MLE of $p$. Then find its MAP estimate under the prior density
+\[
+\pi(p)\propto p(1-p),\qquad 0<p<1.
+\]
+You do not need to calculate any normalizing constants.
+\end{question}
+
+\begin{question}{C7}{Comparing two estimators}
+Two estimators of the same parameter have these properties:
+\[
+\begin{array}{c|cc}
+\text{Estimator}&\text{Bias}&\text{Variance}\\ \hline
+A&0&1/4\\
+B&1/4&1/16
+\end{array}
+\]
+Calculate their mean squared errors. Which estimator has the smaller MSE?
+\end{question}
+
+\begin{question}{C8}{A confidence interval for a mean}
+A sample of $16$ independent Gaussian observations has sample mean $3$.
+The population standard deviation is known to be $2$.
+
+Construct a $95\%$ confidence interval for the population mean, using
+$z_{0.975}=1.96$.
+
+How would the interval's width change if the sample size increased to $64$,
+with the same population standard deviation?
+\end{question}
+
+\newpage
+\blocktitle{C}{New calculation problems}
+\begin{question}{C9}{Bootstrap without a computer}
+The observed dataset is $(0,2)$. A bootstrap sample consists of two
+independent draws, with replacement, from these observed values.
+
+List the possible bootstrap sample means and their probabilities.
+Find the variance of the bootstrap sample mean.
+\end{question}
+
+\begin{question}{C10}{Entropy and an incorrect probability model}
+The true distribution of a binary outcome is
+\[
+P=(1/2,1/2),
+\]
+while a model predicts
+\[
+Q=(3/4,1/4).
+\]
+Calculate $H(P)$, the cross-entropy $H(P,Q)$, and $D_{\mathrm{KL}}(P\|Q)$.
+Use natural logarithms and leave them unevaluated.
+\end{question}
+
+\begin{question}{C11}{Curvature at the maximum}
+Four independent observations follow $\mathcal N(\mu,1)$, with unknown mean
+$\mu$. For the observed sample, the log-likelihood is
+\[
+\ell(\mu)=C-2(\mu-1)^2,
+\]
+where $C$ does not depend on $\mu$.
+
+Find the MLE and the observed information
+\[
+J_4(\mu)=-\ell''(\mu).
+\]
+What is the Fisher information $I_4(\mu)$ for this model?
+
+By how much does the log-likelihood decrease when $\mu$ moves $0.5$ away
+from the MLE?
+\end{question}
+
+\begin{question}{C12}{Predicting one Gaussian variable from another}
+The variables $X,Y$ are jointly Gaussian, with
+\[
+\E[X]=\E[Y]=0,\qquad
+\Var(X)=4,\qquad
+\Var(Y)=1,\qquad
+\Cov(X,Y)=1.
+\]
+After observing $Y=2$, find the conditional expectation and conditional
+variance of $X$.
+\end{question}
+\newpage
+\blocktitle{C}{New calculation problems}
+\begin{question}{C13}{Zero covariance with dependence}
+The random variable $X$ takes values $-1,0,1$, each with probability $1/3$.
+Let $Y=X^2$.
+
+Calculate $\Cov(X,Y)$. Are $X$ and $Y$ independent? Support your answer
+by comparing $P(Y=0\mid X=0)$ with $P(Y=0)$.
+\end{question}
+
+\begin{question}{C14}{Two estimates of a Gaussian variance}
+Three independent observations from $\mathcal N(\mu,\sigma^2)$ are
+\[
+x_1=1,\qquad x_2=2,\qquad x_3=3.
+\]
+Both parameters are unknown. Calculate the MLEs of $\mu$ and $\sigma^2$.
+Also calculate the usual unbiased sample variance. Explain why the two
+variance estimates differ.
+\end{question}
+
+\begin{question}{C15}{A mean interval with unknown variance}
+Nine independent observations from a Gaussian population have sample mean
+$\overline x=4$ and sample standard deviation $s=3$, calculated using
+denominator $n-1$. The population variance is unknown.
+
+Construct an exact $95\%$ confidence interval for the population mean,
+using $t_{0.975,8}=2.306$. Explain why the reference distribution is Student's
+$t$ with eight degrees of freedom.
+\end{question}
+
+\begin{question}{C16}{Two bootstrap intervals}
+An observed estimate is $\widehat\theta=3$. The $2.5\%$ and $97.5\%$
+quantiles of its bootstrap estimates are $2$ and $5$, respectively.
+
+Calculate the $95\%$ percentile interval and the $95\%$ basic bootstrap
+interval. Why do their endpoints differ in this example?
+\end{question}
+
+\newpage
+\blocktitle{C}{New calculation problems}
+\begin{question}{C17}{When Markov's bound is attained}
+A nonnegative random variable $X$ has expectation $3$.
+Use Markov's inequality to bound
+\[
+P(X\ge12).
+\]
+Construct a distribution supported on $\{0,12\}$ with expectation $3$
+for which this bound is attained.
+\end{question}
+
+\begin{question}{C18}{The score of a Bernoulli observation}
+One observation $X$ has Bernoulli mass function
+\[
+f_p(x)=p^x(1-p)^{1-x},\qquad x\in\{0,1\}.
+\]
+The score is $s_p(X)=\frac{\partial}{\partial p}\log f_p(X)$.
+At $p=1/4$, list its possible values and their probabilities.
+
+Use these values to calculate $\E_p[s_p(X)]$ and the Fisher information
+$I_1(p)=\E_p[s_p(X)^2]$ at $p=1/4$.
+\end{question}
+
+\begin{question}{C19}{A lower bound on estimator variance}
+A sample contains $16$ independent observations from $\mathcal N(\mu,4)$.
+The mean $\mu$ is unknown and the variance $4$ is known. The Fisher
+information about $\mu$ in one observation is $I_1(\mu)=1/4$.
+
+Find the information in the full sample and the Cram\'er--Rao lower bound
+for the variance of an estimator that is unbiased for $\mu$ throughout
+this model. Does the sample mean attain the bound? Show the calculation.
+\end{question}
+
+\begin{question}{C20}{An MLE at the boundary}
+Three independent observations are $1,2,3$. The model is uniform on
+$[0,\theta]$, with unknown $\theta>0$ and density
+\[
+f_\theta(x)=\frac1\theta\mathbf1\{0\le x\le\theta\}.
+\]
+Write the likelihood, including its support, and find the MLE of $\theta$.
+Explain why solving $\ell'(\theta)=0$ does not find the answer.
+\end{question}
+\end{document}

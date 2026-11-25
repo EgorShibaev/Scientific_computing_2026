@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=17mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,xcolor,tabularx,microtype}
+\usepackage[hidelinks]{hyperref}
+\definecolor{Ink}{HTML}{16324F}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\setlength{\emergencystretch}{1em}
+\newcommand{\question}[2]{\vspace{7pt}{\color{Ink}\bfseries #1. #2}\par}
+\newcommand{\choice}[2]{\par\textbf{#1.}\ #2\par}
+\hypersetup{pdftitle={Quiz: Lecture 7},pdfauthor={Scientific Computing 2026}}
+\begin{document}
+{\sffamily\color{Ink}\LARGE Quiz: Lecture 7}\par
+{\sffamily Scientific Computing 2026 \hfill 10 minutes \quad 5 questions}
+\vspace{4pt}\hrule\vspace{6pt}
+Name: \rule{9cm}{0.4pt}\hfill Date: \rule{2.5cm}{0.4pt}
+
+Choose one answer per question.
+
+\question{1}{Entropy}
+Consider two distributions:
+\[
+P=(0.5,0.5),\qquad Q=(0.9,0.1).
+\]
+How do their entropies compare?
+
+\choice{A}{$H(P)=H(Q)$, because both distributions have two possible outcomes.}
+\choice{B}{$H(P)>H(Q)$, because the outcome under $P$ is less predictable.}
+\choice{C}{$H(P)<H(Q)$, because one outcome under $Q$ is rare.}
+\choice{D}{$H(P)=0$, because its probabilities are equal.}
+
+\question{2}{Cross-entropy and KL divergence}
+Suppose the entropy of $P$ is $H(P)=0.6$ and the cross-entropy is
+$H(P,Q)=0.9$, using natural logarithms. What is $D_{\mathrm{KL}}(P\|Q)$?
+
+\begin{tabularx}{\linewidth}{@{}l@{\qquad}l@{\qquad}l@{\qquad}X@{}}
+\textbf{A.}\ $-0.3$ &
+\textbf{B.}\ $1.5$ &
+\textbf{C.}\ $0.3$ &
+\textbf{D.}\ It cannot be calculated without knowing $H(Q)$.
+\end{tabularx}
+
+\question{3}{Distillation}
+A teacher provides a fixed distribution $P$. A student predicts $Q_\theta$,
+where $\theta$ denotes its parameters. Consider two training objectives:
+\[
+L_1(\theta)=H(P,Q_\theta),\qquad
+L_2(\theta)=D_{\mathrm{KL}}(P\|Q_\theta).
+\]
+Which statement is correct?
+
+\choice{A}{The objectives differ by a constant independent of $\theta$, so they have the same minimizing parameter values.}
+\choice{B}{The objectives have exactly the same value for every $\theta$.}
+\choice{C}{They have the same minimizers only if the student can reproduce $P$ exactly.}
+\choice{D}{Minimizing either objective encourages the student to assign probability one to the teacher's most likely outcome.}
+
+\question{4}{At the likelihood maximum}
+For an observed dataset, the log-likelihood is
+\[
+\ell(\theta)=C-8(\theta-2)^2,
+\]
+where $C$ does not depend on $\theta$. At the maximum likelihood estimate,
+what are the score and observed information?
+
+\begin{tabularx}{\linewidth}{@{}XX@{}}
+\textbf{A.}\ Score $=0$, information $=0$. &
+\textbf{B.}\ Score $=16$, information $=0$.\\[3pt]
+\textbf{C.}\ Score $=0$, information $=8$. &
+\textbf{D.}\ Score $=0$, information $=16$.
+\end{tabularx}
+
+\question{5}{Efficient estimation}
+Independent Gaussian observations have unknown mean $\mu$ and known variance.
+The total Fisher information about $\mu$ is $25$. An unbiased estimator of
+$\mu$ has variance $0.04$. What can we conclude?
+
+\choice{A}{Such an estimator cannot exist: its variance must be at least $1/\sqrt{25}=0.2$.}
+\choice{B}{It attains the Cram\'er--Rao bound and is efficient among unbiased estimators.}
+\choice{C}{Every biased estimator must also have variance at least $0.04$.}
+\choice{D}{The estimator equals the true mean for every possible sample.}
+\end{document}

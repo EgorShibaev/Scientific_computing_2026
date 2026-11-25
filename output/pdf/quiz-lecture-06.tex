@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=17mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,xcolor,tabularx}
+\definecolor{Ink}{HTML}{16324F}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\newcommand{\question}[2]{\vspace{7pt}{\color{Ink}\bfseries #1. #2}\par}
+\newcommand{\choice}[2]{\par\textbf{#1.}\ #2\par}
+\begin{document}
+{\sffamily\color{Ink}\LARGE Quiz: Lecture 6}\par
+{\sffamily Scientific Computing 2026 \hfill 10 minutes \quad 5 questions}
+\vspace{4pt}\hrule\vspace{6pt}
+Name: \rule{9cm}{0.4pt}\hfill Date: \rule{2.5cm}{0.4pt}
+
+Choose one answer per question.
+
+\question{1}{Interpreting confidence}
+A 95\% confidence-interval procedure gives $[9.6,10.4]$ for a population
+mean $\mu$. What does the 95\% refer to?
+
+\choice{A}{Approximately 95\% of individual observations lie in this interval.}
+\choice{B}{The procedure covers the fixed true mean in 95\% of repeated experiments.}
+\choice{C}{After observing the data, the fixed mean has a 95\% probability of lying in this interval.}
+\choice{D}{The sample mean equals the population mean in 95\% of repeated experiments.}
+
+\question{2}{A Gaussian mean with unknown variance}
+Nine independent Gaussian observations have sample mean $\bar x=10$
+and sample standard deviation $s=3$, using denominator $n-1$.
+The population variance is unknown. Using $t_{0.975,8}=2.306$, which
+is the exact 95\% confidence interval for the mean, rounded to two decimals?
+
+\begin{tabularx}{\linewidth}{@{}XX@{}}
+\textbf{A.}\ $[8.04,11.96]$ & \textbf{B.}\ $[7.00,13.00]$\\[2pt]
+\textbf{C.}\ $[9.23,10.77]$ & \textbf{D.}\ $[7.69,12.31]$
+\end{tabularx}
+
+\question{3}{Twenty correct predictions}
+A classifier is correct on all 20 independent test examples. Applying
+the Wald formula gives
+\[
+  \widehat p\pm1.96\sqrt{\frac{\widehat p(1-\widehat p)}{20}}.
+\]
+Which statement is correct?
+
+\choice{A}{The interval is $[0.95,1]$, so population accuracy is at least 95\%.}
+\choice{B}{The interval is $[1,1]$, proving that population accuracy is 100\%.}
+\choice{C}{The interval is $[1,1]$; its zero estimated variance makes this approximation unreliable.}
+\choice{D}{The interval is $[0,1]$, because correct predictions provide no information.}
+
+\question{4}{More bootstrap repetitions}
+You estimate the standard error of the sample mean by bootstrapping
+the fixed sample $1,2,3,4,5$. What does increasing the number of
+bootstrap repetitions from $1{,}000$ to $100{,}000$ do?
+
+\choice{A}{It reduces the true standard error of the sample mean by a factor of 10.}
+\choice{B}{It estimates the bootstrap spread more precisely, without adding observations.}
+\choice{C}{It is equivalent to collecting $100{,}000$ independent population observations.}
+\choice{D}{It makes the bootstrap standard error tend to zero.}
+
+\question{5}{Comparing classifiers on the same examples}
+On the same 100 independent test examples, both classifiers are correct
+on 60, only A is correct on 20, only B on 10, and both are wrong on 10.
+Which combination gives the observed accuracy difference
+$\widehat p_A-\widehat p_B$ and a valid paired bootstrap procedure?
+
+\choice{A}{$0.10$; use the same resampled example indices for both classifiers.}
+\choice{B}{$0.10$; resample example indices independently for each classifier.}
+\choice{C}{$0.30$; use the same resampled example indices for both classifiers.}
+\choice{D}{$0.30$; resample example indices independently for each classifier.}
+\end{document}

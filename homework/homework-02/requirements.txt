@@ -1,0 +1,2 @@
+-r ../homework-01/requirements.txt
+ipywidgets>=8,<9

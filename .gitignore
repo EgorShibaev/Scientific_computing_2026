@@ -17,3 +17,7 @@ deliverables/
 
 # Private review notes, not student course material.
 output/audit/
+
+# Instructor's colloquium answer key
+/output/pdf/colloquium-solutions.pdf
+/output/pdf/colloquium-solutions/

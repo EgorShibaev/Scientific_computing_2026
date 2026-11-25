@@ -14,25 +14,27 @@
 \setbeamercolor{normal text}{fg=Ink,bg=white}
 \setbeamercolor{frametitle}{fg=Ink}
 \setbeamercolor{structure}{fg=Blue}
-\setbeamercolor{footline}{fg=Muted}
 \setbeamerfont{frametitle}{size=\large,series=\bfseries}
-\setbeamerfont{footline}{size=\tiny}
 \setbeamersize{text margin left=8mm,text margin right=8mm}
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{headline}{}
+\setbeamertemplate{footline}{}
+% Reserve bottom white space without displaying footer text or labels.
+\addtobeamertemplate{footline}{}{\vspace*{3mm}}
 \setbeamertemplate{frametitle}{\vspace{3mm}\insertframetitle\par\vspace{1mm}}
-\newcommand{\conspectsection}{6.1}
-\setbeamertemplate{footline}{%
-  \hspace{8mm}\usebeamerfont{footline}\usebeamercolor[fg]{footline}%
-  Conspect \S\,\conspectsection\hfill\insertframenumber\hspace{8mm}\vspace{3mm}}
-\setlength{\parskip}{0.5em}
-\setlength{\abovedisplayskip}{0.55em}
-\setlength{\belowdisplayskip}{0.55em}
+\setlength{\parskip}{0.2em}
+\setlength{\abovedisplayskip}{0.3em}
+\setlength{\belowdisplayskip}{0.3em}
+\newcommand{\slidespacing}{%
+  \setlength{\parskip}{0.2em}%
+  \setlength{\abovedisplayskip}{0.3em}%
+  \setlength{\belowdisplayskip}{0.3em}%
+  \setlength{\abovedisplayshortskip}{0.1em}%
+  \setlength{\belowdisplayshortskip}{0.2em}}
 \newcommand{\Prob}{\mathbb{P}}
 \newcommand{\Expect}{\mathbb{E}}
 \DeclareMathOperator{\Var}{Var}
 \DeclareMathOperator{\Cov}{Cov}
-\newcommand{\takeaway}[1]{\vfill{\small\color{Muted}#1\par}}
 \newcommand{\plotcaption}[1]{\par\smallskip{\small #1\par}}
 \setbeamertemplate{blocks}[default]
 \setbeamerfont{block title}{size=\normalsize,series=\bfseries}
@@ -42,9 +44,11 @@
   \setbeamercolor{block title}{fg=#1,bg=#1!13!white}
   \setbeamercolor{block body}{fg=Ink,bg=#1!4!white}
   \begin{block}{#2}
-  \setlength{\parskip}{0.2em}
+  \setlength{\parskip}{0.1em}
   \setlength{\abovedisplayskip}{0.3em}
   \setlength{\belowdisplayskip}{0.3em}
+  \setlength{\abovedisplayshortskip}{0.1em}
+  \setlength{\belowdisplayshortskip}{0.1em}
 }{\end{block}\endgroup}
 \newenvironment{definitionbox}[1]
   {\begin{coursebox}{Blue}{Definition: #1}}{\end{coursebox}}
@@ -53,9 +57,10 @@
 \newcommand{\InfDataPath}{../../figures/data}
 \newcommand{\InfPlotWidth}{12cm}
 \newcommand{\InfPlotHeight}{3.6cm}
+\newcommand{\InfPairedXAxis}{Bootstrap accuracy difference $\widehat\Delta^*$}
 \input{../../figures/ch6-plots}
-\title{Sampling distributions and confidence intervals}
-\subtitle{Lecture 6: Bootstrap and uncertainty after fitting}
+\title{Sampling distributions, confidence intervals, and bootstrap}
+\subtitle{Lecture 6}
 \author{}
 \date{Scientific Computing 2026}
 \hypersetup{pdftitle={Lecture 6: Sampling distributions, confidence intervals, and bootstrap},
@@ -63,333 +68,383 @@
 
 \begin{document}
 
-% 1
 {\setbeamercolor{background canvas}{bg=Ink}
+% Slide 1
 \begin{frame}[plain]
+\slidespacing
 \color{white}
 {\large Scientific Computing 2026\par}
 \vfill
 {\LARGE\bfseries Sampling distributions,\par
 confidence intervals, and bootstrap\par}
-\vspace{0.7em}
-{\large Uncertainty after fitting\par}
 \vfill
 {\large Lecture 6\par}\vspace{4mm}
 \end{frame}}
 
-% 2
+% Conspect 6.1
+% Slide 2
 \begin{frame}{Five waiting times, one fitted rate}
+\slidespacing
 The observations from Chapter 5 were
 \[
   1,\ 2,\ 3,\ 4,\ 5\text{ minutes}.
 \]
-The exponential model gave
+For independent exponential waits with unknown rate $\lambda$,
 \[
-  \widehat\lambda=\frac1{\bar t}=\frac13\text{ per minute}.
+  \widehat\lambda=\frac n{\sum_{i=1}^n t_i}
+  =\frac5{15}=\frac13\text{ per minute}.
 \]
-How much would that estimate change if we collected five new waits?
+A new sample of five waits usually gives a different estimate.
+We want an interval for the same unknown rate $\lambda$.
 \end{frame}
 
-% 3
-\begin{frame}{The parameter stays fixed when the sample changes}
-Imagine repeating the observation process under one true rate $\lambda$.
+% Slide 3
+\begin{frame}{Sampling distribution of an estimate}
+\slidespacing
+Keep the population rate $\lambda$ fixed. Repeat the same experiment:
 \[
-  (T_1,\ldots,T_n)\quad\longmapsto\quad
-  \widehat\lambda=\frac n{\sum_iT_i}.
+  \begin{array}{ccc}
+    \text{Sample 1: }(T_1^{(1)},\ldots,T_n^{(1)})
+      &\longmapsto&\widehat\lambda^{(1)}=n/\sum_iT_i^{(1)}\\[0.8em]
+    \text{Sample 2: }(T_1^{(2)},\ldots,T_n^{(2)})
+      &\longmapsto&\widehat\lambda^{(2)}=n/\sum_iT_i^{(2)}\\[0.8em]
+    \vdots&&\vdots
+  \end{array}
 \]
-Each new sample produces a new estimate. Their distribution describes
-the estimation error under that rate.
-\vfill
-In practice, we have one dataset and do not know $\lambda$.
+\begin{definitionbox}{Sampling distribution}
+The distribution of an estimate across new samples of the same size
+from the same population.
+\end{definitionbox}
 \end{frame}
 
-% 4
-\begin{frame}{The quantity whose uncertainty matters}
-An interval must refer to a specific population quantity.
-\par\smallskip
-{\renewcommand{\arraystretch}{1.5}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}ll@{}}
+% Slide 4
+\begin{frame}{An interval for which population quantity?}
+\slidespacing
+{\renewcommand{\arraystretch}{1.65}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lll@{}}
 \toprule
-Data & Possible target\\
+Observations & Parameter & Estimate\\
 \midrule
-Waiting times & Arrival rate $\lambda$ or mean wait $1/\lambda$\\
-Repeated measurements & Population mean $\mu$\\
-Independent test examples & Accuracy $p$ of a fixed classifier\\
+Waiting times & Rate $\lambda$ & $1/\bar T$\\
+Measurements & Mean $\mu$ & $\bar X$\\
+Correct / incorrect predictions & Accuracy $p$ & $k/n$\\
 \bottomrule
-\end{tabular*}}\par
-\takeaway{The variation of individual outcomes and the uncertainty of an
-estimated population quantity answer different questions.}
+\end{tabular*}}
+\par\medskip
+For independent measurements with variance $\sigma^2$,
+\[
+  \underbrace{\Var(X_i)=\sigma^2}_{\text{spread of one measurement}},
+  \qquad
+  \underbrace{\Var(\bar X)=\frac{\sigma^2}n}_{\text{spread of the estimated mean}}.
+\]
 \end{frame}
 
-\renewcommand{\conspectsection}{6.2}
-% 5
+% Conspect 6.2
+% Slide 5
 \begin{frame}{Confidence intervals}
+\slidespacing
+Write $\theta$ for the unknown population parameter, such as $\mu$ or $\lambda$.
 \begin{definitionbox}{Confidence interval with level $1-\alpha$}
-A rule that takes a sample $X=(X_1,\ldots,X_n)$ and returns
-$[L(X),U(X)]$, satisfying
+A rule takes a sample $X=(X_1,\ldots,X_n)$ and returns $[L(X),R(X)]$,
+with
 \[
-  \Prob_\theta\{L(X)\le\theta\le U(X)\}\ge1-\alpha
-  \qquad\text{for every allowed }\theta.
+  \Prob_\theta\{L(X)\le\theta\le R(X)\}\ge1-\alpha
+  \quad\text{for every allowed }\theta.
 \]
-The probability concerns repeated samples from $P_\theta$.
+Here $\Prob_\theta$ means sampling data with true parameter $\theta$.
+For $95\%$ confidence, $\alpha=0.05$.
 \end{definitionbox}
-An \textbf{exact} guarantee holds at the stated sample size under the model.
-An \textbf{approximate} interval can have coverage different from its nominal level.
+An \textbf{exact} interval has this guarantee at the stated sample size.
+An \textbf{approximate} interval may have different actual coverage.
 \end{frame}
 
-% 6
+% Slide 6
 \begin{frame}{Ninety-five percent coverage}
+\slidespacing
 \centering\InfCoveragePlot
-\plotcaption{Each of forty Gaussian samples ($n=25$, known $\sigma=2$)
-gives an interval. The fixed true mean is $10$. Orange intervals miss it.}
+\plotcaption{Forty independent samples, each with $n=25$, from
+$\mathcal N(10,2^2)$. Each segment is one interval. The true mean stays $10$.
+Orange intervals miss it.}
 \end{frame}
 
-% 7
-\begin{frame}{What the confidence level means}
-Before seeing the data, both endpoints are random.
-The interval construction covers the fixed parameter in at least $95\%$
-of repeated samples when it has a $95\%$ guarantee.
-\vfill
-After observing the data, the endpoints have numerical values.
-The realized interval either contains the parameter or misses it.
-\takeaway{A $95\%$ confidence level does not assign a posterior probability
-of $95\%$ to the parameter lying in the realized interval.}
-\end{frame}
-
-% 8
-\begin{frame}{Quantiles choose the central probability}
-\begin{definitionbox}{Quantile}
-For a CDF $F$ and $0<p<1$,
+% Replaces the prose-only explanation in original slide 7.
+% Slide 7
+\begin{frame}{Coverage belongs to the interval rule}
+\slidespacing
+Under the Gaussian model, before collecting data, the endpoints are random:
 \[
-  Q_p(F)=\inf\{x:F(x)\ge p\}.
+  \Prob_\mu\!\left\{
+  \bar X-1.96\frac{\sigma}{\sqrt n}\le\mu\le
+  \bar X+1.96\frac{\sigma}{\sqrt n}\right\}\approx0.95.
 \]
-For a continuous, strictly increasing CDF, $F(Q_p(F))=p$.
-\end{definitionbox}
-Write $z_p$ for the standard Gaussian quantile.
+After observing $n=25$, $\bar x=10.4$, with known $\sigma=2$:
 \[
-  z_{0.975}\approx1.96,\qquad
+  C(x)=[9.616,\ 11.184].
+\]
+Both this interval and $\mu$ are fixed. It either covers $\mu$ or misses it.
+\medskip
+The $95\%$ refers to the fraction of intervals covering $\mu$ across
+repeated experiments. A posterior probability would require a prior.
+\end{frame}
+
+% Slide 8
+\begin{frame}{Quantiles give the probability cutoffs}
+\slidespacing
+\begin{definitionbox}{Quantile for a continuous, increasing CDF}
+The $p$-quantile $q_p$ is the cutoff satisfying
+\[
+  \Prob(Y\le q_p)=p.
+\]
+For the standard Gaussian $Z\sim\mathcal N(0,1)$, write $z_p$.
+\end{definitionbox}
+\[
+  z_{0.025}\approx-1.96,\qquad z_{0.975}\approx1.96.
+\]
+\[
   \Prob(-1.96\le Z\le1.96)\approx0.95.
 \]
+Each excluded tail has probability $0.025$.
 \end{frame}
 
-% 9
+% Slide 9
 \begin{frame}{A Gaussian mean with known variance}
-Assume $X_i\overset{\mathrm{iid}}\sim\mathcal N(\mu,\sigma^2)$,
+\slidespacing
+Assume $X_1,\ldots,X_n$ are i.i.d. $\mathcal N(\mu,\sigma^2)$,
 with known $\sigma>0$.
 \[
-  Z=\frac{\sqrt n(\bar X-\mu)}{\sigma}\sim\mathcal N(0,1).
+  \bar X\sim\mathcal N\!\left(\mu,\frac{\sigma^2}n\right),
+  \qquad
+  Z=\frac{\bar X-\mu}{\sigma/\sqrt n}\sim\mathcal N(0,1).
 \]
-The standardized error has a known law that does not depend on $\mu$.
-Such a quantity is called a \textbf{pivot}.
-\[
-  \Prob_\mu\!\left\{-z_{1-\alpha/2}\le
-  \frac{\sqrt n(\bar X-\mu)}\sigma
-  \le z_{1-\alpha/2}\right\}=1-\alpha.
-\]
-\end{frame}
-
-% 10
-\begin{frame}{An interval by rearranging the inequalities}
-\begin{resultbox}{Gaussian mean, known variance}
-Under the preceding Gaussian assumptions, an exact interval is
-\[
-  \left[\bar X-z_{1-\alpha/2}\frac\sigma{\sqrt n},\quad
-        \bar X+z_{1-\alpha/2}\frac\sigma{\sqrt n}\right].
-\]
-\end{resultbox}
-Larger $\sigma$ produces a wider interval.\
-Four times as many observations halves its width.\
-Higher confidence increases the quantile and widens the interval.
-\end{frame}
-
-\renewcommand{\conspectsection}{6.3}
-% 11
-\begin{frame}{The noise variance usually needs estimation}
-Use the sample variance from Chapter 5,
-\[
-  S^2=\frac1{n-1}\sum_i(X_i-\bar X)^2,\qquad n\ge2.
-\]
-Replacing $\sigma$ by $S$ also puts random variation into the denominator:
-\[
-  \frac{\sqrt n(\bar X-\mu)}S.
-\]
-An unusually small $S$ can make this standardized error large.
-The Gaussian cutoff $1.96$ no longer gives the exact $95\%$ interval.
-\end{frame}
-
-% 12
-\begin{frame}{The distribution of a Gaussian sum of squares}
-\begin{definitionbox}{Chi-square distribution}
-For independent $Z_j\sim\mathcal N(0,1)$,
-\[
-  U=\sum_{j=1}^{\nu}Z_j^2\sim\chi^2_\nu.
-\]
-This is Gamma with shape $\nu/2$ and rate $1/2$.
-The number $\nu$ is called the degrees of freedom.
+\begin{definitionbox}{Pivot}
+A function of the sample and unknown parameters whose distribution is
+known and does not depend on any unknown parameter.
 \end{definitionbox}
-For an i.i.d. Gaussian sample,
-\[
-  U=\frac{(n-1)S^2}{\sigma^2}\sim\chi^2_{n-1},
-  \qquad U\ \text{is independent of }\bar X.
-\]
-\takeaway{Estimating the sample mean leaves $n-1$ independent directions
-for the centered Gaussian variation.}
+Here $Z$ is a pivot: its distribution is $\mathcal N(0,1)$ for every $\mu$.
 \end{frame}
 
-% 13
-\begin{frame}{The Student pivot for an unknown variance}
-The Student construction from Chapter 2 takes the form
+% Slide 10
+\begin{frame}{Rearranging the pivot gives an interval}
+\slidespacing
+The following inequalities describe the same event:
 \[
-  \frac{Z}{\sqrt{U/\nu}}\sim t_\nu,
-  \quad Z\sim\mathcal N(0,1),\quad U\sim\chi^2_\nu,
-  \quad Z\perp U.
+  -z_{1-\alpha/2}\le\frac{\bar X-\mu}{\sigma/\sqrt n}
+  \le z_{1-\alpha/2}
 \]
-Here $\nu=n-1$, so
 \[
-  \frac{\sqrt n(\bar X-\mu)}S\sim t_{n-1}.
+  \Longleftrightarrow\quad
+  \bar X-z_{1-\alpha/2}\frac\sigma{\sqrt n}\le\mu\le
+  \bar X+z_{1-\alpha/2}\frac\sigma{\sqrt n}.
 \]
-Write $t_{\nu,p}$ for the $p$-quantile of $t_\nu$.
-\begin{resultbox}{Gaussian mean, unknown variance}
-For i.i.d. Gaussian data, an exact $1-\alpha$ interval is
+\begin{resultbox}{Exact Gaussian mean interval, known variance}
 \[
-  \bar X\ \pm\ t_{n-1,\,1-\alpha/2}\frac S{\sqrt n}
+  \bar X\ \pm\ z_{1-\alpha/2}\frac\sigma{\sqrt n}.
 \]
+\end{resultbox}
+The half-width is $z_{1-\alpha/2}\sigma/\sqrt n$.
+Multiplying $n$ by four halves it.
+\end{frame}
+
+% Conspect 6.3
+% Slide 11
+\begin{frame}{Estimating the unknown noise variance}
+\slidespacing
+For $n\ge2$, estimate $\sigma^2$ using
+\[
+  S^2=\frac1{n-1}\sum_{i=1}^n(X_i-\bar X)^2.
+\]
+Write $S=\sqrt{S^2}$.
+The standardized error now has a random denominator:
+\[
+  \frac{\bar X-\mu}{S/\sqrt n}
+  =\underbrace{\frac{\bar X-\mu}{\sigma/\sqrt n}}_{\mathcal N(0,1)}
+   \underbrace{\frac\sigma S}_{\text{random}}.
+\]
+A sample with an unusually small $S$ makes this ratio larger in magnitude.
+We need its distribution before choosing a cutoff.
+\end{frame}
+
+% Original slide 12, expanded into two slides.
+% Source: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2.html
+% Gamma parameters below use shape and rate, as in Chapter 2.
+% Slide 12
+\begin{frame}{Chi-square is a Gamma distribution}
+\slidespacing
+\begin{definitionbox}{Chi-square with $\nu$ degrees of freedom}
+For $\nu$ independent standard Gaussians,
+\[
+  Z_1,\ldots,Z_\nu\overset{\mathrm{iid}}\sim\mathcal N(0,1),
+  \qquad \sum_{j=1}^{\nu}Z_j^2\sim\chi^2_\nu.
+\]
+\end{definitionbox}
+Squaring one standard Gaussian gives, for $u>0$,
+\[
+  f_{Z^2}(u)=\frac{e^{-u/2}}{\sqrt{2\pi u}},
+  \qquad Z^2\sim\operatorname{Gamma}\!\left(\tfrac12,\tfrac12\right).
+\]
+Independent Gamma variables with the same rate add their shapes:
+\[
+  \boxed{\chi^2_\nu=\operatorname{Gamma}\!\left(
+    \text{shape}=\tfrac\nu2,\ \text{rate}=\tfrac12\right).}
+\]
+\end{frame}
+
+% Second part of original slide 12.
+% Source: https://online.stat.psu.edu/stat414/Lesson26, section 26.3.
+% Slide 13
+\begin{frame}{Why the sample variance gives $n-1$ degrees of freedom}
+\slidespacing
+For i.i.d. Gaussian data, the residuals have one constraint:
+$\sum_i(X_i-\bar X)=0$.
+\begin{resultbox}{Gaussian sample variance}
+\[
+  U=\frac{(n-1)S^2}{\sigma^2}
+   =\sum_{i=1}^n\left(\frac{X_i-\bar X}{\sigma}\right)^2
+   \sim\chi^2_{n-1}.
+\]
+$U$ is independent of $\bar X$.
+\end{resultbox}
+For $n=2$, this can be checked directly:
+\[
+  U=\left(\frac{X_1-X_2}{\sqrt2\,\sigma}\right)^2
+  \sim\chi^2_1.
+\]
+The general proof uses a Gaussian coordinate rotation to separate the mean
+and $n-1$ independent residual components. We omit this longer derivation.
+\end{frame}
+
+% Original slide 13.
+% Slide 14
+\begin{frame}{Student's distribution accounts for estimating $\sigma$}
+\slidespacing
+For independent $Z\sim\mathcal N(0,1)$ and $U\sim\chi^2_\nu$,
+\[
+  \frac Z{\sqrt{U/\nu}}\sim t_\nu.
+\]
+Insert $Z=\sqrt n(\bar X-\mu)/\sigma$ and $\nu=n-1$:
+\[
+  \frac Z{\sqrt{U/(n-1)}}
+  =\frac{\sqrt n(\bar X-\mu)/\sigma}{S/\sigma}
+  =\frac{\bar X-\mu}{S/\sqrt n}\sim t_{n-1}.
+\]
+\begin{resultbox}{Exact Gaussian mean interval, unknown variance}
+\[
+  \bar X\ \pm\ t_{n-1,\,1-\alpha/2}\frac S{\sqrt n}.
+\]
+$t_{\nu,p}$ denotes the $p$-quantile of $t_\nu$.
 \end{resultbox}
 \end{frame}
 
-% 14
-\begin{frame}{Estimating variance makes the tails heavier}
+% Original slide 14.
+% Slide 15
+\begin{frame}{Gaussian and Student cutoffs}
+\slidespacing
 \centering\InfStudentPlot
-\plotcaption{The Student law gives more room to large standardized errors.
-For nine degrees of freedom, the $97.5\%$ quantile is approximately $2.262$.}
+\plotcaption{For nine degrees of freedom, Student's $97.5\%$ cutoff is
+$2.262$. Its heavier tails require a larger cutoff than the Gaussian $1.960$.}
 \end{frame}
 
-% 15
-\begin{frame}{Ten measurements}
-Suppose the Gaussian model is appropriate and
-\[
-  n=10,\qquad\bar x=10.2,\qquad s=1.5.
-\]
-The $95\%$ Student interval has margin
-\[
-  t_{9,0.975}\frac s{\sqrt n}
-  \approx2.262\frac{1.5}{\sqrt{10}}\approx1.073.
-\]
-\begin{resultbox}{95\% confidence interval for the population mean}
-\[
-  C(x)=[9.13,\ 11.27].
-\]
-\end{resultbox}
-\takeaway{Using $1.96$ instead gives a smaller margin of $0.930$,
-which ignores the uncertainty in estimating the variance.}
-\end{frame}
+% Original slide 15.
 
-% 16
-\begin{frame}{Mean intervals beyond Gaussian data}
-For i.i.d. observations with finite, positive variance,
-the studentized CLT gives
+
+% Original slide 16.
+% Slide 16
+\begin{frame}{Non-Gaussian data: an approximate mean interval}
+\slidespacing
+Assume i.i.d. observations with $\Expect X_i=\mu$ and
+$0<\Var(X_i)=\sigma^2<\infty$. The CLT and consistency of $S$ give
 \[
   \frac{\sqrt n(\bar X-\mu)}S
-  \ \xrightarrow{d}\ \mathcal N(0,1).
+  =\underbrace{\frac{\sqrt n(\bar X-\mu)}\sigma}
+      _{\xrightarrow{d}\,\mathcal N(0,1)}
+   \underbrace{\frac\sigma S}_{\xrightarrow{P}\,1}
+  \xrightarrow{d}\mathcal N(0,1).
 \]
-Thus $\bar X\pm1.96S/\sqrt n$ is an asymptotic $95\%$ interval.
-The same Student formula often gives a similar approximation for large $n$.
-\vfill
-For a finite non-Gaussian sample, the exact $t_{n-1}$ law need not hold.
-\takeaway{Skewness and heavy tails can make the approximation poor.
-There is no universal sample size such as $n=30$ that guarantees accuracy.}
-\end{frame}
-
-% 17
-\begin{frame}{A population mean and a future measurement}
-The mean interval becomes narrow as we estimate $\mu$ more precisely:
+\begin{resultbox}{Large-sample approximation}
 \[
-  \bar X\pm t_{n-1,\,1-\alpha/2}\frac S{\sqrt n}.
-\]
-A future observation also has its own measurement noise.
-Under the same i.i.d. Gaussian model, an exact prediction interval is
-\[
-  \bar X\pm t_{n-1,\,1-\alpha/2}S\sqrt{1+\frac1n}.
-\]
-\takeaway{The prediction interval remains wide even with a very large
-sample. Individual measurements still vary around the mean.}
-\end{frame}
-
-% 18
-\begin{frame}{An exact interval for the exponential rate}
-For independent exponential waits, their random total satisfies
-\[
-  W=\sum_iT_i\sim\operatorname{Gamma}(n,\lambda),
-  \qquad2\lambda W\sim\chi^2_{2n}.
-\]
-Write $c_{\nu,p}$ for the $p$-quantile of $\chi^2_\nu$.
-\begin{resultbox}{Exponential rate interval}
-\[
-  \left[\frac{c_{2n,\alpha/2}}{2W},\quad
-        \frac{c_{2n,1-\alpha/2}}{2W}\right].
+  \bar X\ \pm\ 1.96\frac S{\sqrt n}
+  \qquad\text{targets }95\%\text{ coverage as }n\to\infty.
 \]
 \end{resultbox}
-For the original five waits, the observed total is $w=15$ minutes:
+Gaussian data give an exact Student interval at every $n\ge2$.
+For other distributions, skewness and heavy tails can slow the approximation.
+\end{frame}
+
+% Original slide 17.
+
+
+% Original slide 18, derivation.
+% Slide 17
+\begin{frame}{An exact pivot for the exponential rate}
+\slidespacing
+Assume $T_1,\ldots,T_n\overset{\mathrm{iid}}\sim\operatorname{Exp}(\lambda)$.
+The sum rule from Chapter 2 gives
 \[
-  \widehat\lambda=0.333,\qquad
-  95\%\text{ interval }[0.108,\ 0.683]\text{ per minute}.
+  W=\sum_{i=1}^nT_i\sim\operatorname{Gamma}(n,\text{rate}=\lambda).
+\]
+Scaling changes the rate to $1/2$, so
+\[
+  2\lambda W\sim\operatorname{Gamma}(n,\text{rate}=1/2)=\chi^2_{2n}.
+\]
+Write $c_{\nu,p}$ for the $p$-quantile of $\chi^2_\nu$. Since $W>0$,
+\[
+  c_{2n,0.025}\le2\lambda W\le c_{2n,0.975}
+  \quad\Longleftrightarrow\quad
+  \frac{c_{2n,0.025}}{2W}\le\lambda\le\frac{c_{2n,0.975}}{2W}.
+\]
+The event on each side has probability $0.95$.
+\end{frame}
+
+% Original slide 18, numerical example made into a full slide.
+
+
+% Conspect 6.4; original slide 19.
+% Slide 18
+\begin{frame}{Accuracy is a sample mean of Bernoulli outcomes}
+\slidespacing
+Fix a classifier with population accuracy $p$. Test it on $n$ i.i.d. examples.
+Let $Y_i=1$ if prediction $i$ is correct, and $Y_i=0$ otherwise.
+\[
+  Y_i\sim\operatorname{Bernoulli}(p),\quad
+  k=\sum_iY_i,\quad \widehat p=\bar Y=\frac kn,\quad
+  \Var(\widehat p)=\frac{p(1-p)}n.
+\]
+\begin{resultbox}{Approximate 95\% Wald interval}
+\[
+  \widehat p\ \pm\ 1.96\sqrt{\frac{\widehat p(1-\widehat p)}n}.
+\]
+\end{resultbox}
+\[
+  k=84,\ n=100:\qquad0.84\pm1.96\sqrt{\frac{0.84\cdot0.16}{100}}
+  \approx[0.768,\ 0.912].
 \]
 \end{frame}
 
-\renewcommand{\conspectsection}{6.4}
-% 19
-\begin{frame}{Accuracy on independent test examples}
-For a fixed classifier, let $Y_i=1$ when its prediction is correct.
-Under independent examples from one test population,
+% Original slide 20.
+% Slide 19
+\begin{frame}{Twenty correct predictions do not prove perfect accuracy}
+\slidespacing
+Suppose all $20$ test predictions are correct:
 \[
-  Y_i\sim\operatorname{Bernoulli}(p),\qquad
-  \widehat p=\frac kn,\qquad
-  \operatorname{SE}(\widehat p)=\sqrt{\frac{p(1-p)}n}.
+  \widehat p=1,\qquad
+  \sqrt{\frac{\widehat p(1-\widehat p)}{20}}=0,
+  \qquad C_{\mathrm{Wald}}=[1,1].
 \]
-The CLT and substitution of $\widehat p$ give the Wald interval:
+Yet a classifier with true accuracy $p=0.95$ gives this result with probability
 \[
-  \widehat p\ \pm\ z_{1-\alpha/2}
-  \sqrt{\frac{\widehat p(1-\widehat p)}n}.
+  \Prob(k=20\mid p=0.95)=0.95^{20}\approx0.358.
 \]
-\takeaway{For $k=84$ correct predictions out of $n=100$,
-the approximate $95\%$ interval is $[0.768,\ 0.912]$.}
+The estimated variance collapses at $\widehat p=1$.
+The same failure gives $[0,0]$ when $k=0$.
 \end{frame}
 
-% 20
-\begin{frame}{Why the Wald interval can fail}
-Suppose zero out of twenty tested cases have the outcome of interest.
-Then $\widehat p=0$, and the estimated standard error is also zero.
-\[
-  \text{Wald interval}=[0,0].
-\]
-But a small positive probability can easily produce twenty zero outcomes:
-\[
-  p=0.05\quad\Longrightarrow\quad
-  \Prob(k=0)=0.95^{20}\approx0.358.
-\]
-\takeaway{Substituting a boundary estimate into the variance collapses
-the interval. Small counts also make Gaussian approximations unreliable.}
-\end{frame}
-
-% 21
-\begin{frame}{An interval that retains the candidate variance}
-For each candidate probability $p$, use its variance in the standardized error:
-\[
-  \frac{\widehat p-p}{\sqrt{p(1-p)/n}}.
-\]
-Keep the candidates for which the error is at most $z=z_{1-\alpha/2}$ in magnitude:
-\[
-  n(\widehat p-p)^2\le z^2p(1-p).
-\]
-Solving this quadratic inequality for $p$ gives the Wilson interval.
-\takeaway{This construction also uses a Gaussian approximation.
-Its coverage is generally much better behaved near the boundaries.}
-\end{frame}
-
-% 22
-\begin{frame}{The Wilson proportion interval}
-\begin{resultbox}{Wilson interval, nominal level $1-\alpha$}
-With $z=z_{1-\alpha/2}$, the interval is
+% Original slide 22. The Wilson algebra on original slide 21 is removed.
+% Source: https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm
+% Slide 20
+\begin{frame}{Wilson's interval for a proportion}
+\slidespacing
+\begin{resultbox}{Wilson interval, nominal confidence $1-\alpha$}
+With $\widehat p=k/n$ and $z=z_{1-\alpha/2}$,
 \[
   \frac{\displaystyle\widehat p+\frac{z^2}{2n}
     \ \pm\ z\sqrt{\frac{\widehat p(1-\widehat p)}n+
@@ -397,147 +452,210 @@ With $z=z_{1-\alpha/2}$, the interval is
        {\displaystyle1+\frac{z^2}n}.
 \]
 \end{resultbox}
-For zero outcomes in twenty trials, the $95\%$ interval is
-\[
-  \left[0,\ \frac{1.96^2}{20+1.96^2}\right]
-  \approx[0,\ 0.161].
-\]
+It avoids Wald's zero-width boundary intervals and usually improves coverage
+near $0$ and $1$. Its coverage is still approximate.
 \end{frame}
 
-% 23
-\begin{frame}{Nominal confidence and actual coverage}
+% Original slide 23.
+% Slide 21
+\begin{frame}{Actual coverage of Wald and Wilson intervals}
+\slidespacing
 \centering\InfProportionCoveragePlot
-\plotcaption{For $n=20$ and each true $p$, sum binomial probabilities of counts
-whose interval contains $p$. Discrete counts make coverage fluctuate.}
+\plotcaption{For each true $p$, sum the probabilities of all counts $k$ whose
+interval contains $p$: $\sum_{k=0}^{20}\mathbf1_{\{p\in C(k)\}}
+\binom{20}{k}p^k(1-p)^{20-k}$. Here $C(k)$ is the interval from count $k$.}
 \end{frame}
 
-\renewcommand{\conspectsection}{6.5}
-% 24
-\begin{frame}{Using the observed distribution}
-When a statistic has no convenient sampling formula, the observations
-can supply an approximate population law.
+% Conspect 6.5; original slide 24.
+% Slide 22
+\begin{frame}{The empirical distribution}
+\slidespacing
+We have one sample, $x=(1,2,3,4,5)$, but want to imitate new samples.
 \begin{definitionbox}{Empirical distribution}
-Put probability $1/n$ on each observed row:
-\[
-  F_n(t)=\frac1n\sum_{i=1}^n\mathbf1_{\{x_i\le t\}}.
-\]
-Repeated values receive the sum of their masses.
+Assign probability $1/n$ to each of the $n$ recorded observations.
+Repeated values receive their combined probability.
 \end{definitionbox}
-Drawing from this law means selecting an observed row uniformly at random.
+For the five observed waits, a draw $X^*$ has probabilities
+\[
+  \begin{array}{c|ccccc}
+    \text{value}&1&2&3&4&5\\\hline
+    \text{probability}&1/5&1/5&1/5&1/5&1/5
+  \end{array}
+\]
+The star marks a draw from the observed sample, rather than from the unknown
+population. The recorded values stay fixed during resampling.
 \end{frame}
 
-% 25
-\begin{frame}{One bootstrap sample}
-Start with the five observed waits
+% Original slide 25.
+% Slide 23
+\begin{frame}{Sampling with replacement}
+\slidespacing
+Select $n=5$ recorded observations independently, allowing repetition:
 \[
   x=(1,2,3,4,5),\qquad\bar x=3.
 \]
-Draw five independent indices uniformly from $\{1,\ldots,5\}$,
-allowing repeated indices. One possible result is
+One possible bootstrap sample is
 \[
-  x^*=(1,1,2,4,5),\qquad\bar x^*=2.6.
+  x^*=(1,1,2,4,5),\qquad\bar x^*=\frac{13}5=2.6.
 \]
-Other draws omit some observations and repeat others.
-\takeaway{The star denotes a random resample, conditional on the fixed
-observed data. Each bootstrap sample has the original sample size $n$.}
+\begin{definitionbox}{Bootstrap sample}
+$n$ independent draws from the empirical distribution, with replacement.
+The resample has the same size as the original sample.
+\end{definitionbox}
+Without replacement, taking all five observations only changes their order:
+the mean would always stay $3$.
 \end{frame}
 
-% 26
-\begin{frame}{Bootstrap replicates of a fitted statistic}
-For a statistic $\widehat\theta=T(x_1,\ldots,x_n)$:
-\begin{enumerate}
-  \item Draw $n$ indices independently and uniformly, with replacement.
-  \item Form the resampled rows $x_1^*,\ldots,x_n^*$.
-  \item Recompute the whole statistic, $\widehat\theta^*=T(x_1^*,\ldots,x_n^*)$.
-  \item Repeat to get $B$ replicates $\widehat\theta^{*(1)},\ldots,
-        \widehat\theta^{*(B)}$.
-\end{enumerate}
-\takeaway{The same fitting rule applies to every replicate.
-The examples here use $B=20{,}000$ to stabilize the simulated quantiles.}
+% Original slide 26; the repeated fitting rule is now an example.
+% Slide 24
+\begin{frame}{Recompute the same estimate in every resample}
+\slidespacing
+For each $b=1,\ldots,B$, draw a new sample of size $n$ with replacement.
+Let $m_b$ be its sample mean.
+\par\medskip
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}clcc@{}}
+\toprule
+$b$ & Resample & Mean $m_b$ & Rate $1/m_b$\\
+\midrule
+1 & $(1,1,2,4,5)$ & $2.6$ & $0.385$\\
+2 & $(2,3,3,3,4)$ & $3.0$ & $0.333$\\
+3 & $(1,1,1,2,3)$ & $1.6$ & $0.625$\\
+\bottomrule
+\end{tabular*}}
+\par\medskip
+Three of the $B$ repetitions are shown. Each resample uses the same fitting rule.
+The histograms below use $B=20{,}000$.
 \end{frame}
 
-% 27
-\begin{frame}{The error distribution we try to approximate}
-The real estimation error is $\widehat\theta-\theta$.
-In the bootstrap population, the fitted counterpart of $\theta$ is $\widehat\theta$.
-The bootstrap error is therefore
-\[
-  \widehat\theta^*-\widehat\theta.
-\]
-For an i.i.d. sample mean with finite, positive population variance,
-the centered bootstrap error approximates the sampling error as $n$ grows:
-\[
-  \mathcal L\!\left(\sqrt n(\bar X^*-\bar x)\mid x\right)
-  \ \approx\ \mathcal L_\mu\!\left(\sqrt n(\bar X-\mu)\right).
-\]
-Here $\mathcal L$ denotes a distribution; conditioning on $x$ fixes the
-observed data. Other statistics require their own approximation conditions.
+% Original slide 27. No distribution-of-a-distribution notation.
+% Slide 25
+\begin{frame}{Which errors does the bootstrap imitate?}
+\slidespacing
+For a population mean $\mu$ and the one observed mean $\bar x$,
+\par\medskip
+{\renewcommand{\arraystretch}{1.7}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lll@{}}
+\toprule
+ & Fresh population sample & Bootstrap resample\\
+\midrule
+Source mean & $\mu$ (unknown) & $\bar x$ (known)\\
+Sample estimate & $\bar X$ & $m_b$\\
+Error & $\bar X-\mu$ & $m_b-\bar x$\\
+\bottomrule
+\end{tabular*}}
+\par\medskip
+Use the resampling errors $m_b-\bar x$ to approximate the real error
+$\bar X-\mu$. For i.i.d. data with finite, positive variance, this works
+as $n$ grows. Small samples can give a poor approximation.
 \end{frame}
 
-% 28
-\begin{frame}{A bootstrap standard error}
-\begin{resultbox}{Estimated spread of the statistic}
-With $\overline\theta^*=B^{-1}\sum_b\widehat\theta^{*(b)}$,
+% Original slide 28. Every symbol is defined next to the formula.
+% Slide 26
+\begin{frame}{Bootstrap standard error}
+\slidespacing
+The $B$ resample means are $m_1,\ldots,m_B$.
+Their average is $\bar m=B^{-1}\sum_{b=1}^B m_b$.
+\begin{definitionbox}{Bootstrap standard error of the sample mean}
+The sample standard deviation of the resample means:
 \[
   \widehat{\operatorname{SE}}_{\mathrm{boot}}
-  =\sqrt{\frac1{B-1}\sum_{b=1}^B
-          (\widehat\theta^{*(b)}-\overline\theta^*)^2}.
+  =\sqrt{\frac1{B-1}\sum_{b=1}^B(m_b-\bar m)^2}.
 \]
-\end{resultbox}
-For the five waits, the exact conditional bootstrap calculation gives
-\[
-  \Expect^*[\bar X^*]=3,\qquad
-  \Var^*(\bar X^*)=\frac25=0.4.
-\]
-\takeaway{The usual sample estimate $S^2/n$ is $0.5$ here.
-The empirical distribution uses denominator $n$ in its own variance.}
-\end{frame}
-
-% 29
-\begin{frame}{Percentile bootstrap intervals}
-Let $q_p^*$ denote the empirical $p$-quantile of the bootstrap estimates.
-\begin{definitionbox}{Percentile interval}
-\[
-  [q_{\alpha/2}^*,\ q_{1-\alpha/2}^*].
-\]
-Keep the central $1-\alpha$ fraction of the bootstrap estimates.
 \end{definitionbox}
-This is a direct interval construction. Its coverage is approximate
-and depends on the statistic and sampling distribution.
+Five waits $(1,2,3,4,5)$: $\bar x=3$ and empirical variance $2$.
+\[
+  \Var(\bar X^*)=\frac25,\qquad
+  \widehat{\operatorname{SE}}_{\mathrm{boot}}\approx\sqrt{\frac25}\approx0.632.
+\]
 \end{frame}
 
-% 30
-\begin{frame}{Inverting centered bootstrap errors}
-The approximate central error bounds are
+% Original slide 29, with the numerical example introduced here.
+% Slide 27
+\begin{frame}{Percentile bootstrap interval}
+\slidespacing
+Sort the $B$ resample means $m_1,\ldots,m_B$.
+Write $q_p^*$ for their $p$-quantile.
+\begin{definitionbox}{Percentile interval for the population mean $\mu$}
 \[
-  q_{\alpha/2}^*-\widehat\theta
-  \ \lesssim\ \widehat\theta-\theta
-  \ \lesssim\ q_{1-\alpha/2}^*-\widehat\theta.
+  [q_{0.025}^*,\ q_{0.975}^*]\qquad\text{for nominal }95\%\text{ confidence}.
 \]
-Rearranging for $\theta$ gives another construction.
+\end{definitionbox}
+A separate example uses $40$ observed waits, with mean $\bar x=4.495$ minutes.
+Its $20{,}000$ resample means give
+\[
+  q_{0.025}^*=3.399,\quad q_{0.975}^*=5.682,
+  \qquad C_{\mathrm{percentile}}=[3.399,\ 5.682].
+\]
+The interval takes the central $95\%$ of the bootstrap estimates.
+Its population coverage is approximate.
+\end{frame}
+
+% Original slide 30. Derivation and explicit comparison.
+% Source: https://web.stanford.edu/class/stats200/Lecture19.pdf
+% Slide 28
+\begin{frame}{Basic bootstrap interval: subtract the estimated errors}
+\slidespacing
+The errors $m_b-\bar x$ have approximate central bounds
+\[
+  [q_{0.025}^*-\bar x,\ q_{0.975}^*-\bar x]
+  \approx[\,{-1.096},\ 1.187\,].
+\]
+Use these as approximate bounds on the real error:
+\[
+  -1.096\le\bar x-\mu\le1.187
+  \quad\Longleftrightarrow\quad
+  \bar x-1.187\le\mu\le\bar x+1.096.
+\]
 \begin{definitionbox}{Basic bootstrap interval}
 \[
-  [2\widehat\theta-q_{1-\alpha/2}^*,\quad
-   2\widehat\theta-q_{\alpha/2}^*].
+  [\,2\bar x-q_{0.975}^*,\ 2\bar x-q_{0.025}^*\,]
+  \approx[3.31,\ 5.59].
 \]
 \end{definitionbox}
-\takeaway{The basic interval reflects the bootstrap quantiles about
-$\widehat\theta$. It can differ from the percentile interval.}
+An upward estimation error means the estimate is too high, so we subtract it.
 \end{frame}
 
-% 31
-\begin{frame}{Bootstrap estimates of a mean waiting time}
+% Comparison added to explain the difference requested for original slide 30.
+% Slide 29
+\begin{frame}{Percentile versus basic intervals}
+\slidespacing
+Both use the same resample means and their quantiles.
+\par\medskip
+{\renewcommand{\arraystretch}{1.8}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lll@{}}
+\toprule
+Method & Endpoints & Example (minutes)\\
+\midrule
+Percentile & $[q_{0.025}^*,q_{0.975}^*]$ & $[3.40,5.68]$\\
+Basic & $[2\bar x-q_{0.975}^*,2\bar x-q_{0.025}^*]$ & $[3.31,5.59]$\\
+\bottomrule
+\end{tabular*}}
+\par\medskip
+The basic interval reflects the percentile endpoints about $\bar x$.
+They coincide when the quantiles are symmetric about $\bar x$:
+\[
+  q_{0.025}^*+q_{0.975}^*=2\bar x.
+\]
+\end{frame}
+
+% Original slide 31.
+% Slide 30
+\begin{frame}{Bootstrap means for the forty observed waits}
+\slidespacing
 \centering\InfBootstrapPlot
-\plotcaption{Forty illustrative exponential waits have mean $4.495$ minutes.
-The 20,000 bootstrap means give percentile interval $[3.399,\ 5.682]$ minutes.}
+\plotcaption{Each resample contains $40$ observed waits, drawn with replacement.
+The dotted line is $\bar x=4.495$.
+Dashed lines give the percentile interval $[3.399,5.682]$ minutes.}
 \end{frame}
 
-\renewcommand{\conspectsection}{6.6}
-% 32
+% Conspect 6.6; original slide 32.
+% Slide 31
 \begin{frame}{Two classifiers on the same test examples}
-Both fixed classifiers use the same 200 independent examples.
+\slidespacing
+Two fixed classifiers predict the same $n=200$ independent test examples.
 \par\smallskip
-{\renewcommand{\arraystretch}{1.5}
+{\renewcommand{\arraystretch}{1.4}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrr@{}}
 \toprule
  & B correct & B incorrect\\
@@ -545,150 +663,147 @@ Both fixed classifiers use the same 200 independent examples.
 A correct & 150 & 30\\
 A incorrect & 10 & 10\\
 \bottomrule
-\end{tabular*}}\par
+\end{tabular*}}
 \[
-  \widehat p_A=0.90,\qquad\widehat p_B=0.80,\qquad
-  \widehat\Delta=0.10.
+  \widehat p_A=\frac{150+30}{200}=0.90,\qquad
+  \widehat p_B=\frac{150+10}{200}=0.80.
 \]
-\takeaway{The estimated advantage is ten percentage points.
-Its uncertainty depends on how the models' successes overlap.}
+\begin{definitionbox}{Population difference and its estimate}
+$p_A,p_B$ are the population accuracies. Their difference is $\Delta$:
+\[
+  \Delta=p_A-p_B,\qquad
+  \widehat\Delta=\widehat p_A-\widehat p_B=0.10.
+\]
+\end{definitionbox}
 \end{frame}
 
-% 33
-\begin{frame}{A difference for each example}
-Let $d_i=\mathbf1_{\{A\text{ correct}\}}-\mathbf1_{\{B\text{ correct}\}}$.
-The rows give
+% Original slide 33, first equality explained.
+% Slide 32
+\begin{frame}{The accuracy difference is a mean of paired differences}
+\slidespacing
+Define $A_i=1$ if A is correct on example $i$, and $0$ otherwise.
+Define $B_i$ in the same way. Then set $d_i=A_i-B_i$:
 \[
   d_i=\begin{cases}
-    +1 & \text{on 30 examples},\\
-    -1 & \text{on 10 examples},\\
-     0 & \text{on 160 examples}.
+    +1 & \text{A correct, B incorrect: 30 examples},\\
+    -1 & \text{A incorrect, B correct: 10 examples},\\
+     0 & \text{both correct or both incorrect: 160 examples}.
   \end{cases}
 \]
 \[
-  \widehat\Delta=\bar d=0.10,\qquad
-  \widehat{\operatorname{SE}}(\bar d)
+  \bar d=\frac1n\sum_i(A_i-B_i)
+  =\frac1n\sum_iA_i-\frac1n\sum_iB_i
+  =\widehat p_A-\widehat p_B=\widehat\Delta.
+\]
+\[
+  \bar d=\frac{30-10}{200}=0.10.
+\]
+Both agreements give $d_i=0$: $1-1=0$ and $0-0=0$.
+\end{frame}
+
+% Original slide 33, standard-error equality explained.
+% Slide 33
+\begin{frame}{Computing the standard error of the difference}
+\slidespacing
+Use the sample-mean formula, now for the $200$ observed $d_i$ values:
+\[
+  s_d^2=\frac1{n-1}\sum_i(d_i-\bar d)^2,
+  \qquad\widehat{\operatorname{SE}}(\widehat\Delta)=\frac{s_d}{\sqrt n}.
+\]
+Since $d_i^2=1$ on $40$ examples and $0$ on the other $160$,
+\[
+  \frac1n\sum_i d_i^2=\frac{40}{200}=0.20,
+  \qquad \bar d=0.10.
+\]
+Expand the squared deviations: $\sum_i(d_i-\bar d)^2=\sum_i d_i^2-n\bar d^2$.
+\[
+  \frac{s_d}{\sqrt n}
+  =\sqrt{\frac{\frac1n\sum_i d_i^2-\bar d^2}{n-1}}
   =\sqrt{\frac{0.20-0.10^2}{199}}\approx0.0309.
 \]
-\takeaway{A Gaussian approximation gives $0.10\pm1.96(0.0309)$,
-or approximately $[0.039,\ 0.161]$.}
+The approximate $95\%$ interval is $0.10\pm1.96(0.0309)=[0.039,0.161]$.
 \end{frame}
 
-% 34
-\begin{frame}{Bootstrap the paired test rows}
-Each row contains one example and both classifiers' results:
+% Original slide 34, expressed using already-defined paired outcomes.
+% Slide 34
+\begin{frame}{Paired bootstrap: resample the two outcomes together}
+\slidespacing
+The observed rows are $(A_i,B_i)$, for $i=1,\ldots,n$.
+Draw $n$ indices $I_1,\ldots,I_n$ independently and uniformly from
+$\{1,\ldots,n\}$, with replacement.
 \[
-  (y_i,\widehat y_{A,i},\widehat y_{B,i}).
+  \text{Resampled row }j=(A_{I_j},B_{I_j}),\qquad
+  d_j^*=A_{I_j}-B_{I_j}.
 \]
-Draw one list of row indices and use it for both models.
-In each bootstrap sample, recompute
+Write $\widehat p_A^*,\widehat p_B^*$ for accuracies on this resample.
+\begin{resultbox}{One bootstrap accuracy difference}
 \[
-  \widehat\Delta^*=\widehat p_A^*-\widehat p_B^*.
+  \widehat\Delta^*=\frac1n\sum_{j=1}^n d_j^*
+  =\widehat p_A^*-\widehat p_B^*.
 \]
-Resampling the models independently destroys their observed association.
-\takeaway{Indeed, $\Var(\widehat p_A-\widehat p_B)
-=\Var(\widehat p_A)+\Var(\widehat p_B)
--2\Cov(\widehat p_A,\widehat p_B)$.}
+\end{resultbox}
+Use the same indices for A and B. For example,
+$(A_i,B_i)=(1,1)$ must remain an agreement in the resample.
 \end{frame}
 
-% 35
-\begin{frame}{Paired bootstrap differences}
+% Original slide 35.
+% Slide 35
+\begin{frame}{Paired bootstrap accuracy differences}
+\slidespacing
 \centering\InfPairedPlot
-\plotcaption{20,000 paired resamples give percentile interval $[0.04,\ 0.16]$.
-Both fitted models stay fixed. Only the sampled test examples change.}
+\plotcaption{Repeat paired resampling $20{,}000$ times.
+The $2.5\%$ and $97.5\%$ quantiles give $[0.04,0.16]$:
+an interval for $\Delta=p_A-p_B$. The two classifiers stay fixed.}
 \end{frame}
 
-% 36
-\begin{frame}{Metrics built from several counts}
-Let $TP$, $FP$, and $FN$ count true positives, false positives,
-and false negatives. Then
+% More bootstrap repetitions versus more independent observations.
+% Simulation: numpy default_rng(20261020), choice([1,2,3,4,5], (10000,5)).
+% Take the standard deviation (ddof=1) of the first B resample means.
+% Slide 36
+\begin{frame}{More resamples use the same observations}
+\slidespacing
+Keep $x=(1,2,3,4,5)$ fixed, so $n=5$.
+Every bootstrap sample still has five observations. Increase only $B$,
+the number of resamples:
+\par\medskip
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}rr@{}}
+\toprule
+Resamples $B$ & Estimated bootstrap standard error\\
+\midrule
+$100$ & $0.585$\\
+$1{,}000$ & $0.632$\\
+$10{,}000$ & $0.628$\\
+\bottomrule
+\end{tabular*}}
+\par\medskip
+The exact bootstrap spread for these data is $\sqrt{2/5}\approx0.632$.
+More resamples estimate this spread more precisely; they do not make it zero.
+\end{frame}
+
+% Slide 37
+\begin{frame}{More observations reduce uncertainty in the mean}
+\slidespacing
+For comparison, assume independent observations have population variance
+$\sigma^2=2$. Then
 \[
-  \operatorname{precision}=\frac{TP}{TP+FP},\qquad
-  \operatorname{recall}=\frac{TP}{TP+FN},\qquad
-  F_1=\frac{2TP}{2TP+FP+FN}.
+  \operatorname{SE}(\bar X)=\frac{\sigma}{\sqrt n}=\sqrt{\frac2n}.
 \]
-Resample complete test rows and recompute all counts, then the metric.
-For a model comparison, recompute both metrics using the same rows.
-\vfill
-If a denominator is zero, specify what the metric means before resampling.
-Rare positive cases can make the bootstrap distribution unstable.
-\takeaway{Averaging per-row precision or per-row $F_1$ values does not
-reproduce these ratios of aggregate counts.}
-\end{frame}
-
-\renewcommand{\conspectsection}{6.7}
-% 37
-\begin{frame}{More resamples and more observations}
-The original sample size $n$ controls how much information the data contain.
-The number of bootstrap replicates $B$ controls simulation accuracy.
-\[
-  \text{Larger }B\quad\Longrightarrow\quad
-  \text{more stable simulated standard errors and quantiles}.
-\]
-Once those summaries stabilize, further resampling leaves the statistical
-uncertainty essentially unchanged.
-\end{frame}
-
-% 38
-\begin{frame}{The resampling unit follows the observation process}
-Ordinary row resampling assumes that rows act as independent sampling units.
-\vfill
-Repeated measurements from one user share user-specific effects.
-Resampling users together with their measurements preserves that grouping.
-\vfill
-Nearby time points can be dependent. Resampling suitable consecutive blocks
-can preserve some of that dependence.
-\takeaway{Independent row resampling can underestimate uncertainty for dependent data.}
-\end{frame}
-
-% 39
-\begin{frame}{Observed data can miss possible outcomes}
-With zero recorded rare events, every ordinary bootstrap sample also has zero.
-The empirical distribution cannot generate an unseen event type.
-\vfill
-For i.i.d. $X_i\sim\operatorname{Uniform}(0,\theta)$, let $M=\max_iX_i$.
-Then $M<\theta$ almost surely. Every resampled maximum satisfies
-\[
-  M^*\le M,\qquad\Prob^*(M^*\le M)=1.
-\]
-The upper percentile endpoint is at most $M$, so the percentile interval
-for $\theta$ has coverage zero.
-\end{frame}
-
-% 40
-\begin{frame}{Test uncertainty and training uncertainty}
-Resampling a test set while holding the model fixed measures uncertainty
-from which test examples we observed.
-\vfill
-To study variation in the fitted model, resample training data and refit the
-estimator in every replicate.
-\vfill
-If model selection is part of the procedure being studied, reproduce that
-selection too. For the fixed-model accuracy claim in Chapter 4, evaluate
-on independent test observations that were not used to fit or select the model.
-\end{frame}
-
-% 41
-\begin{frame}{The sample must match the population claim}
-If the dataset covers only one type of user, resampling it cannot reveal
-performance for absent user groups.
-\vfill
-Sampling bias and distribution shifts require information or assumptions
-about the missing population. Repeated use of the same observed rows
-does not supply that information.
-\end{frame}
-
-% 42
-\begin{frame}{An interval statement includes its assumptions}
-For the ten Gaussian measurements,
-\[
-  \widehat\mu=10.2,\qquad95\%\text{ confidence interval }[9.13,11.27].
-\]
-This reports uncertainty about the \textbf{population mean}, assuming
-independent measurements from one Gaussian distribution.
-\vfill
-The Student construction gives exact coverage under that model.
-A bootstrap or CLT interval needs its corresponding approximation conditions.
+\par\medskip
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}rr@{}}
+\toprule
+Independent observations $n$ & Standard error of the sample mean\\
+\midrule
+$5$ & $0.632$\\
+$20$ & $0.316$\\
+$80$ & $0.158$\\
+\bottomrule
+\end{tabular*}}
+\par\medskip
+Four times as many independent observations halve the standard error.
+Increasing $B$ improves the bootstrap calculation; increasing $n$ provides
+new observations.
 \end{frame}
 
 \end{document}
